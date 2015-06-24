@@ -4,13 +4,15 @@ from timed_function import timer
 from ftplib import FTP
 import time
 
+DOWNLOAD_DIRECTORY = 'downloads/'
+
 
 def ftp_update():
-    '''Connect to the IB ftp server and download the latest usa.txt file
+    """Connect to the IB ftp server and download the latest usa.txt file
     Write to disk a filename based on the current GMT time and use that file
-    to update the borrow database'''
+    to update the borrow database"""
     time_stamp = time.strftime('%Y-%m-%d %H %M %S', time.gmtime())
-    filename = 'usa' + time_stamp + '.txt'
+    filename = DOWNLOAD_DIRECTORY + 'usa ' + time_stamp + '.txt'
 
     connection = FTP('ftp3.interactivebrokers.com', 'shortstock')
     connection.retrbinary('RETR usa.txt', open(filename, 'wb').write)
@@ -29,6 +31,7 @@ def connect(database_name="stock_loan"):
 
 @timer
 def initialize_dbase(filename='usa.txt'):
+    """Just used to initialize the stocks database"""
     rows = []
     with open(filename, 'rb') as csvfile:
         stockreader = csv.reader(csvfile, delimiter='|')
@@ -53,6 +56,7 @@ def initialize_dbase(filename='usa.txt'):
 
 @timer
 def update_borrow(filename='usa.txt'):
+    """update the borrow database - takes a filename as argument"""
     rows = []
     with open(filename, 'rb') as csvfile:
         stockreader = csv.reader(csvfile, delimiter='|')
@@ -61,8 +65,8 @@ def update_borrow(filename='usa.txt'):
 
     date = rows[0][1].replace('.', '-')
     time = rows[0][2]
-
-    print date, time
+    datetime = ' '.join((date, time))
+    print datetime
 
     # Cut off the first two rows that don't contain stock data
     rows = rows[2:]
@@ -72,7 +76,7 @@ def update_borrow(filename='usa.txt'):
 
     for row in rows:
         try:
-            SQL, data = insert_borrow(row, date, time)
+            SQL, data = insert_borrow(row, datetime)
             cursor.execute(SQL, data)
             db.commit()
 
@@ -90,7 +94,7 @@ def update_borrow(filename='usa.txt'):
             cursor.execute(SQL, data)
             db.commit()
 
-            SQL, data = insert_borrow(row, date, time)
+            SQL, data = insert_borrow(row, datetime)
             cursor.execute(SQL, data)
             db.commit()
 
@@ -101,7 +105,7 @@ def update_borrow(filename='usa.txt'):
 
 
 def insert_stocks(row):
-    '''Returns SQL string and data tuple for use in a row insertion to the stocks table '''
+    """Returns SQL string and data tuple for use in a row insertion to the stocks table"""
     cusip = row[3]
     symbol = row[0]
     name = row[2]
@@ -110,8 +114,8 @@ def insert_stocks(row):
     return SQL, data
 
 
-def insert_borrow(row, date, time):
-    '''Returns SQL string and data tuple for use in a row insertion to the borrow table'''
+def insert_borrow(row, datetime):
+    """Returns SQL string and data tuple for use in a row insertion to the borrow table"""
     cusip = row[3]
     # Replace NA rebates and fees with nonsensical dummy values
     rebate = row[5].replace('NA', '99')
@@ -120,8 +124,8 @@ def insert_borrow(row, date, time):
     # Ignore '>' symbol
     available = row[7].replace('>', '')
 
-    SQL = "INSERT INTO borrow (date, time, cusip, rebate, fee, available) VALUES (%s, %s, %s, %s, %s, %s);"
-    data = (date, time, cusip, rebate, fee, available,)
+    SQL = "INSERT INTO borrow (datetime, cusip, rebate, fee, available) VALUES (%s, %s, %s, %s, %s);"
+    data = (datetime, cusip, rebate, fee, available,)
     return SQL, data
 
 
@@ -248,8 +252,9 @@ def summary_report(symbols):
     """Return a list of symbols and latest rebate, fee, availablity, and date/time of last update"""
     db, cursor = connect()
 
-    SQL = """SELECT symbol, rebate, fee, available, date, time FROM stocks JOIN borrow ON (stocks.cusip = borrow.cusip)
-            WHERE symbol = ANY(%s);"""
+    SQL = """SELECT symbol, rebate, fee, available, max(datetime) FROM stocks JOIN borrow ON (stocks.cusip = borrow.cusip)
+            WHERE symbol = ANY(%s)
+            GROUP BY symbol, rebate, fee, available;"""
     data = (symbols,)
     cursor.execute(SQL, data)
     results = cursor.fetchall()
