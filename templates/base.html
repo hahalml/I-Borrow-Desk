@@ -1,0 +1,51 @@
+<!doctype html>
+<html>
+	<head>
+		<link rel=stylesheet type=text/css href="{{ url_for('static', filename='bootstrap.css') }}">
+		<link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}">
+		<title>IB Borrow Desk</title>
+		{% block head %}
+		{% endblock %}
+	</head>
+
+	<body>
+		<div class = "container">
+			<div class="row page-header">
+				<div class="col-sm-6">
+					<h1><a href = '{{url_for('mainPage')}}'>IB Borrow Desk</a></h1>
+				</div>
+
+				<div class="col-sm-6 text-right">
+					{% if 'username' not in login_session %}
+						<a href='{{url_for('showLogin')}}'>Login</a>
+					{% else %}
+						<a href='{{url_for('gDisconnect')}}'>Logout</a>
+					{% endif %}
+				</div>
+			</div>
+
+			<div class = "row">
+					{% with messages = get_flashed_messages() %}
+					{% if messages %}
+						<div class = "col-sm-12 text-center flash">
+							<ul>
+								{% for message in messages %}
+									<strong> {{message}} </strong><br>
+								{% endfor %}
+							</ul>
+						</div>
+						{% endif %}
+				{%endwith %}
+			</div>
+
+			{% block content %}
+			{% endblock %}
+
+			<div class="row page-footer">
+				<div class="col-sm-12 text-center">
+					Copyright: Cameron Mochrie
+				</div>
+			</div>
+		</div>
+	</body>
+</html>

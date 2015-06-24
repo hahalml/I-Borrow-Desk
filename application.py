@@ -20,18 +20,25 @@ app = Flask(__name__)
 # Implement SeaSurf extension for preventing cross-site request forgery
 csrf = SeaSurf(app)
 
-# CLIENT_ID = json.loads(
-#     open('client_secrets.json', 'r').read())['web']['client_id']
+CLIENT_ID = json.loads(open('client_secrets.json', 'r').read())['web']['client_id']
 
 APPLICATION_NAME = "Stock Loan App"
 
-# TEMPLATES
 
+# TEMPLATES
+LOGIN_TEMPLATE = 'login_template.html'
+MAINPAGE_TEMPLATE = 'mainpage_template.html'
+
+def checkLogin():
+    if 'user_id' in login_session:
+        return True
+    else:
+        return False
 
 # Mainpage handler
 @app.route('/')
 def mainPage():
-    return 'Hello World'
+    return render_template(MAINPAGE_TEMPLATE, login_session=login_session, logged_in=checkLogin())
 
 
 # Create anti-forgery state token
