@@ -3,6 +3,7 @@ import psycopg2
 from timed_function import timer
 from ftplib import FTP
 import time
+import re
 
 DOWNLOAD_DIRECTORY = 'downloads/'
 
@@ -132,15 +133,23 @@ def insert_borrow(row, datetime):
 def insert_watchlist(userid, symbols):
     """Takes a userid and list of symbols, adds them to the watchlist database"""
 
+    # Sanitize symbols
+    safe_symbols = []
+    for symbol in symbols:
+        if check_symbol(symbol):
+            safe_symbols.append(symbol)
+
+
     # Make sure only new symbols to the user's wishlist will be added
-    symbols = list(set(symbols) - set(get_watchlist(userid)))
+    if safe_symbols is not None:
+        safe_symbols = tuple(set(safe_symbols) - set(get_watchlist(userid)),)
 
-    if symbols is not None:
+    if safe_symbols:
         # Get the cuips from the symbol list
+        cusips = []
         db, cursor = connect()
-        SQL = "SELECT cusip FROM stocks WHERE symbol = ANY(%s);"
-
-        cursor.execute(SQL, (symbols,))
+        SQL = "SELECT cusip FROM stocks WHERE symbol IN %s;"
+        cursor.execute(SQL, [safe_symbols])
         cusips = cursor.fetchall()
 
         # Insert the cusips and userid into the watchlist
@@ -148,8 +157,8 @@ def insert_watchlist(userid, symbols):
             SQL = "INSERT INTO watchlist(userid, cusip) VALUES (%s, %s);"
             data = (userid, cusip[0],)
             cursor.execute(SQL, data)
+            db.commit()
 
-        db.commit()
         db.close()
 
     # Get an updated watchlist for the user and return it
@@ -158,14 +167,21 @@ def insert_watchlist(userid, symbols):
 def remove_watchlist(userid, symbols):
     """Takes a userid and list of symbols, removes them from the watchlist database"""
 
+    # Sanitize symbols
+    safe_symbols = []
+    for symbol in symbols:
+        if check_symbol(symbol):
+            safe_symbols.append(symbol)
+
+
     # Make sure symbols to be removed are on the user's wishlist
     current_watchlist = get_watchlist(userid)
     symbols_to_remove = []
-    for symbol in symbols:
+    for symbol in safe_symbols:
         if symbol in current_watchlist:
             symbols_to_remove.append(symbol)
 
-    if symbols_to_remove is not None:
+    if symbols_to_remove:
         db, cursor = connect()
         SQL = "SELECT cusip FROM stocks WHERE symbol = ANY(%s);"
 
@@ -250,12 +266,28 @@ def tight_borrow(available=5000):
 @timer
 def summary_report(symbols):
     """Return a list of symbols and latest rebate, fee, availablity, and date/time of last update"""
+
+    safe_symbols = []
+    for symbol in symbols:
+        if check_symbol(symbol):
+            safe_symbols.append(symbol)
+
     db, cursor = connect()
 
-    SQL = """SELECT symbol, rebate, fee, available, max(datetime) FROM stocks JOIN borrow ON (stocks.cusip = borrow.cusip)
+    SQL = """SELECT symbol, rebate, fee, available, datetime FROM stocks JOIN borrow ON (stocks.cusip = borrow.cusip)
             WHERE symbol = ANY(%s)
-            GROUP BY symbol, rebate, fee, available;"""
-    data = (symbols,)
+            AND datetime = (SELECT max(datetime) FROM borrow)
+            ORDER BY symbol;"""
+    data = (safe_symbols,)
     cursor.execute(SQL, data)
     results = cursor.fetchall()
     return results
+
+def check_symbol(text):
+    """Ensure a symbol is safe for the database
+    :rtype : Boolean
+    """
+    if re.match("^[a-zA-Z]{1,4}$", text) is not None:
+        return True
+    else:
+        return False

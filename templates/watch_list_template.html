@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+	<div class= "row">
+		<div class= "col-sm-3">
+			Sidebar
+		</div>
+
+		<div class= "col-sm-9">
+			{% if logged_in == True %}
+				YOU ARE LOGGED IN WITH USER ID: {{login_session['user_id']}}
+			{% endif %}
+            <table>
+                <tr>
+                    <th>Symbol</th>
+                    <th>Rebate</th>
+                    <th>Fee</th>
+                    <th>Availablility</th>
+                    <th>Timestamp</th>
+                </tr>
+                {% for stock in summary %}
+                <tr>
+                    <td>{{stock[0]}}</td>
+                    <td>{{stock[1]}}</td>
+                    <td>{{stock[2]}}</td>
+                    <td>{{stock[3]}}</td>
+                    <td>{{stock[4]}}</td>
+
+                </tr>
+                {% endfor %}
+            </table>
+            <form role="form" action= "" method = 'POST'>
+				<div class="form-group">
+					<label for="symbols">Add symbols to Watch list</label>
+					<input class = "form-control" type = 'text' id = 'symbols' name = 'symbols' placeholder = 'BAC, IBM' value=''>
+				</div>
+
+				<div class="form-group">
+					<label for="remove-symbols">Remove symbols from Watch list</label>
+					<input class = "form-control" type = 'text' id = 'remove-symbols' name = 'remove-symbols' placeholder = 'BAC, IBM' value=''>
+				</div>
+
+				<button type='submit' class="btn btn-default">Submit</button>
+				<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+			</form>
+
+		</div>
+	</div>
+{% endblock %}

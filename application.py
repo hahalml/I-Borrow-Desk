@@ -19,7 +19,6 @@ app = Flask(__name__)
 
 # Implement SeaSurf extension for preventing cross-site request forgery
 csrf = SeaSurf(app)
-
 CLIENT_ID = json.loads(open('client_secrets.json', 'r').read())['web']['client_id']
 
 APPLICATION_NAME = "Stock Loan App"
@@ -28,6 +27,7 @@ APPLICATION_NAME = "Stock Loan App"
 # TEMPLATES
 LOGIN_TEMPLATE = 'login_template.html'
 MAINPAGE_TEMPLATE = 'mainpage_template.html'
+WATCH_LIST_TEMPLATE = 'watch_list_template.html'
 
 def checkLogin():
     if 'user_id' in login_session:
@@ -35,15 +35,39 @@ def checkLogin():
     else:
         return False
 
-# Mainpage handler
+
 @app.route('/')
 def mainPage():
+    """Mainpage hanlder"""
     return render_template(MAINPAGE_TEMPLATE, login_session=login_session, logged_in=checkLogin())
 
+@app.route('/watchlist', methods=['GET', 'POST'])
+def watchList():
+    """Watchlist handler"""
 
-# Create anti-forgery state token
+    if checkLogin() == False:
+        flash('Please log in')
+        return redirect(url_for('showLogin'))
+
+
+    if request.method == 'POST':
+        symbols = request.form['symbols'].replace(' ','').split(',')
+        symbols_to_remove = request.form['remove-symbols'].replace(' ','').split(',')
+        if symbols != ['']:
+            insert_watchlist(login_session['user_id'], symbols)
+        if symbols_to_remove != ['']:
+            remove_watchlist(login_session['user_id'], symbols_to_remove)
+
+    # Get user's watchlist summary
+    watchlist = get_watchlist(login_session['user_id'])
+    summary = summary_report(watchlist)
+
+    return render_template(WATCH_LIST_TEMPLATE, summary=summary, login_session=login_session, logged_in=True)
+
 @app.route('/login')
 def showLogin():
+    """Login page handler"""
+    #antiforgery state token
     state = ''.join(random.choice(string.ascii_uppercase + string.digits)
                     for x in xrange(32))
     login_session['state'] = state
@@ -55,6 +79,7 @@ def showLogin():
 @csrf.exempt
 @app.route('/gconnect', methods=['POST'])
 def gconnect():
+    """Slighly modified from Udacity course. Uses OAuth 2 Google ID login"""
     # Validate state token
     if request.args.get('state') != login_session['state']:
         response = make_response(json.dumps('Invalid state parameter.'), 401)
@@ -121,7 +146,6 @@ def gconnect():
     data = answer.json()
 
     login_session['username'] = data['name']
-    login_session['picture'] = data['picture']
     login_session['email'] = data['email']
     # ADD PROVIDER TO LOGIN SESSION
     login_session['provider'] = 'google'
@@ -136,9 +160,6 @@ def gconnect():
     output += '<h1>Welcome, '
     output += login_session['username']
     output += '!</h1>'
-    output += '<img src="'
-    output += login_session['picture']
-    output += ' " style = "width: 300px; height: 300px;border-radius: 150px;-webkit-border-radius: 150px;-moz-border-radius: 150px;"> '
     flash("you are now logged in as %s" % login_session['username'])
     print "done!"
     return output
@@ -153,6 +174,7 @@ def createUser(login_session):
 # DISCONNECT - Revoke a current user's token and reset their login_session
 @app.route('/gdisconnect')
 def gDisconnect():
+    """Slighly modified from Udacity course. Logs a user out."""
 
     # Only disconnect a connected user.
     # Try-except structure to account for deleted cookies
@@ -175,7 +197,6 @@ def gDisconnect():
         del login_session['gplus_id']
         del login_session['username']
         del login_session['email']
-        del login_session['picture']
         del login_session['user_id']
         del login_session['state']
         del login_session['provider']
@@ -200,6 +221,7 @@ if __name__ == '__main__':
     app.secret_key = 'super_secret_key'
     app.debug = True
     app.run(host='0.0.0.0', port=8000)
+    #insert_watchlist(2, ["BAC", "C", "ANY", "IBM", "CRM"])
 
 # #
 # # ftp_update()
