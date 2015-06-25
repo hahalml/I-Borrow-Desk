@@ -11,10 +11,9 @@ from flask.ext.seasurf import SeaSurf
 from oauth2client.client import flow_from_clientsecrets
 from oauth2client.client import FlowExchangeError
 
-from database_access import initialize_dbase, update_borrow, \
-    tight_borrow, ftp_update, create_user, get_user_id, insert_watchlist, get_watchlist, remove_watchlist, summary_report
+from BorrowDatabase import BorrowDatabase
 
-
+# Create a Flask instance
 app = Flask(__name__)
 
 # Implement SeaSurf extension for preventing cross-site request forgery
@@ -29,6 +28,7 @@ LOGIN_TEMPLATE = 'login_template.html'
 MAINPAGE_TEMPLATE = 'mainpage_template.html'
 WATCH_LIST_TEMPLATE = 'watch_list_template.html'
 
+
 def checkLogin():
     if 'user_id' in login_session:
         return True
@@ -41,6 +41,7 @@ def mainPage():
     """Mainpage hanlder"""
     return render_template(MAINPAGE_TEMPLATE, login_session=login_session, logged_in=checkLogin())
 
+
 @app.route('/watchlist', methods=['GET', 'POST'])
 def watchList():
     """Watchlist handler"""
@@ -49,30 +50,31 @@ def watchList():
         flash('Please log in')
         return redirect(url_for('showLogin'))
 
-
     if request.method == 'POST':
-        symbols = request.form['symbols'].replace(' ','').split(',')
-        symbols_to_remove = request.form['remove-symbols'].replace(' ','').split(',')
+        symbols = request.form['symbols'].replace(' ', '').split(',')
+        symbols_to_remove = request.form['remove-symbols'].replace(' ', '').split(',')
         if symbols != ['']:
-            insert_watchlist(login_session['user_id'], symbols)
+            stockLoan.insert_watchlist(login_session['user_id'], symbols)
         if symbols_to_remove != ['']:
-            remove_watchlist(login_session['user_id'], symbols_to_remove)
+            stockLoan.remove_watchlist(login_session['user_id'], symbols_to_remove)
 
     # Get user's watchlist summary
-    watchlist = get_watchlist(login_session['user_id'])
-    summary = summary_report(watchlist)
+    watchlist = stockLoan.get_watchlist(login_session['user_id'])
+    summary = stockLoan.summary_report(watchlist)
 
     return render_template(WATCH_LIST_TEMPLATE, summary=summary, login_session=login_session, logged_in=True)
+
 
 @app.route('/login')
 def showLogin():
     """Login page handler"""
-    #antiforgery state token
+    # antiforgery state token
     state = ''.join(random.choice(string.ascii_uppercase + string.digits)
                     for x in xrange(32))
     login_session['state'] = state
 
     return render_template(LOGIN_TEMPLATE, STATE=state, login_session=login_session)
+
 
 # Couldn't figure out how to include the cookie in the AJAX request so exempted it from
 # the CSRF. Protect add/edit/delete however
@@ -151,7 +153,7 @@ def gconnect():
     login_session['provider'] = 'google'
 
     # see if user exists, if it doesn't make a new one
-    user_id = get_user_id(data["email"])
+    user_id = stockLoan.get_user_id(data["email"])
     if not user_id:
         user_id = createUser(login_session)
     login_session['user_id'] = user_id
@@ -164,11 +166,10 @@ def gconnect():
     print "done!"
     return output
 
+
 # User Helper Functions
 def createUser(login_session):
-
-    return create_user(login_session['username'], login_session['email'])
-
+    return stockLoan.create_user(login_session['username'], login_session['email'])
 
 
 # DISCONNECT - Revoke a current user's token and reset their login_session
@@ -212,22 +213,27 @@ def gDisconnect():
 
         return response
 
-#ftp_update()
+# Create a BorrowDatabase instance
+stockLoan = BorrowDatabase(database_name='stock_loan', filename='usa', create_new=False)
+
 
 
 #
-# # Program launcher - in debug mode
+#
+# # # Program launcher - in debug mode
 if __name__ == '__main__':
     app.secret_key = 'super_secret_key'
     app.debug = True
     app.run(host='0.0.0.0', port=8000)
-    #insert_watchlist(2, ["BAC", "C", "ANY", "IBM", "CRM"])
 
-# #
-# # ftp_update()
-# #
-# #
+
+    # insert_watchlist(2, ["BAC", "C", "ANY", "IBM", "CRM"])
 #
+# # #
+# # # ftp_update()
+# # #
+# # #
+# #
 # # print tight_borrow(500)
 #
 # #print create_user("cmochrie", "test@gmail.com")
@@ -238,6 +244,3 @@ if __name__ == '__main__':
 # print get_watchlist(1)
 # print summary_report(get_watchlist(1))
 # print get_watchlist(1)
-
-
-
