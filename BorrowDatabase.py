@@ -157,7 +157,7 @@ class BorrowDatabase():
         safe_symbols = []
         for symbol in symbols:
             if self._check_symbol(symbol):
-                safe_symbols.append(symbol)
+                safe_symbols.append(symbol.upper())
 
 
         # Make sure only new symbols to the user's wishlist will be added
@@ -191,7 +191,7 @@ class BorrowDatabase():
         safe_symbols = []
         for symbol in symbols:
             if self._check_symbol(symbol):
-                safe_symbols.append(symbol)
+                safe_symbols.append(symbol.upper())
 
 
         # Make sure symbols to be removed are on the user's wishlist
@@ -272,6 +272,25 @@ class BorrowDatabase():
         except TypeError:
             db.close()
             return None
+
+    def get_all_users(self):
+        """Return a list of user ids, usernames, email addresses"""
+        SQL = "SELECT * FROM users;"
+        db, cursor = self._connect()
+        cursor.execute(SQL)
+        results = []
+        try:
+            results = cursor.fetchall()
+            db.close()
+        except TypeError:
+            db.close()
+            return None
+
+        user_ids = []
+        for row in results:
+            user_ids.append(row)
+
+        return user_ids
 
 
     @timer
