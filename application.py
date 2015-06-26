@@ -29,6 +29,7 @@ MAINPAGE_TEMPLATE = 'mainpage_template.html'
 WATCH_LIST_TEMPLATE = 'watch_list_template.html'
 HISTORICAL_REPORT_TEMPLATE = 'historical_report_template.html'
 
+
 def checkLogin():
     if 'user_id' in login_session:
         return True
@@ -64,6 +65,7 @@ def watchList():
 
     return render_template(WATCH_LIST_TEMPLATE, summary=summary, login_session=login_session, logged_in=True)
 
+
 @app.route('/historical_report', methods=['GET', 'POST'])
 def historical_report():
     """Historical report handler"""
@@ -75,9 +77,11 @@ def historical_report():
     if request.method == 'POST':
         symbol = request.form['symbol'].replace(' ', '').split(',')[0]
         if symbol:
-           name, summary = stockLoan.historical_report(symbol)
+            name, summary = stockLoan.historical_report(symbol)
 
-    return render_template(HISTORICAL_REPORT_TEMPLATE, name = name, summary=summary, login_session=login_session, logged_in=logged_in)
+    return render_template(HISTORICAL_REPORT_TEMPLATE, name=name, summary=summary, login_session=login_session,
+                           logged_in=logged_in)
+
 
 @app.route('/login')
 def showLogin():
@@ -239,22 +243,3 @@ if __name__ == '__main__':
     app.secret_key = 'super_secret_key'
     app.debug = True
     app.run(host='0.0.0.0', port=8000)
-
-
-    # insert_watchlist(2, ["BAC", "C", "ANY", "IBM", "CRM"])
-#
-# # #
-# # # ftp_update()
-# # #
-# # #
-# #
-# # print tight_borrow(500)
-#
-# #print create_user("cmochrie", "test@gmail.com")
-# #print get_user_id("test@gmail.com")
-#
-# print insert_watchlist(1, ["BAC", "C", "ANY", "IBM", "CRM"])
-# remove_watchlist(1, ["C", "CRM", "alsgdasdg"])
-# print get_watchlist(1)
-# print summary_report(get_watchlist(1))
-# print get_watchlist(1)
