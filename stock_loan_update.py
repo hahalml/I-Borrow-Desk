@@ -4,7 +4,7 @@ import time
 from BorrowDatabase import BorrowDatabase
 
 # Sleep 5 seconds (enough time to grab the FTP files at 3s past the hour)
-time.sleep(5)
+time.sleep(10)
 
 stockLoan = BorrowDatabase(database_name='stock_loan', filename='usa', create_new=False)
 stockLoan.update()

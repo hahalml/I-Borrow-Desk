@@ -65,9 +65,9 @@ def watchList():
 
     return render_template(WATCH_LIST_TEMPLATE, summary=summary, login_session=login_session, logged_in=True)
 
-
-@app.route('/historical_report', methods=['GET', 'POST'])
-def historical_report():
+@app.route('/historical_report/', methods=['GET', 'POST'])
+@app.route('/historical_report/<string:symbol>', methods=['GET', 'POST'])
+def historical_report(symbol = ''):
     """Historical report handler"""
 
     logged_in = checkLogin()
@@ -76,6 +76,9 @@ def historical_report():
     name = ''
     if request.method == 'POST':
         symbol = request.form['symbol'].replace(' ', '').split(',')[0]
+        if symbol:
+            name, summary = stockLoan.historical_report(symbol)
+    else:
         if symbol:
             name, summary = stockLoan.historical_report(symbol)
 

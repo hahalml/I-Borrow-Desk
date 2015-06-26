@@ -21,7 +21,7 @@
                 </tr>
                 {% for stock in summary %}
                 <tr>
-                    <td>{{stock[0]}}</td>
+                    <td><a href='{{url_for('historical_report', symbol = stock[0])}}'>{{stock[0]}}</td><a></td>
                     <td>{{ '{:.1%}'.format(stock[1]/100) }}</td>
                     <td>{{ '{:.1%}'.format(stock[2]/100) }}</td>
                     <td>{{ '{:,}'.format(stock[3]) }}</td>
