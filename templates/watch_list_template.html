@@ -2,33 +2,34 @@
 
 {% block content %}
 
-	<div class= "row">
-		<div class= "col-sm-3">
-			Sidebar
-		</div>
+
 
 		<div class= "col-sm-9">
 			{% if logged_in == True %}
 				YOU ARE LOGGED IN WITH USER ID: {{login_session['user_id']}}
 			{% endif %}
-            <table cellpadding="10">
-                <tr>
-                    <th>Symbol</th>
-                    <th>Rebate</th>
-                    <th>Fee</th>
-                    <th>Availablility</th>
-                    <th>Timestamp</th>
-                </tr>
-                {% for stock in summary %}
-                <tr>
-                    <td><a href='{{url_for('historical_report', symbol = stock[0])}}'>{{stock[0]}}</td><a></td>
-                    <td>{{ '{:.1%}'.format(stock[1]/100) }}</td>
-                    <td>{{ '{:.1%}'.format(stock[2]/100) }}</td>
-                    <td>{{ '{:,}'.format(stock[3]) }}</td>
-                    <td>{{stock[4]}}</td>
-
-                </tr>
-                {% endfor %}
+            <table class="table table-condensed table-responsive table-hover ">
+                <thead>
+                    <tr>
+                        <th>Symbol</th>
+                        <th>Rebate</th>
+                        <th>Fee</th>
+                        <th>Availablility</th>
+                        <th>Timestamp</th>
+                    </tr>
+                </thead>
+                <tbody data-link="row" class="rowlink">
+                    {% for stock in summary %}
+                        <tr>
+                            <td>
+                            <a href="{{url_for('historical_report', symbol = stock[0])}}"> {{stock[0]}}</a></td>
+                            <td>{{ '{:.1%}'.format(stock[1]/100) }}</td>
+                            <td>{{ '{:.1%}'.format(stock[2]/100) }}</td>
+                            <td>{{ '{:,}'.format(stock[3]) }}</td>
+                            <td>{{stock[4]}}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
             </table>
             <form role="form" action= "" method = 'POST'>
 				<div class="form-group">
@@ -46,5 +47,5 @@
 			</form>
 
 		</div>
-	</div>
+
 {% endblock %}

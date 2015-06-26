@@ -2,28 +2,27 @@
 
 {% block content %}
 
-	<div class= "row">
-		<div class= "col-sm-3">
-			Sidebar
-		</div>
+
 
 		<div class= "col-sm-9">
 			{% if logged_in == True %}
 				YOU ARE LOGGED IN WITH USER ID: {{login_session['user_id']}}
 			{% endif %}
 
-            <form role="form" action= "" method = 'POST'>
-				<div class="form-group">
-					<label for="symbol">Enter a symbol to view historical data</label>
-					<input class = "form-control" type = 'text' id = 'symbol' name = 'symbol' placeholder = 'BAC' value=''>
-				</div>
+            <div class ="row">
+                <form role="form" action= "" method = 'POST' class="form-inline">
+                    <div class="form-group">
+                        <label for="symbol">Symbol</label>
+                        <input class = "form-control" type = 'text' id = 'symbol' name = 'symbol' value=''>
+                    </div>
 
-				<button type='submit' class="btn btn-default">Submit</button>
-				<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
-			</form>
+                    <button type='submit' class="btn btn-default">Submit</button>
+                    <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+                </form>
+            </div>
              {% if summary != None %}
                 <h3>{{name}}</h3>
-                 <table cellspacing="40">
+                 <table class="table table-condensed table-responsive">
 
                     <tr>
                         <th>Rebate</th>
@@ -45,5 +44,5 @@
            {% endif %}
 
 		</div>
-	</div>
+
 {% endblock %}

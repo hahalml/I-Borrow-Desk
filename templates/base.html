@@ -1,7 +1,10 @@
 <!doctype html>
 <html>
 	<head>
-		<link rel=stylesheet type=text/css href="{{ url_for('static', filename='bootstrap.css') }}">
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<link rel=stylesheet type=text/css href="{{ url_for('static', filename='bootstrap.min.css') }}">
+		<link rel="stylesheet" media="screen" href="{{ url_for('static', filename='jasny-bootstrap.min.css') }}">
 		<link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}">
 		<title>IB Borrow Desk</title>
 		{% block head %}
@@ -9,7 +12,12 @@
 	</head>
 
 	<body>
-		<div class = "container">
+
+		<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+		<script src="https://code.jquery.com/jquery.js"></script>
+		<!-- Include all compiled plugins (below), or include individual files as needed -->
+		<script src="{{ url_for('static', filename='bootstrap.min.js')}}"></script>
+		<script src="{{ url_for('static', filename='jasny-bootstrap.min.js')}}"></script><div class = "container">
 			<div class="row page-header">
 				<div class="col-sm-6">
 					<h1><a href = '{{url_for('mainPage')}}'>IB Borrow Desk</a></h1>
@@ -38,10 +46,17 @@
 				{%endwith %}
 			</div>
 
-			{% block content %}
-			{% endblock %}
+            <div class= "row">
+		        <div class= "col-sm-3">
+			        <a href="{{url_for('watchList')}}">Watchlist</a><br>
+                    <a href="{{url_for('historical_report')}}">Historical Report</a>
+		        </div>
+                {% block content %}
+                {% endblock %}
 
-			<div class="row page-footer">
+            </div>
+
+            <div class="row page-footer">
 				<div class="col-sm-12 text-center">
 					This toy webapp is not affiliated with Interactive Brokers in any way.
 				</div>
