@@ -27,7 +27,7 @@ APPLICATION_NAME = "Stock Loan App"
 LOGIN_TEMPLATE = 'login_template.html'
 MAINPAGE_TEMPLATE = 'mainpage_template.html'
 WATCH_LIST_TEMPLATE = 'watch_list_template.html'
-
+HISTORICAL_REPORT_TEMPLATE = 'historical_report_template.html'
 
 def checkLogin():
     if 'user_id' in login_session:
@@ -64,6 +64,20 @@ def watchList():
 
     return render_template(WATCH_LIST_TEMPLATE, summary=summary, login_session=login_session, logged_in=True)
 
+@app.route('/historical_report', methods=['GET', 'POST'])
+def historical_report():
+    """Historical report handler"""
+
+    logged_in = checkLogin()
+
+    summary = []
+    name = ''
+    if request.method == 'POST':
+        symbol = request.form['symbol'].replace(' ', '').split(',')[0]
+        if symbol:
+           name, summary = stockLoan.historical_report(symbol)
+
+    return render_template(HISTORICAL_REPORT_TEMPLATE, name = name, summary=summary, login_session=login_session, logged_in=logged_in)
 
 @app.route('/login')
 def showLogin():

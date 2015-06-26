@@ -300,6 +300,7 @@ class BorrowDatabase():
         data = (available,)
         cursor.execute(SQL, data)
         results = cursor.fetchall()
+        db.close()
         return results
 
     @timer
@@ -320,7 +321,37 @@ class BorrowDatabase():
         data = (safe_symbols,)
         cursor.execute(SQL, data)
         results = cursor.fetchall()
+        db.close()
+
         return results
+
+    @timer
+    def historical_report(self, symbol, interval = '1 HOUR'):
+        """Return historical report of rebate, fee, availability for a given symbol at the given interval along with
+        the Company name"""
+        if self._check_symbol(symbol):
+            safe_symbol = symbol.upper()
+        else:
+            return None, None
+
+        db, cursor = self._connect()
+        SQL = """SELECT rebate, fee, available, datetime FROM stocks JOIN borrow ON (stocks.cusip = borrow.cusip)
+                WHERE symbol = %s
+                ORDER BY datetime DESC;"""
+        data = (safe_symbol,)
+        cursor.execute(SQL, data)
+        results = cursor.fetchall()
+
+        # If the search didn't find anything return None, None
+        if results != []:
+            SQL = """SELECT name FROM stocks WHERE symbol = %s;"""
+            cursor.execute(SQL, data)
+            name = cursor.fetchone()[0]
+            db.close()
+            return name, results
+        else:
+            return None, None
+
 
     def _check_symbol(self, text):
         """Ensure a symbol is safe for the database

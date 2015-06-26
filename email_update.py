@@ -29,24 +29,24 @@ env = jinja2.Environment(loader=jinja2.FileSystemLoader(TEMPLATE_DIR))
 
 
 
-
+# Grab the account password and set username
 with open('account.txt', 'rb') as fp:
     password = fp.read()
 username = 'iborrowdesk'
+fromaddr = 'iborrowdesk@gmail.com'
 
+# Connect to the gmail account
 server = smtplib.SMTP()
 server.connect(host='smtp.gmail.com', port=587) # for eg. host = 'smtp.gmail.com', port = 587
 server.ehlo()
 server.starttls()
 server.login(username, password)
 
-fromaddr = 'iborrowdesk@gmail.com'
-
+# Create a database access instance and get all the users
 stockLoan = BorrowDatabase()
 users = stockLoan.get_all_users()
 
-
-
+# For each user get their watchlist summary, build the email template and send
 for user in users:
     print user
     user_id = user[0]
