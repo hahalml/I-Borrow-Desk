@@ -17,7 +17,18 @@ from email.MIMEText import MIMEText
 from email.MIMEAudio import MIMEAudio
 import mimetypes
 
+import jinja2
+
 from BorrowDatabase import BorrowDatabase
+
+TEMPLATE_DIR  = 'templates'
+EMAIL_TEMPLATE = 'email_template.html'
+
+# Set up jinja templates. Look for templates in the TEMPLATE_DIR
+env = jinja2.Environment(loader=jinja2.FileSystemLoader(TEMPLATE_DIR))
+
+
+
 
 with open('account.txt', 'rb') as fp:
     password = fp.read()
@@ -34,19 +45,25 @@ fromaddr = 'iborrowdesk@gmail.com'
 stockLoan = BorrowDatabase()
 users = stockLoan.get_all_users()
 
-sub = 'Test subject to '
+
 
 for user in users:
     print user
-    msg = email.MIMEMultipart.MIMEMultipart()
+    user_id = user[0]
+    user_name = user[1]
+    user_email = user[2]
+    watchlist = stockLoan.get_watchlist(user_id)
+    summary = stockLoan.summary_report(watchlist)
+    html = env.get_template(EMAIL_TEMPLATE).render(summary=summary, user_name = user_name)
+
+    sub = 'Morning email update for ' + user_name
+
+    msg = MIMEMultipart()
     msg['From'] = 'Iborrow Desk'
-    msg['To'] = user[2]
+    msg['To'] = user_email
     msg['Subject'] = sub
-    watchlist = stockLoan.get_watchlist(user[0])
-    report = stockLoan.summary_report(watchlist)
-    report = str(report)
-    msg.attach(MIMEText(report, 'plain'))
-    msg.attach(MIMEText('nsent via python', 'plain'))
-    server.sendmail(username,user[2],msg.as_string())
+
+    msg.attach(MIMEText(html, 'html'))
+    server.sendmail(username,user_email,msg.as_string())
 
 server.quit()

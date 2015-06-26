@@ -1,0 +1,22 @@
+<html lang="en">
+<h2>Good morning {{user_name}}</h2>
+    <table cellpadding-"10">
+        <tr>
+            <th>Symbol</th>
+            <th>Rebate</th>
+            <th>Fee</th>
+            <th>Availablility</th>
+            <th>Timestamp</th>
+        </tr>
+        {% for stock in summary %}
+            <tr>
+                <td>{{stock[0]}}</td>
+                <td>{{stock[1]}}</td>
+                <td>{{stock[2]}}</td>
+                <td>{{stock[3]}}</td>
+                <td>{{stock[4]}}</td>
+            </tr>
+        {% endfor %}
+    </table>
+
+</html>
