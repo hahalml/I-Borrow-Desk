@@ -4,7 +4,6 @@ from timed_function import timer
 from ftplib import FTP
 import time
 import re
-import os
 
 DOWNLOAD_DIRECTORY = 'downloads/'
 
@@ -69,6 +68,7 @@ class BorrowDatabase():
                 print 'Index error caught'
 
         db.close()
+
 
 
     @timer
@@ -326,19 +326,29 @@ class BorrowDatabase():
         return results
 
     @timer
-    def historical_report(self, symbol, interval = '1 HOUR'):
-        """Return historical report of rebate, fee, availability for a given symbol at the given interval along with
-        the Company name"""
+    def historical_report(self, symbol, real_time = False):
+        """Return historical report of rebate, fee, availability for a given symbol  along with the Company name
+        The default interval is daily (9:30AM for the opening of the market) - if realtime flag is set to True
+        the last 100 entries will be returned - about 3 days of data."""
         if self._check_symbol(symbol):
             safe_symbol = symbol.upper()
         else:
             return None, None
 
         db, cursor = self._connect()
-        SQL = """SELECT rebate, fee, available, datetime FROM stocks JOIN borrow ON (stocks.cusip = borrow.cusip)
-                WHERE symbol = %s
-                ORDER BY datetime DESC;"""
         data = (safe_symbol,)
+
+        if real_time:
+            SQL = """SELECT rebate, fee, available, datetime FROM stocks JOIN borrow ON (stocks.cusip = borrow.cusip)
+                    WHERE symbol = %s
+                    ORDER BY datetime DESC;"""
+        else:
+            SQL = """SELECT rebate, fee, available, cast(datetime as date) as date
+                    FROM stocks JOIN borrow ON (stocks.cusip = borrow.cusip)
+                    WHERE symbol = %s
+                    AND cast(datetime as time) between '9:30' and '9:40'
+                    ORDER BY datetime DESC;"""
+
         cursor.execute(SQL, data)
         results = cursor.fetchall()
 
@@ -352,6 +362,20 @@ class BorrowDatabase():
         else:
             return None, None
 
+    @timer
+    def clean_dbase(self):
+        """Remove entries _not_ bw 0930 and 0940 older than 1 week. Maintains historical record
+        while getting rid of stale intraday data"""
+        db, cursor = self._connect()
+        SQL = """DELETE FROM borrow
+              WHERE cast(datetime as time) NOT BETWEEN '9:30' and '9:40'
+              AND datetime < now() - interval '7days';"""
+
+        cursor.execute(SQL)
+        db.commit()
+        db.close()
+
+        return None
 
     def _check_symbol(self, text):
         """Ensure a symbol is safe for the database

@@ -14,7 +14,7 @@
                         <th>Symbol</th>
                         <th>Rebate</th>
                         <th>Fee</th>
-                        <th>Availablility</th>
+                        <th>Availability</th>
                         <th>Timestamp</th>
                     </tr>
                 </thead>
@@ -22,7 +22,7 @@
                     {% for stock in summary %}
                         <tr>
                             <td>
-                            <a href="{{url_for('historical_report', symbol = stock[0])}}"> {{stock[0]}}</a></td>
+                            <a href="{{url_for('historical_report')}}?symbol={{stock[0]}}&&real_time=False"> {{stock[0]}}</a></td>
                             <td>{{ '{:.1%}'.format(stock[1]/100) }}</td>
                             <td>{{ '{:.1%}'.format(stock[2]/100) }}</td>
                             <td>{{ '{:,}'.format(stock[3]) }}</td>

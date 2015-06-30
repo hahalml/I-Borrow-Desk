@@ -20,7 +20,7 @@
 		<script src="{{ url_for('static', filename='jasny-bootstrap.min.js')}}"></script><div class = "container">
 			<div class="row page-header">
 				<div class="col-sm-6">
-					<h1><a href = '{{url_for('mainPage')}}'>IB Borrow Desk</a></h1>
+					<h1><a href = "{{url_for('mainPage')}}">I Borrow Desk</a></h1>
 				</div>
 
 				<div class="col-sm-6 text-right">
@@ -49,7 +49,7 @@
             <div class= "row">
 		        <div class= "col-sm-3">
 			        <a href="{{url_for('watchList')}}">Watchlist</a><br>
-                    <a href="{{url_for('historical_report')}}">Historical Report</a>
+                    <a href="{{url_for('historical_report')}}?symbol=&&real_time=">Historical Report</a>
 		        </div>
                 {% block content %}
                 {% endblock %}

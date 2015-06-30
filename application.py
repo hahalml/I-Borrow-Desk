@@ -65,25 +65,29 @@ def watchList():
 
     return render_template(WATCH_LIST_TEMPLATE, summary=summary, login_session=login_session, logged_in=True)
 
-@app.route('/historical_report/', methods=['GET', 'POST'])
-@app.route('/historical_report/<string:symbol>', methods=['GET', 'POST'])
-def historical_report(symbol = ''):
+
+@app.route('/historical_report', methods=['GET'])
+def historical_report():
     """Historical report handler"""
 
-    logged_in = checkLogin()
+    # Grab the symbol and real-time flag form the url
+    symbol = request.args['symbol'].upper()
+    if request.args['real_time'] == 'True':
+        real_time = True
+    else:
+        real_time = False
 
     summary = []
     name = ''
-    if request.method == 'POST':
-        symbol = request.form['symbol'].replace(' ', '').split(',')[0]
-        if symbol:
-            name, summary = stockLoan.historical_report(symbol)
-    else:
-        if symbol:
-            name, summary = stockLoan.historical_report(symbol)
+    logged_in = checkLogin()
 
-    return render_template(HISTORICAL_REPORT_TEMPLATE, name=name, summary=summary, login_session=login_session,
-                           logged_in=logged_in)
+    # Generate a report based onthe url parameters
+    if symbol:
+        name, summary = stockLoan.historical_report(symbol, real_time)
+
+    return render_template(HISTORICAL_REPORT_TEMPLATE, symbol=symbol, name=name, summary=summary,
+                           login_session=login_session, logged_in=logged_in)
+
 
 
 @app.route('/login')
