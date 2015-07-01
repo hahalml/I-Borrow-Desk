@@ -5,9 +5,7 @@
 
 
 		<div class= "col-sm-9">
-			{% if logged_in == True %}
-				YOU ARE LOGGED IN WITH USER ID: {{login_session['user_id']}}
-			{% endif %}
+			Hi {{current_user.username}}!
             <table class="table table-condensed table-responsive table-hover ">
                 <thead>
                     <tr>
@@ -43,7 +41,6 @@
 				</div>
 
 				<button type='submit' class="btn btn-default">Submit</button>
-				<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
 			</form>
 
 		</div>

@@ -5,8 +5,8 @@
 
 
 		<div class= "col-sm-9">
-			{% if logged_in == True %}
-				YOU ARE LOGGED IN WITH USER ID: {{login_session['user_id']}}
+			{% if current_user.is_authenticated() %}
+				YOU ARE LOGGED IN WITH USERNAME: {{current_user.username}}
 			{% endif %}
 
             <div class ="row">

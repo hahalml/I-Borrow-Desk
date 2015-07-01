@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+
+		<div class= "col-sm-9">
+			{% if current_user.is_authenticated() %}
+				YOU ARE LOGGED IN {{ current_user.username }}
+        	{% endif %}
+
+		</div>
+
+{% endblock %}

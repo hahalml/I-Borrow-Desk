@@ -20,14 +20,14 @@
 		<script src="{{ url_for('static', filename='jasny-bootstrap.min.js')}}"></script><div class = "container">
 			<div class="row page-header">
 				<div class="col-sm-6">
-					<h1><a href = "{{url_for('mainPage')}}">I Borrow Desk</a></h1>
+					<h1><a href = "{{url_for('main_page')}}">I Borrow Desk</a></h1>
 				</div>
 
 				<div class="col-sm-6 text-right">
-					{% if 'username' not in login_session %}
-						<a href='{{url_for('showLogin')}}'>Login</a>
+					{% if current_user.is_authenticated() %}
+						<a href='{{url_for('logout')}}'>Logout</a>
 					{% else %}
-						<a href='{{url_for('gDisconnect')}}'>Logout</a>
+						<a href='{{url_for('login')}}'>Login</a>
 					{% endif %}
 				</div>
 			</div>
@@ -48,7 +48,7 @@
 
             <div class= "row">
 		        <div class= "col-sm-3">
-			        <a href="{{url_for('watchList')}}">Watchlist</a><br>
+			        <a href="{{url_for('watch_list')}}">Watchlist</a><br>
                     <a href="{{url_for('historical_report')}}?symbol=&&real_time=">Historical Report</a>
 		        </div>
                 {% block content %}

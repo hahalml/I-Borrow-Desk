@@ -4,8 +4,10 @@ from timed_function import timer
 from ftplib import FTP
 import time
 import re
+import os
 
-DOWNLOAD_DIRECTORY = 'downloads/'
+dirname, filename = os.path.split(os.path.abspath(__file__))
+DOWNLOAD_DIRECTORY = dirname + '/downloads/'
 
 class BorrowDatabase():
     """Class for interacting with Interactive Broker's borrow database"""
@@ -239,59 +241,6 @@ class BorrowDatabase():
             watchlist.append(result[0])
         db.close()
         return watchlist
-
-
-    def create_user(self, username, email):
-        """Returns userid of newly created user"""
-
-        SQL = "INSERT INTO users (username, email) VALUES (%s, %s);"
-        data = (username, email)
-        db, cursor = self._connect()
-        cursor.execute(SQL, data, )
-        db.commit()
-
-        SQL = "SELECT userid FROM users WHERE username = %s;"
-        data = (username,)
-        cursor.execute(SQL, data)
-        userid = cursor.fetchone()[0]
-        db.close()
-        return userid
-
-
-    def get_user_id(self, email):
-        """Get the user id given an email"""
-        SQL = "SELECT userid FROM users WHERE email = %s;"
-        data = (email,)
-        db, cursor = self._connect()
-        cursor.execute(SQL, data)
-
-        try:
-            userid = cursor.fetchone()[0]
-            db.close()
-            return userid
-        except TypeError:
-            db.close()
-            return None
-
-    def get_all_users(self):
-        """Return a list of user ids, usernames, email addresses"""
-        SQL = "SELECT * FROM users;"
-        db, cursor = self._connect()
-        cursor.execute(SQL)
-        results = []
-        try:
-            results = cursor.fetchall()
-            db.close()
-        except TypeError:
-            db.close()
-            return None
-
-        user_ids = []
-        for row in results:
-            user_ids.append(row)
-
-        return user_ids
-
 
     @timer
     def tight_borrow(self, available=5000):
