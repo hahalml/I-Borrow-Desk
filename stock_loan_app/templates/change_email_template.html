@@ -4,20 +4,17 @@
 
     {% from "_formhelpers.html" import render_field %}
     <div class= "col-sm-6">
-        <h3>Registration page</h3>
-        <form action="/register" method=post class="form-group">
+        <h3>Change email</h3>
+        <form action="/change_email" method=post class="form-group">
             {{ form.hidden_tag() }}
             <dl>
-                {{ render_field(form.username) }}
-                {{ render_field(form.email) }}
                 {{ render_field(form.password) }}
-                {{ render_field(form.confirm) }}
-                {{ render_field(form.receive_emails) }}
+                {{ render_field(form.new_email) }}
             </dl>
 
             <div class="control-group">
                 <div class="controls">
-                  <button type="submit" class="btn btn-success">Register</button>
+                  <button type="submit" class="btn btn-success">Submit</button>
                 </div>
             </div>
         </form>

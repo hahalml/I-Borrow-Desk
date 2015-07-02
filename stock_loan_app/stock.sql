@@ -8,7 +8,5 @@ CREATE TABLE stocks (cusip INT PRIMARY KEY, symbol TEXT, name TEXT);
 CREATE TABLE borrow (id SERIAL PRIMARY KEY, datetime TIMESTAMP,
 	cusip INT REFERENCES stocks(cusip), rebate DECIMAL, fee DECIMAL, available INT);
 
-CREATE TABLE users (userid SERIAL PRIMARY KEY, username TEXT, email TEXT);
-
-CREATE TABLE watchlist (userid INT REFERENCES users(userid), cusip INT REFERENCES stocks(cusip));
+CREATE TABLE watchlist (userid INT, cusip INT REFERENCES stocks(cusip));
 
