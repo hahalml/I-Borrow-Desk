@@ -11,7 +11,6 @@ from BorrowDatabase import BorrowDatabase
 from email_update import send_emails
 from forms import RegistrationForm, ChangePasswordForm, ChangeEmailForm
 
-
 dirname, filename = os.path.split(os.path.abspath(__file__))
 
 # TEMPLATES
@@ -24,6 +23,7 @@ WATCH_LIST_TEMPLATE = 'watch_list_template.html'
 HISTORICAL_REPORT_TEMPLATE = 'historical_report_template.html'
 
 login_manager.login_view = 'login'
+
 
 @login_manager.user_loader
 def load_user(userid):
@@ -74,9 +74,6 @@ def historical_report():
     return render_template(HISTORICAL_REPORT_TEMPLATE, symbol=symbol, name=name, summary=summary)
 
 
-
-
-
 @login_required
 @app.route('/change_morning_email')
 def change_morning_email():
@@ -113,6 +110,7 @@ def change_password():
             return redirect(url_for('change_password'))
     return render_template(CHANGE_PASSWORD_TEMPLATE, form=form)
 
+
 @login_required
 @app.route('/change_email', methods=['GET', 'POST'])
 def change_email():
@@ -123,7 +121,7 @@ def change_email():
             current_user.email = form.new_email.data
             db.session.add(current_user)
             db.session.commit()
-            flash('Email changed to %s' %form.new_email.data)
+            flash('Email changed to %s' % form.new_email.data)
             return redirect(url_for('watch_list'))
         else:
             flash('Incorrect password entered')
@@ -145,6 +143,7 @@ def register():
         return redirect(url_for('login'))
     return render_template(REGISTER_TEMPLATE, form=form)
 
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     """Login page handler"""
@@ -158,15 +157,16 @@ def login():
     if user is None:
         flash('Invalid username')
         return redirect(url_for('login'))
-    if user.check_password(password) == False:
+    if not user.check_password(password):
         flash('Invalid password')
         return redirect(url_for('login'))
 
     # Flask login
     login_user(user)
 
-    flash('Welcome %s!' %user.username)
+    flash('Welcome %s!' % user.username)
     return redirect(url_for('watch_list'))
+
 
 @app.route('/logout')
 def logout():
@@ -189,20 +189,20 @@ def initialize():
     apsched.start()
 
     # Add a job - morning emails
-    apsched.add_job(email_job, 'cron', day_of_week='mon-fri', hour=9, minute=5, timezone = 'America/New_York')
-    apsched.add_job(update_database, 'cron', day_of_week='mon-fri', minute='1-46/15', hour='8-17', timezone = 'America/New_York')
+    apsched.add_job(email_job, 'cron', day_of_week='mon-fri', hour=9, minute=5, timezone='America/New_York')
+    apsched.add_job(update_database, 'cron', day_of_week='mon-fri', minute='1-46/15', hour='8-17',
+                    timezone='America/New_York')
 
 
 def email_job():
     """Helper function for scheduled email sender function"""
-    users = User.query.filter_by(receive_email = True).all()
+    users = User.query.filter_by(receive_email=True).all()
     send_emails(users, stockLoan)
+
 
 def update_database():
     """Helper function for updating database as scheduled"""
     stockLoan.update()
 
-
 # Create a BorrowDatabase instance
 stockLoan = BorrowDatabase(database_name='stock_loan', filename='usa', create_new=False)
-

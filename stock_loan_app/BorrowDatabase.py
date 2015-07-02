@@ -7,14 +7,14 @@ from datetime import datetime
 import re
 import os
 
-dirname, filename = os.path.split(os.path.abspath(__file__))
+dirname, file_name = os.path.split(os.path.abspath(__file__))
 DOWNLOAD_DIRECTORY = dirname + '/downloads/'
 
 
-class BorrowDatabase():
+class BorrowDatabase:
     """Class for interacting with Interactive Broker's borrow database"""
 
-    def __init__(self, database_name = 'stock_loan', filename = 'usa', create_new = False):
+    def __init__(self, database_name='stock_loan', filename='usa', create_new=False):
         """Initialize, unless create_new is True the stocks database won't be initialize.
         However, currently the class requires the proper database to be previously created"""
         self.database_name = database_name
@@ -46,8 +46,7 @@ class BorrowDatabase():
 
         # Create a cache where the keys are symbols and the values are lines in a summary report
         results = self._summary_report_database(symbols)
-        self._cache = {result[0] : result for result in results}
-
+        self._cache = {result[0]: result for result in results}
 
     def _get_cache(self, symbols):
         """Takes a list of symbols and returns a summary report using data from the cache"""
@@ -57,7 +56,7 @@ class BorrowDatabase():
             if symbol in self._cache:
                 results.append(self._cache[symbol])
             else:
-                results.append([symbol, 0,0,0,datetime.min])
+                results.append([symbol, 0, 0, 0, datetime.min])
 
         return results
 
@@ -73,7 +72,6 @@ class BorrowDatabase():
         self._update_borrow(write_filename)
         self._last_updated = datetime.now()
 
-
     def _connect(self):
         """Connect to the PostgreSQL database.  Returns a database connection. Default database is 'stock_loan' """
         try:
@@ -82,7 +80,6 @@ class BorrowDatabase():
             return db, cursor
         except:
             print("Could not find the %s database." % self.database_name)
-
 
     @timer
     def _initialize_dbase(self):
@@ -106,7 +103,6 @@ class BorrowDatabase():
                 print 'Index error caught'
 
         db.close()
-
 
     @timer
     def _update_borrow(self, filename):
@@ -157,10 +153,8 @@ class BorrowDatabase():
                 print 'Internal Error caught'
                 errors_caught += 1
 
-
         print 'Caught ', errors_caught, ' errors.'
         db.close()
-
 
     def _insert_stocks(self, row):
         """Returns SQL string and data tuple for use in a row insertion to the stocks table"""
@@ -170,7 +164,6 @@ class BorrowDatabase():
         SQL = "INSERT INTO stocks (cusip, symbol, name) VALUES (%s, %s, %s);"
         data = (cusip, symbol, name,)
         return SQL, data
-
 
     def _insert_borrow(self, row, datetime):
         """Returns SQL string and data tuple for use in a row insertion to the borrow table"""
@@ -186,7 +179,6 @@ class BorrowDatabase():
         data = (datetime, cusip, rebate, fee, available,)
         return SQL, data
 
-
     def insert_watchlist(self, userid, symbols):
         """Takes a userid and list of symbols, adds them to the watchlist database"""
 
@@ -196,10 +188,9 @@ class BorrowDatabase():
             if self._check_symbol(symbol):
                 safe_symbols.append(symbol.upper())
 
-
         # Make sure only new symbols to the user's wishlist will be added
         if safe_symbols is not None:
-            safe_symbols = tuple(set(safe_symbols) - set(self.get_watchlist(userid)),)
+            safe_symbols = tuple(set(safe_symbols) - set(self.get_watchlist(userid)), )
 
         if safe_symbols:
             # Get the cuips from the symbol list
@@ -278,7 +269,7 @@ class BorrowDatabase():
 
     @timer
     def tight_borrow(self, available=5000):
-        db, cursor =self._connect()
+        db, cursor = self._connect()
         SQL = "SELECT symbol, available FROM stocks JOIN borrow ON (stocks.cusip = borrow.cusip) WHERE available < %s;"
         data = (available,)
         cursor.execute(SQL, data)
@@ -295,15 +286,12 @@ class BorrowDatabase():
             if self._check_symbol(symbol):
                 safe_symbols.append(symbol)
 
-
-        #If the cache was last updated before the database was last updated, update the cache before
-        #getting the summary report
+        # If the cache was last updated before the database was last updated, update the cache before
+        # getting the summary report
         if self._last_cached <= self._last_updated:
             self._update_cache()
 
         return self._get_cache(safe_symbols)
-
-
 
     def _summary_report_database(self, symbols):
         db, cursor = self._connect()
@@ -319,9 +307,8 @@ class BorrowDatabase():
 
         return results
 
-
     @timer
-    def historical_report(self, symbol, real_time = False):
+    def historical_report(self, symbol, real_time=False):
         """Return historical report of rebate, fee, availability for a given symbol  along with the Company name
         The default interval is daily (9:30AM for the opening of the market) - if realtime flag is set to True
         the last 100 entries will be returned - about 3 days of data."""
@@ -348,7 +335,7 @@ class BorrowDatabase():
         results = cursor.fetchall()
 
         # If the search didn't find anything return None, None
-        if results != []:
+        if results:
             SQL = """SELECT name FROM stocks WHERE symbol = %s;"""
             cursor.execute(SQL, data)
             name = cursor.fetchone()[0]
