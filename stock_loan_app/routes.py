@@ -13,7 +13,6 @@ from forms import RegistrationForm, ChangePasswordForm, ChangeEmailForm
 
 
 dirname, filename = os.path.split(os.path.abspath(__file__))
-CLIENT_ID = json.loads(open(dirname + '/client_secrets.json', 'r').read())['web']['client_id']
 
 # TEMPLATES
 REGISTER_TEMPLATE = 'register_template.html'
@@ -28,7 +27,54 @@ login_manager.login_view = 'login'
 
 @login_manager.user_loader
 def load_user(userid):
+    """Required function for Flask-Login"""
     return User.query.get(int(userid))
+
+
+@app.route('/watchlist', methods=['GET', 'POST'])
+@login_required
+def watch_list():
+    """Watchlist handler"""
+
+    # If the user added or removed symbols from their watchlist make the changes then re-render thee watchlist
+    if request.method == 'POST':
+        symbols = request.form['symbols'].replace(' ', '').split(',')
+        symbols_to_remove = request.form['remove-symbols'].replace(' ', '').split(',')
+        if symbols != ['']:
+            stockLoan.insert_watchlist(current_user.id, symbols)
+        if symbols_to_remove != ['']:
+            stockLoan.remove_watchlist(current_user.id, symbols_to_remove)
+
+    # Get user's watchlist summary
+    watchlist = stockLoan.get_watchlist(current_user.id)
+    summary = stockLoan.summary_report(watchlist)
+
+    return render_template(WATCH_LIST_TEMPLATE, summary=summary)
+
+
+@app.route('/historical_report', methods=['GET'])
+def historical_report():
+    """Historical report handler, uses url arguements to determine the symbol to report
+    on and the time period (last few days every 15mins or daily  long-term"""
+
+    # Grab the symbol and real-time flag form the url
+    symbol = request.args['symbol'].upper()
+    if request.args['real_time'] == 'True':
+        real_time = True
+    else:
+        real_time = False
+
+    summary = []
+    name = ''
+
+    # Generate a report based on the url parameters
+    if symbol:
+        name, summary = stockLoan.historical_report(symbol, real_time)
+
+    return render_template(HISTORICAL_REPORT_TEMPLATE, symbol=symbol, name=name, summary=summary)
+
+
+
 
 
 @login_required
@@ -136,50 +182,6 @@ def main_page():
     return render_template(MAIN_PAGE_TEMPLATE)
 
 
-@app.route('/watchlist', methods=['GET', 'POST'])
-@login_required
-def watch_list():
-    """Watchlist handler"""
-
-    # If the user added or removed symbols from their watchlist make the changes then re-render thee watchlist
-    if request.method == 'POST':
-        symbols = request.form['symbols'].replace(' ', '').split(',')
-        symbols_to_remove = request.form['remove-symbols'].replace(' ', '').split(',')
-        if symbols != ['']:
-            stockLoan.insert_watchlist(current_user.id, symbols)
-        if symbols_to_remove != ['']:
-            stockLoan.remove_watchlist(current_user.id, symbols_to_remove)
-
-    # Get user's watchlist summary
-    watchlist = stockLoan.get_watchlist(current_user.id)
-    summary = stockLoan.summary_report(watchlist)
-
-    return render_template(WATCH_LIST_TEMPLATE, summary=summary)
-
-
-@app.route('/historical_report', methods=['GET'])
-def historical_report():
-    """Historical report handler, uses url arguements to determine the symbol to report
-    on and the time period (last few days every 15mins or daily  long-term"""
-
-    # Grab the symbol and real-time flag form the url
-    symbol = request.args['symbol'].upper()
-    if request.args['real_time'] == 'True':
-        real_time = True
-    else:
-        real_time = False
-
-    summary = []
-    name = ''
-
-    # Generate a report based on the url parameters
-    if symbol:
-        name, summary = stockLoan.historical_report(symbol, real_time)
-
-    return render_template(HISTORICAL_REPORT_TEMPLATE, symbol=symbol, name=name, summary=summary)
-
-
-
 @app.before_first_request
 def initialize():
     """Initialize the scheduler for recurring jobs"""
@@ -188,12 +190,17 @@ def initialize():
 
     # Add a job - morning emails
     apsched.add_job(email_job, 'cron', day_of_week='mon-fri', hour=9, minute=5, timezone = 'America/New_York')
+    apsched.add_job(update_database, 'cron', day_of_week='mon-fri', minute='1-46/15', hour='8-17', timezone = 'America/New_York')
 
 
 def email_job():
     """Helper function for scheduled email sender function"""
     users = User.query.filter_by(receive_email = True).all()
     send_emails(users, stockLoan)
+
+def update_database():
+    """Helper function for updating database as scheduled"""
+    stockLoan.update()
 
 
 # Create a BorrowDatabase instance

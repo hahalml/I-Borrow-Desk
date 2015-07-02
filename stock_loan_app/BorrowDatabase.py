@@ -3,11 +3,13 @@ import psycopg2
 from timed_function import timer
 from ftplib import FTP
 import time
+from datetime import datetime
 import re
 import os
 
 dirname, filename = os.path.split(os.path.abspath(__file__))
 DOWNLOAD_DIRECTORY = dirname + '/downloads/'
+
 
 class BorrowDatabase():
     """Class for interacting with Interactive Broker's borrow database"""
@@ -25,6 +27,39 @@ class BorrowDatabase():
         if create_new:
             self._initialize_dbase()
 
+        # use for cacheing watchlists
+        self._last_updated = datetime.min
+        self._cache = {}
+        self._last_cached = datetime.min
+
+    def _update_cache(self):
+        """Puts a summary report for every symbol in the database into a dictionary cache
+        key: symbol, values: line (including symbol) of summary report"""
+
+        db, cursor = self._connect()
+
+        SQL = "SELECT symbol FROM stocks;"
+        cursor.execute(SQL)
+        symbols = cursor.fetchall()
+        db.close()
+        self._last_cached = datetime.now()
+
+        # Create a cache where the keys are symbols and the values are lines in a summary report
+        results = self._summary_report_database(symbols)
+        self._cache = {result[0] : result for result in results}
+
+
+    def _get_cache(self, symbols):
+        """Takes a list of symbols and returns a summary report using data from the cache"""
+
+        results = []
+        for symbol in symbols:
+            if symbol in self._cache:
+                results.append(self._cache[symbol])
+            else:
+                results.append([symbol, 0,0,0,datetime.min])
+
+        return results
 
     def update(self):
         """Connect to the IB ftp server and download the latest usa.txt file
@@ -36,6 +71,7 @@ class BorrowDatabase():
         connection = FTP('ftp3.interactivebrokers.com', 'shortstock')
         connection.retrbinary('RETR usa.txt', open(write_filename, 'wb').write)
         self._update_borrow(write_filename)
+        self._last_updated = datetime.now()
 
 
     def _connect(self):
@@ -70,7 +106,6 @@ class BorrowDatabase():
                 print 'Index error caught'
 
         db.close()
-
 
 
     @timer
@@ -195,7 +230,6 @@ class BorrowDatabase():
             if self._check_symbol(symbol):
                 safe_symbols.append(symbol.upper())
 
-
         # Make sure symbols to be removed are on the user's wishlist
         current_watchlist = self.get_watchlist(userid)
         symbols_to_remove = []
@@ -221,7 +255,7 @@ class BorrowDatabase():
 
         return None
 
-
+    @timer
     def get_watchlist(self, userid):
         """Get a list of stocks that a user has on his/her watchlist"""
 
@@ -254,25 +288,37 @@ class BorrowDatabase():
 
     @timer
     def summary_report(self, symbols):
-        """Return a list of symbols and latest rebate, fee, availablity, and date/time of last update"""
+        """Return a list of symbols and latest rebate, fee, availability, and date/time of last update"""
 
         safe_symbols = []
         for symbol in symbols:
             if self._check_symbol(symbol):
                 safe_symbols.append(symbol)
 
+
+        #If the cache was last updated before the database was last updated, update the cache before
+        #getting the summary report
+        if self._last_cached <= self._last_updated:
+            self._update_cache()
+
+        return self._get_cache(safe_symbols)
+
+
+
+    def _summary_report_database(self, symbols):
         db, cursor = self._connect()
 
         SQL = """SELECT symbol, rebate, fee, available, datetime FROM stocks JOIN borrow ON (stocks.cusip = borrow.cusip)
                 WHERE symbol = ANY(%s)
                 AND datetime = (SELECT max(datetime) FROM borrow)
                 ORDER BY symbol;"""
-        data = (safe_symbols,)
+        data = (symbols,)
         cursor.execute(SQL, data)
         results = cursor.fetchall()
         db.close()
 
         return results
+
 
     @timer
     def historical_report(self, symbol, real_time = False):
