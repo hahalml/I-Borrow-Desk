@@ -11,12 +11,12 @@ import jinja2
 
 dirname, filename = os.path.split(os.path.abspath(__file__))
 
-TEMPLATE_DIR  = dirname + '/templates'
+TEMPLATE_DIR = dirname + '/templates'
 EMAIL_TEMPLATE = 'email_template.html'
-
 
 # Set up jinja templates. Look for templates in the TEMPLATE_DIR
 env = jinja2.Environment(loader=jinja2.FileSystemLoader(TEMPLATE_DIR))
+
 
 def send_emails(users, stockLoan):
     """Takes a list of users and a BorrowDatabase instance and sends out emails with each user's watchlist"""
@@ -29,7 +29,7 @@ def send_emails(users, stockLoan):
 
     # Connect to the gmail account
     server = smtplib.SMTP()
-    server.connect(host='smtp.gmail.com', port=587) # for eg. host = 'smtp.gmail.com', port = 587
+    server.connect(host='smtp.gmail.com', port=587)  # for eg. host = 'smtp.gmail.com', port = 587
     server.ehlo()
     server.starttls()
     server.login(username, password)
@@ -51,4 +51,3 @@ def send_emails(users, stockLoan):
         server.sendmail(username, user.email, msg.as_string())
 
     server.quit()
-

@@ -2,8 +2,9 @@ __author__ = 'Cameron'
 from stock_loan_app import db
 from werkzeug import generate_password_hash, check_password_hash
 
+
 class User(db.Model):
-    id = db.Column(db.Integer, primary_key = True)
+    id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(64), index=True, unique=True)
     email = db.Column(db.String(120), index=True, unique=True)
     password_hash = db.Column(db.String(250))
@@ -35,4 +36,5 @@ class User(db.Model):
 
 
 def create_table():
+    """Used for initializing a new db - run from command line only"""
     db.create_all()
