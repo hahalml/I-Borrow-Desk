@@ -5,8 +5,8 @@ from flask import render_template, request, redirect, url_for, flash
 from flask.ext.login import login_user, logout_user, current_user, login_required
 from apscheduler.schedulers.background import BackgroundScheduler
 
-from stock_loan_app import app, login_manager
-from models import User, db
+from stock_loan_app import app, login_manager, db
+from Models import User
 from borrow import Borrow
 from email_update import send_emails
 from forms import RegistrationForm, ChangePasswordForm, ChangeEmailForm
@@ -211,5 +211,4 @@ stock_loan = Borrow(database_name='stock_loan', filename='usa', create_new=False
 
 # Program launcher - in debug mode
 if __name__ == '__main__':
-    app.debug = True
     app.run()

@@ -1,4 +1,3 @@
-__author__ = 'Cameron'
 # Just a script for cronjob to run every day to clean the database of stale entries
 from borrow import Borrow
 

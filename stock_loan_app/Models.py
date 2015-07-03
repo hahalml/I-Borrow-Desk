@@ -4,13 +4,14 @@ from werkzeug import generate_password_hash, check_password_hash
 
 
 class User(db.Model):
+    __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(64), index=True, unique=True)
     email = db.Column(db.String(120), index=True, unique=True)
     password_hash = db.Column(db.String(250))
     receive_email = db.Column(db.Boolean, index=True)
 
-    def __init__(self, username, password, email, receive_email = True):
+    def __init__(self, username, password, email, receive_email=True):
         self.username = username
         self.set_password(password)
         self.email = email
@@ -33,8 +34,3 @@ class User(db.Model):
 
     def get_id(self):
         return unicode(self.id)
-
-
-def create_table():
-    """Used for initializing a new db - run from command line only"""
-    db.create_all()

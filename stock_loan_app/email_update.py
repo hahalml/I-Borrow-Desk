@@ -1,4 +1,3 @@
-__author__ = 'Cameron'
 #
 # Script to run every morning to send out email updates of watch lists
 #

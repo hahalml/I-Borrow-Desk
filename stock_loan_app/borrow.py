@@ -18,6 +18,7 @@ parser.read(dirname + '/database_settings.cfg')
 username = parser.get('postgresql', 'username')
 password = parser.get('postgresql', 'password')
 
+
 class Borrow:
     """Class for interacting with Interactive Broker's Borrow database"""
 
@@ -92,7 +93,6 @@ class Borrow:
             return db, cursor
         except:
             print("Could not find the %s database." % self.database_name)
-
 
     def _initialize_dbase(self):
         """Just used to initialize the stocks database"""
