@@ -6,7 +6,7 @@ from flask.ext.login import login_user, logout_user, current_user, login_require
 from apscheduler.schedulers.background import BackgroundScheduler
 
 from stock_loan_app import app, login_manager, db
-from Models import User
+from models import User
 from borrow import Borrow
 from email_update import send_emails
 from forms import RegistrationForm, ChangePasswordForm, ChangeEmailForm
