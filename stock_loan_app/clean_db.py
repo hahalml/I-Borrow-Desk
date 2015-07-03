@@ -1,6 +1,6 @@
 __author__ = 'Cameron'
 # Just a script for cronjob to run every day to clean the database of stale entries
-from BorrowDatabase import BorrowDatabase
+from borrow import Borrow
 
-stockLoan = BorrowDatabase(database_name='stock_loan', filename='usa', create_new=False)
-stockLoan.clean_dbase()
+stock_loan = Borrow(database_name='stock_loan', filename='usa', create_new=False)
+stock_loan.clean_dbase()

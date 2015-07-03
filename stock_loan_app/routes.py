@@ -7,7 +7,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 
 from stock_loan_app import app, login_manager
 from models import User, db
-from BorrowDatabase import BorrowDatabase
+from borrow import Borrow
 from email_update import send_emails
 from forms import RegistrationForm, ChangePasswordForm, ChangeEmailForm
 
@@ -41,13 +41,13 @@ def watch_list():
         symbols = request.form['symbols'].replace(' ', '').split(',')
         symbols_to_remove = request.form['remove-symbols'].replace(' ', '').split(',')
         if symbols != ['']:
-            stockLoan.insert_watchlist(current_user.id, symbols)
+            stock_loan.insert_watchlist(current_user.id, symbols)
         if symbols_to_remove != ['']:
-            stockLoan.remove_watchlist(current_user.id, symbols_to_remove)
+            stock_loan.remove_watchlist(current_user.id, symbols_to_remove)
 
     # Get user's watchlist summary
-    watchlist = stockLoan.get_watchlist(current_user.id)
-    summary = stockLoan.summary_report(watchlist)
+    watchlist = stock_loan.get_watchlist(current_user.id)
+    summary = stock_loan.summary_report(watchlist)
 
     return render_template(WATCH_LIST_TEMPLATE, summary=summary)
 
@@ -69,7 +69,7 @@ def historical_report():
 
     # Generate a report based on the url parameters
     if symbol:
-        name, summary = stockLoan.historical_report(symbol, real_time)
+        name, summary = stock_loan.historical_report(symbol, real_time)
 
     return render_template(HISTORICAL_REPORT_TEMPLATE, symbol=symbol, name=name, summary=summary)
 
@@ -197,12 +197,12 @@ def initialize():
 def email_job():
     """Helper function for scheduled email sender function"""
     users = User.query.filter_by(receive_email=True).all()
-    send_emails(users, stockLoan)
+    send_emails(users, stock_loan)
 
 
 def update_database():
     """Helper function for updating database as scheduled"""
-    stockLoan.update()
+    stock_loan.update()
 
-# Create a BorrowDatabase instance
-stockLoan = BorrowDatabase(database_name='stock_loan', filename='usa', create_new=False)
+# Create a Borrow instance
+stock_loan = Borrow(database_name='stock_loan', filename='usa', create_new=False)

@@ -11,8 +11,8 @@ dirname, file_name = os.path.split(os.path.abspath(__file__))
 DOWNLOAD_DIRECTORY = dirname + '/downloads/'
 
 
-class BorrowDatabase:
-    """Class for interacting with Interactive Broker's borrow database"""
+class Borrow:
+    """Class for interacting with Interactive Broker's Borrow database"""
 
     def __init__(self, database_name='stock_loan', filename='usa', create_new=False):
         """Initialize, unless create_new is True the stocks database won't be initialize.
@@ -63,7 +63,7 @@ class BorrowDatabase:
     def update(self):
         """Connect to the IB ftp server and download the latest usa.txt file
         Write to disk a filename based on the current GMT time and use that file
-        to update the borrow database"""
+        to update the Borrow database"""
         time_stamp = time.strftime('%Y-%m-%d %H %M %S', time.gmtime())
         write_filename = self.download_directory + self.filename + ' ' + time_stamp + '.txt'
 
@@ -106,7 +106,7 @@ class BorrowDatabase:
 
     @timer
     def _update_borrow(self, filename):
-        """update the borrow database - takes a filename as argument"""
+        """update the Borrow database - takes a filename as argument"""
         rows = []
         with open(filename, 'rb') as csvfile:
             stockreader = csv.reader(csvfile, delimiter='|')
@@ -135,7 +135,7 @@ class BorrowDatabase:
                 print 'Index error caught'
 
             # Will occur when a new stock appears in the database. roll back any pending transactions
-            # Insert the stock into the stocks database then insert into borrow database
+            # Insert the stock into the stocks database then insert into Borrow database
             except psycopg2.IntegrityError:
                 print 'Integrity error caught, rolling back'
                 print 'Hit cusip ' + row[3]
@@ -166,7 +166,7 @@ class BorrowDatabase:
         return SQL, data
 
     def _insert_borrow(self, row, datetime):
-        """Returns SQL string and data tuple for use in a row insertion to the borrow table"""
+        """Returns SQL string and data tuple for use in a row insertion to the Borrow table"""
         cusip = row[3]
         # Replace NA rebates and fees with nonsensical dummy values
         rebate = row[5].replace('NA', '99')
@@ -175,7 +175,7 @@ class BorrowDatabase:
         # Ignore '>' symbol
         available = row[7].replace('>', '')
 
-        SQL = "INSERT INTO borrow (datetime, cusip, rebate, fee, available) VALUES (%s, %s, %s, %s, %s);"
+        SQL = "INSERT INTO Borrow (datetime, cusip, rebate, fee, available) VALUES (%s, %s, %s, %s, %s);"
         data = (datetime, cusip, rebate, fee, available,)
         return SQL, data
 
@@ -270,7 +270,7 @@ class BorrowDatabase:
     @timer
     def tight_borrow(self, available=5000):
         db, cursor = self._connect()
-        SQL = "SELECT symbol, available FROM stocks JOIN borrow ON (stocks.cusip = borrow.cusip) WHERE available < %s;"
+        SQL = "SELECT symbol, available FROM stocks JOIN Borrow ON (stocks.cusip = Borrow.cusip) WHERE available < %s;"
         data = (available,)
         cursor.execute(SQL, data)
         results = cursor.fetchall()
@@ -296,9 +296,9 @@ class BorrowDatabase:
     def _summary_report_database(self, symbols):
         db, cursor = self._connect()
 
-        SQL = """SELECT symbol, rebate, fee, available, datetime FROM stocks JOIN borrow ON (stocks.cusip = borrow.cusip)
+        SQL = """SELECT symbol, rebate, fee, available, datetime FROM stocks JOIN Borrow ON (stocks.cusip = Borrow.cusip)
                 WHERE symbol = ANY(%s)
-                AND datetime = (SELECT max(datetime) FROM borrow)
+                AND datetime = (SELECT max(datetime) FROM Borrow)
                 ORDER BY symbol;"""
         data = (symbols,)
         cursor.execute(SQL, data)
@@ -321,12 +321,12 @@ class BorrowDatabase:
         data = (safe_symbol,)
 
         if real_time:
-            SQL = """SELECT rebate, fee, available, datetime FROM stocks JOIN borrow ON (stocks.cusip = borrow.cusip)
+            SQL = """SELECT rebate, fee, available, datetime FROM stocks JOIN Borrow ON (stocks.cusip = Borrow.cusip)
                     WHERE symbol = %s
                     ORDER BY datetime DESC;"""
         else:
             SQL = """SELECT rebate, fee, available, cast(datetime as date) as date
-                    FROM stocks JOIN borrow ON (stocks.cusip = borrow.cusip)
+                    FROM stocks JOIN Borrow ON (stocks.cusip = Borrow.cusip)
                     WHERE symbol = %s
                     AND cast(datetime as time) between '9:30' and '9:40'
                     ORDER BY datetime DESC;"""
@@ -349,7 +349,7 @@ class BorrowDatabase:
         """Remove entries _not_ bw 0930 and 0940 older than 1 week. Maintains historical record
         while getting rid of stale intraday data"""
         db, cursor = self._connect()
-        SQL = """DELETE FROM borrow
+        SQL = """DELETE FROM Borrow
               WHERE cast(datetime as time) NOT BETWEEN '9:30' and '9:40'
               AND datetime < now() - interval '7days';"""
 
