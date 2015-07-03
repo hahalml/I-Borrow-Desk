@@ -69,8 +69,12 @@ class Borrow:
 
         connection = FTP('ftp3.interactivebrokers.com', 'shortstock')
         connection.retrbinary('RETR usa.txt', open(write_filename, 'wb').write)
+
+        # Update the borrow then update the cache
         self._update_borrow(write_filename)
         self._last_updated = datetime.now()
+        self._update_cache()
+        self._last_cached = datetime.now()
 
     def _connect(self):
         """Connect to the PostgreSQL database.  Returns a database connection. Default database is 'stock_loan' """
