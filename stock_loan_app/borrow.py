@@ -1,15 +1,22 @@
 import csv
-import psycopg2
 from timed_function import timer
 from ftplib import FTP
 import time
 from datetime import datetime
 import re
 import os
+import ConfigParser
+
+import psycopg2
 
 dirname, file_name = os.path.split(os.path.abspath(__file__))
 DOWNLOAD_DIRECTORY = dirname + '/downloads/'
 
+# Grab database config
+parser = ConfigParser.ConfigParser()
+parser.read(dirname + '/database_settings.cfg')
+username = parser.get('postgresql', 'username')
+password = parser.get('postgresql', 'password')
 
 class Borrow:
     """Class for interacting with Interactive Broker's Borrow database"""
@@ -60,6 +67,7 @@ class Borrow:
 
         return results
 
+    @timer
     def update(self):
         """Connect to the IB ftp server and download the latest usa.txt file
         Write to disk a filename based on the current GMT time and use that file
@@ -79,13 +87,13 @@ class Borrow:
     def _connect(self):
         """Connect to the PostgreSQL database.  Returns a database connection. Default database is 'stock_loan' """
         try:
-            db = psycopg2.connect("dbname={}".format(self.database_name))
+            db = psycopg2.connect(database=self.database_name, user=username, password=password)
             cursor = db.cursor()
             return db, cursor
         except:
             print("Could not find the %s database." % self.database_name)
 
-    @timer
+
     def _initialize_dbase(self):
         """Just used to initialize the stocks database"""
         rows = []
@@ -108,7 +116,6 @@ class Borrow:
 
         db.close()
 
-    @timer
     def _update_borrow(self, filename):
         """update the Borrow database - takes a filename as argument"""
         rows = []
@@ -183,6 +190,7 @@ class Borrow:
         data = (datetime, cusip, rebate, fee, available,)
         return SQL, data
 
+    @timer
     def insert_watchlist(self, userid, symbols):
         """Takes a userid and list of symbols, adds them to the watchlist database"""
 
@@ -216,6 +224,7 @@ class Borrow:
         # Get an updated watchlist for the user and return it
         return self.get_watchlist(userid)
 
+    @timer
     def remove_watchlist(self, userid, symbols):
         """Takes a userid and list of symbols, removes them from the watchlist database"""
 

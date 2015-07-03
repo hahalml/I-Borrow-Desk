@@ -1,5 +1,5 @@
 import os
-import json
+import logging
 
 from flask import render_template, request, redirect, url_for, flash
 from flask.ext.login import login_user, logout_user, current_user, login_required
@@ -21,6 +21,8 @@ LOGIN_TEMPLATE = 'login_template.html'
 MAIN_PAGE_TEMPLATE = 'mainpage_template.html'
 WATCH_LIST_TEMPLATE = 'watch_list_template.html'
 HISTORICAL_REPORT_TEMPLATE = 'historical_report_template.html'
+
+logging.basicConfig()
 
 login_manager.login_view = 'login'
 
@@ -206,3 +208,8 @@ def update_database():
 
 # Create a Borrow instance
 stock_loan = Borrow(database_name='stock_loan', filename='usa', create_new=False)
+
+# Program launcher - in debug mode
+if __name__ == '__main__':
+    app.debug = True
+    app.run()
