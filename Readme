@@ -2,5 +2,10 @@ IB Loan Desk Web App
 
 Purpose: A toy web app to practice databases and web development. Interactive Brokers provides an FTP site with a frequently
     updated csv file of their entire stock loan database with fees, rebates, and availability. The goal of this webapp
-    is to provide some analytics for users to track trends in borrow fees and availability and eventually to receive
-    automatic alerts on stocks they are interested in.
+    is to provide some analytics for users to track trends in borrow fees and availability of stocks traded in the US.
+    
+    
+Copyright © 2015 Cameron Mochrie <cameron.mochrie@gmail.com>
+This work is free. You can redistribute it and/or modify it under the
+terms of the Do What The Fuck You Want To Public License, Version 2,
+as published by Sam Hocevar. See the COPYING file for more details.

@@ -35,6 +35,7 @@ login_manager.login_view = 'login'
 
 ADMIN_HOMEPAGE_TEMPLATE = 'admin_homepage_template.html'
 
+
 class AdminView(BaseView):
     def is_accessible(self):
         if current_user.is_authenticated():
@@ -49,6 +50,7 @@ class AdminView(BaseView):
     @expose('/')
     def index(self):
         return self.render(ADMIN_HOMEPAGE_TEMPLATE)
+
 
 class DbView(ModelView):
     def is_accessible(self):
@@ -70,7 +72,7 @@ def load_user(userid):
 
 @app.route('/')
 def main_page():
-    """Mainpage hanlder"""
+    """Mainpage handler"""
     symbols = [random.choice(stock_loan.latest_symbols) for i in xrange(0,15)]
     summary = stock_loan.summary_report(symbols)
     number_of_symbols = stock_loan.all_symbols_count
@@ -82,7 +84,7 @@ def main_page():
 def watch_list():
     """Watchlist handler"""
 
-    # If the user added or removed symbols from their watchlist make the changes then re-render thee watchlist
+    # If the user added or removed symbols from their watchlist make the changes then re-render the watchlist
     if request.method == 'POST':
         symbols = request.form['symbols'].replace(' ', '').split(',')
         symbols_to_remove = request.form['remove-symbols'].replace(' ', '').split(',')
@@ -100,8 +102,8 @@ def watch_list():
 
 @app.route('/historical_report', methods=['GET'])
 def historical_report():
-    """Historical report handler, uses url arguements to determine the symbol to report
-    on and the time period (last few days every 15mins or daily  long-term"""
+    """Historical report handler, uses url arguments to determine the symbol to report
+    on and the time period (last few days every 15mins or daily long-term)"""
 
     # Grab the symbol and real-time flag form the url
     symbol = request.args['symbol'].upper()
@@ -232,10 +234,12 @@ def logout():
     flash('Successfully logged out')
     return redirect(url_for('main_page'))
 
+
 @app.route('/about')
 def about():
     """Handler for about page"""
     return render_template(ABOUT_TEMPLATE)
+
 
 @app.route('/faq')
 def faq():
@@ -267,4 +271,3 @@ def update_database():
 
 # Create a Borrow instance
 stock_loan = Borrow(database_name='stock_loan', filename='usa', create_new=False)
-
