@@ -5,11 +5,14 @@ from flask import render_template, request, redirect, url_for, flash
 from flask.ext.login import login_user, logout_user, current_user, login_required
 from apscheduler.schedulers.background import BackgroundScheduler
 
-from stock_loan_app import app, login_manager, db
+from stock_loan import app, login_manager, db
 from models import User
 from borrow import Borrow
 from email_update import send_emails
 from forms import RegistrationForm, ChangePasswordForm, ChangeEmailForm
+from flask_admin import Admin, BaseView, expose
+from flask_admin.contrib.sqla import ModelView
+
 
 dirname, filename = os.path.split(os.path.abspath(__file__))
 
@@ -25,6 +28,35 @@ HISTORICAL_REPORT_TEMPLATE = 'historical_report_template.html'
 logging.basicConfig()
 
 login_manager.login_view = 'login'
+
+
+ADMIN_HOMEPAGE_TEMPLATE = 'admin_homepage_template.html'
+
+class AdminView(BaseView):
+    def is_accessible(self):
+        if current_user.is_authenticated():
+            return current_user.is_admin()
+        else:
+            return False
+
+    def _handle_view(self, name, **kwargs):
+        if not self.is_accessible():
+            return redirect(url_for('login'))
+
+    @expose('/')
+    def index(self):
+        return self.render(ADMIN_HOMEPAGE_TEMPLATE)
+
+class DbView(ModelView):
+    def is_accessible(self):
+        if current_user.is_authenticated():
+            return current_user.is_admin()
+        else:
+            return False
+
+    def _handle_view(self, name, **kwargs):
+        if not self.is_accessible():
+            return redirect(url_for('login'))
 
 
 @login_manager.user_loader
@@ -138,12 +170,23 @@ def register():
     form = RegistrationForm(request.form)
 
     if request.method == 'POST' and form.validate():
-        user = User(form.username.data, form.password.data, form.email.data, form.receive_emails.data)
-        db.session.add(user)
-        db.session.commit()
-        flash('User successfully registered')
-        return redirect(url_for('login'))
-    return render_template(REGISTER_TEMPLATE, form=form)
+        if User.query.filter_by(username=form.username.data).first() is not None:
+            flash('Choose a different username')
+            return redirect(url_for('register'))
+
+        elif User.query.filter_by(email=form.email.data).first() is not None:
+            flash('Someone with that email has already registered')
+            return redirect(url_for('register'))
+
+        else:
+            user = User(form.username.data, form.password.data, form.email.data, form.receive_emails.data)
+            db.session.add(user)
+            db.session.commit()
+            flash('User successfully registered')
+            return redirect(url_for('login'))
+
+    else:
+        return render_template(REGISTER_TEMPLATE, form=form)
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -209,6 +252,3 @@ def update_database():
 # Create a Borrow instance
 stock_loan = Borrow(database_name='stock_loan', filename='usa', create_new=False)
 
-# Program launcher - in debug mode
-if __name__ == '__main__':
-    app.run()

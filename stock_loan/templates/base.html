@@ -25,9 +25,10 @@
 
 				<div class="col-sm-6 text-right">
 					{% if current_user.is_authenticated() %}
-						<a href='{{url_for('logout')}}'>Logout</a>
+						<a href='{{url_for('logout')}}'>Logout </a><br>
+                        <a href="{{ url_for('adminview.index') }}">Admin</a>
 					{% else %}
-						<a href='{{url_for('login')}}'>Login</a>
+						<a href='{{url_for('login')}}'>Login </a>
 					{% endif %}
 				</div>
 			</div>
@@ -64,6 +65,7 @@
             <div class="row page-footer">
 				<div class="col-sm-12 text-center">
 					This toy webapp is not affiliated with Interactive Brokers in any way.
+
 				</div>
 			</div>
 		</div>

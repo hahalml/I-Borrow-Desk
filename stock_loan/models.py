@@ -1,5 +1,5 @@
 __author__ = 'Cameron'
-from stock_loan_app import db
+from stock_loan import db
 from werkzeug import generate_password_hash, check_password_hash
 
 
@@ -10,12 +10,14 @@ class User(db.Model):
     email = db.Column(db.String(120), index=True, unique=True)
     password_hash = db.Column(db.String(250))
     receive_email = db.Column(db.Boolean, index=True)
+    admin = db.Column(db.Boolean)
 
-    def __init__(self, username, password, email, receive_email=True):
+    def __init__(self, username, password, email, receive_email=True, admin = False):
         self.username = username
         self.set_password(password)
         self.email = email
         self.receive_email = receive_email
+        self.admin = admin
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -34,3 +36,18 @@ class User(db.Model):
 
     def get_id(self):
         return unicode(self.id)
+
+    def is_admin(self):
+        return self.admin
+
+def create_admin(username, password, email, receive_email):
+    """Function to create an admin user"""
+    try:
+        admin = User(username, password, email, receive_email, True)
+        db.session.add(admin)
+        db.session.commit()
+        print 'Admin with username %s successfully created.' %username
+        return None
+    except:
+        print "Something went wrong. No username created."
+        return None

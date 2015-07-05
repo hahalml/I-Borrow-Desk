@@ -18,4 +18,4 @@ DATABASE_CONNECT_OPTIONS = {}
 THREADS_PER_PAGE = 2
 
 # Secret key for signing cookies
-SECRET_KEY = "secret"
+SECRET_KEY = "aasl;df90s87f0uklalsdkf0as7f0ds"
