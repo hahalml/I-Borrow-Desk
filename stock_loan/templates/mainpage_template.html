@@ -5,9 +5,34 @@
 
 		<div class= "col-sm-9">
 			{% if current_user.is_authenticated() %}
-				YOU ARE LOGGED IN {{ current_user.username }}
+				YOU ARE LOGGED IN AS {{ current_user.username }} <br>
         	{% endif %}
-
+			<br>
+			<h4>Welcome to I Borrow Desk. Currently tracking {{ number_of_symbols }} symbols. </h4>
+            <p>Refresh the page to see 15 more random ones!</p>
+             <table class="table table-condensed table-responsive table-hover ">
+            <thead>
+                <tr>
+                    <th>Symbol</th>
+                    <th>Rebate</th>
+                    <th>Fee</th>
+                    <th>Availability</th>
+                    <th>Timestamp</th>
+                </tr>
+            </thead>
+            <tbody data-link="row" class="rowlink">
+                {% for stock in summary %}
+                    <tr>
+                        <td>
+                        <a href="{{url_for('historical_report')}}?symbol={{stock[0]}}&&real_time=False"> {{stock[0]}}</a></td>
+                        <td>{{ '{:.1%}'.format(stock[1]/100) }}</td>
+                        <td>{{ '{:.1%}'.format(stock[2]/100) }}</td>
+                        <td>{{ '{:,}'.format(stock[3]) }}</td>
+                        <td>{{stock[4]}}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
 		</div>
 
 {% endblock %}

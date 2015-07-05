@@ -1,5 +1,6 @@
 import os
 import logging
+import random
 
 from flask import render_template, request, redirect, url_for, flash
 from flask.ext.login import login_user, logout_user, current_user, login_required
@@ -24,6 +25,8 @@ LOGIN_TEMPLATE = 'login_template.html'
 MAIN_PAGE_TEMPLATE = 'mainpage_template.html'
 WATCH_LIST_TEMPLATE = 'watch_list_template.html'
 HISTORICAL_REPORT_TEMPLATE = 'historical_report_template.html'
+ABOUT_TEMPLATE = 'about_template.html'
+FAQ_TEMPLATE = 'faq_template.html'
 
 logging.basicConfig()
 
@@ -63,6 +66,15 @@ class DbView(ModelView):
 def load_user(userid):
     """Required function for Flask-Login"""
     return User.query.get(int(userid))
+
+
+@app.route('/')
+def main_page():
+    """Mainpage hanlder"""
+    symbols = [random.choice(stock_loan.latest_symbols) for i in xrange(0,15)]
+    summary = stock_loan.summary_report(symbols)
+    number_of_symbols = stock_loan.all_symbols_count
+    return render_template(MAIN_PAGE_TEMPLATE, summary=summary, number_of_symbols = number_of_symbols)
 
 
 @app.route('/watchlist', methods=['GET', 'POST'])
@@ -220,11 +232,15 @@ def logout():
     flash('Successfully logged out')
     return redirect(url_for('main_page'))
 
+@app.route('/about')
+def about():
+    """Handler for about page"""
+    return render_template(ABOUT_TEMPLATE)
 
-@app.route('/')
-def main_page():
-    """Mainpage hanlder"""
-    return render_template(MAIN_PAGE_TEMPLATE)
+@app.route('/faq')
+def faq():
+    """Handler for faq page"""
+    return render_template(FAQ_TEMPLATE)
 
 
 @app.before_first_request

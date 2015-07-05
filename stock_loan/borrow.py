@@ -40,6 +40,18 @@ class Borrow:
         self._cache = {}
         self._last_cached = datetime.min
 
+        self.all_symbols = []
+        self.latest_symbols = []
+
+        # update symbols tracked
+        self._all_symbols()
+        self._latest_all_symbols()
+
+        # set count variables
+        self.all_symbols_count = len(self.all_symbols)
+        self.latest_symbols_count = len(self.latest_symbols)
+
+
     def _update_cache(self):
         """Puts a summary report for every symbol in the database into a dictionary cache
         key: symbol, values: line (including symbol) of summary report"""
@@ -84,6 +96,15 @@ class Borrow:
         self._last_updated = datetime.now()
         self._update_cache()
         self._last_cached = datetime.now()
+
+        # update symbol lists
+        self._all_symbols()
+        self._latest_all_symbols()
+
+        # set count variables
+        self.all_symbols_count = len(self.all_symbols)
+        self.latest_symbols_count = len(self.latest_symbols)
+
 
     def _connect(self):
         """Connect to the PostgreSQL database.  Returns a database connection. Default database is 'stock_loan' """
@@ -334,7 +355,7 @@ class Borrow:
         data = (safe_symbol,)
 
         if real_time:
-            SQL = """SELECT rebate, fee, available, datetime FROM stocks JOIN Borrow ON (stocks.cusip = Borrow.cusip)
+            SQL = """SELECT rebate, fee, available, datetime FROM stocks JOIN borrow ON (stocks.cusip = borrow.cusip)
                     WHERE symbol = %s
                     ORDER BY datetime DESC;"""
         else:
@@ -356,6 +377,33 @@ class Borrow:
             return name, results
         else:
             return None, None
+
+    @timer
+    def _latest_all_symbols(self):
+        """Set the class variable list of every symbol in the latest update from IB"""
+        db, cursor = self._connect()
+        SQL = """SELECT distinct symbol FROM stocks JOIN borrow ON (stocks.cusip = borrow.cusip)
+                WHERE datetime = (SELECT max(datetime) FROM borrow);"""
+        cursor.execute(SQL)
+        results = []
+        rows = cursor.fetchall()
+        for row in rows:
+            results.append(row[0])
+        db.close()
+        self.latest_symbols = results
+
+    @timer
+    def _all_symbols(self):
+        """Set the list of all symbols in the database"""
+        db, cursor = self._connect()
+        SQL = """SELECT DISTINCT symbol FROM stocks;"""
+        cursor.execute(SQL)
+        results = []
+        rows  = cursor.fetchall()
+        for row in rows:
+            results.append(row[0])
+        db.close()
+        self.all_symbols = results
 
     @timer
     def clean_dbase(self):

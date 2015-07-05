@@ -49,6 +49,8 @@
 
             <div class= "row">
 		        <div class= "col-sm-3">
+                    <a href = "{{ url_for('about') }}">About</a><br>
+                    <a href = "{{ url_for('faq') }}">FAQ</a><br>
                     <a href="{{ url_for('register') }}">Register</a><br>
 			        <a href="{{ url_for('historical_report') }}?symbol=&&real_time=">Historical Report</a><br>
                     {% if current_user.is_authenticated() %}

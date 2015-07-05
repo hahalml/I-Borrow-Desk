@@ -40,14 +40,3 @@ class User(db.Model):
     def is_admin(self):
         return self.admin
 
-def create_admin(username, password, email, receive_email):
-    """Function to create an admin user"""
-    try:
-        admin = User(username, password, email, receive_email, True)
-        db.session.add(admin)
-        db.session.commit()
-        print 'Admin with username %s successfully created.' %username
-        return None
-    except:
-        print "Something went wrong. No username created."
-        return None

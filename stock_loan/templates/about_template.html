@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+
+    <div class= "col-sm-9">
+        <h3>About</h3>
+        <p>I worked in finance for the past five years, with my last year or so doing a decent amount of short
+        selling. One of the resources I used quite a lot was Interactive Broker's
+        <a href="https://ibkb.interactivebrokers.com/tag/short-selling">Stock Loan Availability Database</a>
+            especially for hard to borrow stocks.</p>
+        <p>But the format was terrible (CSV files) and and overall a pain to use. So, after taking Udacity's
+        <a href="https://www.udacity.com/course/full-stack-web-developer-nanodegree--nd004">Full Stack Nanodegree</a>
+        I figured this database would be a fun place to start building a working (maybe even useful) web app.</p>
+        <p>Built in Python, I used the <a href="http://flask.pocoo.org/">Flask</a> framework and SQLAlchemy/SQLite
+            for the user database and Postgresql for the borrow database. Performance is ok thanks to caching for everything but historical
+        reports. Security should be decent thanks to Flask-Login and apache2 SSL (I will get around to purchasing a domain
+        and getting a SSL certificate if people actually use this.</p>
+        <p>You can reach me at <a href="mailto:cameron.mochrie@gmail.com">cameron.mochrie@gmail.com</a>. The source for
+        I Borrow Desk is available at <a href="https://github.com/cjmochrie/IB-Loan-Desk">GitHub</a></p>
+
+    </div>
+
+{% endblock %}
