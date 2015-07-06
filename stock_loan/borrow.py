@@ -213,7 +213,8 @@ class Borrow:
 
     @timer
     def insert_watchlist(self, userid, symbols):
-        """Takes a userid and list of symbols, adds them to the watchlist database"""
+        """Takes a userid and list of symbols, adds them to the watchlist database.
+        Returns a list of symbols added, and a list of symbols failed to be added"""
 
         # Sanitize symbols
         safe_symbols = []
@@ -225,6 +226,8 @@ class Borrow:
         if safe_symbols is not None:
             safe_symbols = tuple(set(safe_symbols) - set(self.get_watchlist(userid)), )
 
+        symbols_inserted = []
+
         if safe_symbols:
             # Get the cuips from the symbol list
             cusips = []
@@ -232,18 +235,30 @@ class Borrow:
             SQL = "SELECT cusip FROM stocks WHERE symbol IN %s;"
             cursor.execute(SQL, [safe_symbols])
             cusips = cursor.fetchall()
+            print cusips
 
-            # Insert the cusips and userid into the watchlist
-            for cusip in cusips:
-                SQL = "INSERT INTO watchlist(userid, cusip) VALUES (%s, %s);"
-                data = (userid, cusip[0],)
-                cursor.execute(SQL, data)
-                db.commit()
+            if cusips != []:
 
-            db.close()
+                # Build a list of symbols that were actually inserted into the watchlist (valid ones essentially)
+                SQL = "SELECT symbol FROM stocks WHERE cusip = ANY(%s)"
+                cursor.execute(SQL, [cusips])
+                results = cursor.fetchall()
+                for row in results:
+                    symbols_inserted.append(row[0])
 
-        # Get an updated watchlist for the user and return it
-        return self.get_watchlist(userid)
+                # Insert the cusips and userid into the watchlist
+                for cusip in cusips:
+                    SQL = "INSERT INTO watchlist(userid, cusip) VALUES (%s, %s);"
+                    data = (userid, cusip[0],)
+                    cursor.execute(SQL, data)
+                    db.commit()
+
+                db.close()
+
+        # Return a list of symbols inserted, and a list of symbols that failed to be inserted
+        symbols_not_inserted = list(set(safe_symbols) - set(symbols_inserted))
+
+        return symbols_inserted, symbols_not_inserted
 
     @timer
     def remove_watchlist(self, userid, symbols):
@@ -262,12 +277,21 @@ class Borrow:
             if symbol in current_watchlist:
                 symbols_to_remove.append(symbol)
 
+        symbols_removed = []
+
         if symbols_to_remove:
             db, cursor = self._connect()
             SQL = "SELECT cusip FROM stocks WHERE symbol = ANY(%s);"
 
             cursor.execute(SQL, (symbols_to_remove,))
             cusips = cursor.fetchall()
+
+            # Build a list of symbols that were actually removed from the watchlist (valid ones essentially)
+            SQL = "SELECT symbol FROM stocks WHERE cusip = ANY(%s)"
+            cursor.execute(SQL, [cusips])
+            results = cursor.fetchall()
+            for row in results:
+                symbols_removed.append(row[0])
 
             # Remove the cusips and userid from the watchlist
             for cusip in cusips:
@@ -278,7 +302,8 @@ class Borrow:
             db.commit()
             db.close()
 
-        return None
+        # Return a list of symbols removed
+        return symbols_removed
 
     @timer
     def get_watchlist(self, userid):

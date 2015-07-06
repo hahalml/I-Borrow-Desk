@@ -10,7 +10,7 @@ from flask_admin import Admin
 # Create a Flask instance
 app = Flask(__name__)
 app.config.from_object('flask_config')
-sslify = SSLify(app, skips=['main_page', 'about', 'faq'])
+#sslify = SSLify(app, skips=['main_page', 'about', 'faq'])
 admin = Admin(app)
 
 

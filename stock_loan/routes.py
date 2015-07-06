@@ -89,9 +89,22 @@ def watch_list():
         symbols = request.form['symbols'].replace(' ', '').split(',')
         symbols_to_remove = request.form['remove-symbols'].replace(' ', '').split(',')
         if symbols != ['']:
-            stock_loan.insert_watchlist(current_user.id, symbols)
+
+            # Insertion/deletion method returns two lists - symbols added, and symbols that failed to be added
+            # Render some user feedback with flashed messages
+            symbols_added, symbols_failed_to_be_added = stock_loan.insert_watchlist(current_user.id, symbols)
+            if symbols_added:
+                for symbol in symbols_added:
+                    flash("Added %s to your watchlist" %symbol)
+            if symbols_failed_to_be_added:
+                for symbol in symbols_failed_to_be_added:
+                    flash("Failed to add %s to your watchlist" %symbol)
+
         if symbols_to_remove != ['']:
-            stock_loan.remove_watchlist(current_user.id, symbols_to_remove)
+            symbols_removed = stock_loan.remove_watchlist(current_user.id, symbols_to_remove)
+            if symbols_removed:
+                for symbol in symbols_removed:
+                    flash("Removed %s from your watchlist" %symbol)
 
     # Get user's watchlist summary
     watchlist = stock_loan.get_watchlist(current_user.id)
