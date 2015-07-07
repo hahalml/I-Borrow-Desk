@@ -52,9 +52,11 @@ class Borrow:
         self.latest_symbols_count = len(self.latest_symbols)
 
 
+
+
     def _update_cache(self):
-        """Puts a summary report for every symbol in the database into a dictionary cache
-        key: symbol, values: line (including symbol) of summary report"""
+        """Puts a summary report(dict) for every symbol in the database into a cache
+        key: symbol, values: summary report dictionary"""
 
         db, cursor = self._connect()
 
@@ -64,19 +66,19 @@ class Borrow:
         db.close()
         self._last_cached = datetime.now()
 
-        # Create a cache where the keys are symbols and the values are lines in a summary report
-        results = self._summary_report_database(symbols)
-        self._cache = {result[0]: result for result in results}
+        # Cache is a summary report dict of every symbol most recently updated
+        self._cache = self._summary_report_dict(symbols)
+
 
     def _get_cache(self, symbols):
         """Takes a list of symbols and returns a summary report using data from the cache"""
 
-        results = []
+        results = {}
         for symbol in symbols:
             if symbol in self._cache:
-                results.append(self._cache[symbol])
+                results[symbol] = self._cache[symbol]
             else:
-                results.append([symbol, 0, 0, 0, datetime.min])
+                results[symbol] = {'available': 0, 'fee': -99, 'rebate': 99, 'datetime': datetime.min}
 
         return results
 
@@ -235,7 +237,6 @@ class Borrow:
             SQL = "SELECT cusip FROM stocks WHERE symbol IN %s;"
             cursor.execute(SQL, [safe_symbols])
             cusips = cursor.fetchall()
-            print cusips
 
             if cusips != []:
 
@@ -337,6 +338,29 @@ class Borrow:
         return results
 
     @timer
+    def filter(self, min_available = 0, max_available = 10000000, min_fee = 0, max_fee = 100):
+        """General filter function"""
+        the_cache = self._cache
+
+        db, cursor = self._connect()
+        SQL = """SELECT symbol, rebate, fee, available, datetime FROM stocks JOIN borrow on (stocks.cusip = borrow.cusip)
+                WHERE available > %s AND
+                available < %s AND
+                fee > %s AND
+                fee < %s AND
+                datetime = (SELECT max(datetime) FROM borrow)
+                ORDER BY symbol LIMIT 100;
+                """
+        data = (min_available, max_available, min_fee, max_fee,)
+
+        cursor.execute(SQL, data)
+        results = cursor.fetchall()
+        db.close()
+
+        return results
+
+
+    @timer
     def summary_report(self, symbols):
         """Return a list of symbols and latest rebate, fee, availability, and date/time of last update"""
 
@@ -353,9 +377,10 @@ class Borrow:
         return self._get_cache(safe_symbols)
 
     def _summary_report_database(self, symbols):
+        """DEPRECATED"""
         db, cursor = self._connect()
 
-        SQL = """SELECT symbol, rebate, fee, available, datetime FROM stocks JOIN Borrow ON (stocks.cusip = Borrow.cusip)
+        SQL = """SELECT symbol, rebate, fee, available, datetime FROM stocks JOIN borrow ON (stocks.cusip = borrow.cusip)
                 WHERE symbol = ANY(%s)
                 AND datetime = (SELECT max(datetime) FROM Borrow)
                 ORDER BY symbol;"""
@@ -365,6 +390,26 @@ class Borrow:
         db.close()
 
         return results
+
+    def _summary_report_dict(self, symbols):
+        """Run a database query on every symbol in the list passed in. Return a dictionary with keys as symbols
+        and values as a dictionary for each field returned"""
+        db, cursor = self._connect()
+
+        SQL = """SELECT symbol, rebate, fee, available, datetime FROM stocks JOIN borrow ON (stocks.cusip = borrow.cusip)
+                WHERE symbol = ANY(%s)
+                AND datetime = (SELECT max(datetime) FROM Borrow)
+                ORDER BY symbol;"""
+        data = (symbols,)
+        cursor.execute(SQL, data)
+        results = cursor.fetchall()
+        db.close()
+
+        dict_results = {}
+        for row in results:
+            dict_results[row[0]] = {'rebate': row[1], 'fee': row[2], 'available': row[3], 'datetime': row[4]}
+
+        return dict_results
 
     @timer
     def historical_report(self, symbol, real_time=False):

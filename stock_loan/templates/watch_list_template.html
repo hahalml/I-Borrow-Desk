@@ -28,11 +28,11 @@
                 {% for stock in summary %}
                     <tr>
                         <td>
-                        <a href="{{url_for('historical_report')}}?symbol={{stock[0]}}&&real_time=False"> {{stock[0]}}</a></td>
-                        <td>{{ '{:.1%}'.format(stock[1]/100) }}</td>
-                        <td>{{ '{:.1%}'.format(stock[2]/100) }}</td>
-                        <td>{{ '{:,}'.format(stock[3]) }}</td>
-                        <td>{{stock[4]}}</td>
+                        <a href="{{url_for('historical_report')}}?symbol={{stock}}&&real_time=False"> {{stock}}</a></td>
+                        <td>{{ '{:.1%}'.format(summary[stock]['rebate']/100) }}</td>
+                        <td>{{ '{:.1%}'.format(summary[stock]['fee']/100) }}</td>
+                        <td>{{ '{:,}'.format(summary[stock]['available']) }}</td>
+                        <td>{{summary[stock]['datetime']}}</td>
                     </tr>
                 {% endfor %}
             </tbody>
