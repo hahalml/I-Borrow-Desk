@@ -25,14 +25,14 @@
                 </tr>
             </thead>
             <tbody data-link="row" class="rowlink">
-                {% for stock in summary %}
+                {% for symbol in summary %}
                     <tr>
                         <td>
-                        <a href="{{url_for('historical_report')}}?symbol={{stock}}&&real_time=False"> {{stock}}</a></td>
-                        <td>{{ '{:.1%}'.format(summary[stock]['rebate']/100) }}</td>
-                        <td>{{ '{:.1%}'.format(summary[stock]['fee']/100) }}</td>
-                        <td>{{ '{:,}'.format(summary[stock]['available']) }}</td>
-                        <td>{{summary[stock]['datetime']}}</td>
+                        <a href="{{url_for('historical_report')}}?symbol={{symbol['symbol']}}&&real_time=False"> {{symbol['symbol']}}</a></td>
+                        <td>{{ '{:.1%}'.format(symbol['rebate']/100) }}</td>
+                        <td>{{ '{:.1%}'.format(symbol['fee']/100) }}</td>
+                        <td>{{ '{:,}'.format(symbol['available']) }}</td>
+                        <td>{{symbol['datetime']}}</td>
                     </tr>
                 {% endfor %}
             </tbody>

@@ -34,7 +34,7 @@
             {% endif %}
  
             {% if field.type == 'SelectField' %}
-                {{ field(class_=class_, **kwargs) }}
+                {{ field(class_='form-control', **kwargs) }}
             {% else %}
               
             {{ field(class_=class_, placeholder=placeholder, **kwargs) }}

@@ -10,10 +10,9 @@ from stock_loan import app, login_manager, db
 from models import User
 from borrow import Borrow
 from email_update import send_emails
-from forms import RegistrationForm, ChangePasswordForm, ChangeEmailForm
+from forms import RegistrationForm, ChangePasswordForm, ChangeEmailForm, FilterForm
 from flask_admin import Admin, BaseView, expose
 from flask_admin.contrib.sqla import ModelView
-
 
 dirname, filename = os.path.split(os.path.abspath(__file__))
 
@@ -25,13 +24,13 @@ LOGIN_TEMPLATE = 'login_template.html'
 MAIN_PAGE_TEMPLATE = 'mainpage_template.html'
 WATCH_LIST_TEMPLATE = 'watch_list_template.html'
 HISTORICAL_REPORT_TEMPLATE = 'historical_report_template.html'
+FILTER_TEMPLATE = 'filter_template.html'
 ABOUT_TEMPLATE = 'about_template.html'
 FAQ_TEMPLATE = 'faq_template.html'
 
 logging.basicConfig()
 
 login_manager.login_view = 'login'
-
 
 ADMIN_HOMEPAGE_TEMPLATE = 'admin_homepage_template.html'
 
@@ -73,10 +72,10 @@ def load_user(userid):
 @app.route('/')
 def main_page():
     """Mainpage handler"""
-    symbols = [random.choice(stock_loan.latest_symbols) for i in xrange(0,15)]
+    symbols = [random.choice(stock_loan.latest_symbols) for i in xrange(0, 15)]
     summary = stock_loan.summary_report(symbols)
     number_of_symbols = stock_loan.all_symbols_count
-    return render_template(MAIN_PAGE_TEMPLATE, summary=summary, number_of_symbols = number_of_symbols)
+    return render_template(MAIN_PAGE_TEMPLATE, summary=summary, number_of_symbols=number_of_symbols)
 
 
 @app.route('/watchlist', methods=['GET', 'POST'])
@@ -95,16 +94,16 @@ def watch_list():
             symbols_added, symbols_failed_to_be_added = stock_loan.insert_watchlist(current_user.id, symbols)
             if symbols_added:
                 for symbol in symbols_added:
-                    flash("Added %s to your watchlist" %symbol)
+                    flash("Added %s to your watchlist" % symbol)
             if symbols_failed_to_be_added:
                 for symbol in symbols_failed_to_be_added:
-                    flash("Failed to add %s to your watchlist" %symbol)
+                    flash("Failed to add %s to your watchlist" % symbol)
 
         if symbols_to_remove != ['']:
             symbols_removed = stock_loan.remove_watchlist(current_user.id, symbols_to_remove)
             if symbols_removed:
                 for symbol in symbols_removed:
-                    flash("Removed %s from your watchlist" %symbol)
+                    flash("Removed %s from your watchlist" % symbol)
 
     # Get user's watchlist summary
     watchlist = stock_loan.get_watchlist(current_user.id)
@@ -133,6 +132,26 @@ def historical_report():
         name, summary = stock_loan.historical_report(symbol, real_time)
 
     return render_template(HISTORICAL_REPORT_TEMPLATE, symbol=symbol, name=name, summary=summary)
+
+
+@app.route('/filter', methods=['GET', 'POST'])
+def filter():
+    """Handler for the filter page"""
+    form = FilterForm(request.form)
+    if request.method == 'POST' and form.validate():
+        summary = stock_loan.filter(min_available=form.min_available.data,
+                                    max_available=form.max_available.data,
+                                    min_fee=form.min_fee.data,
+                                    max_fee=form.max_fee.data,
+                                    order_by=form.order_by.data
+                                    )
+        if len(summary) == 100:
+            flash('Results capped at 100')
+        else:
+            flash('Found %s results' %len(summary))
+        return render_template(FILTER_TEMPLATE, form=form, summary=summary)
+    else:
+        return render_template(FILTER_TEMPLATE, form=form, summary = [])
 
 
 @login_required

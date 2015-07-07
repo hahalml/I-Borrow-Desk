@@ -53,6 +53,7 @@
                     <a href = "{{ url_for('faq') }}">FAQ</a><br>
                     <a href="{{ url_for('register') }}">Register</a><br>
 			        <a href="{{ url_for('historical_report') }}?symbol=&&real_time=">Historical Report</a><br>
+					<a href="{{ url_for('filter') }}">Filter Database</a><br>
                     {% if current_user.is_authenticated() %}
                         <a href="{{ url_for('watch_list') }}">Watchlist</a><br>
                         <a href="{{ url_for('change_password') }}">Change Password</a><br>
