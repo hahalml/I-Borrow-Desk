@@ -53,6 +53,7 @@
             <thead>
                 <tr>
                     <th>Symbol</th>
+                    <th>Name</th>
                     <th>Rebate</th>
                     <th>Fee</th>
                     <th>Availability</th>
@@ -64,6 +65,7 @@
                     <tr>
                         <td>
                         <a href="{{url_for('historical_report')}}?symbol={{symbol['symbol']}}&&real_time=False"> {{symbol['symbol']}}</a></td>
+                        <td>{{ symbol['name'] }}</td>
                         <td>{{ '{:.1%}'.format(symbol['rebate']/100) }}</td>
                         <td>{{ '{:.1%}'.format(symbol['fee']/100) }}</td>
                         <td>{{ '{:,}'.format(symbol['available']) }}</td>

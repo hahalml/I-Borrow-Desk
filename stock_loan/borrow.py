@@ -78,7 +78,7 @@ class Borrow:
             if symbol in self._cache:
                 results[symbol] = self._cache[symbol]
             else:
-                results[symbol] = {'symbol': symbol, 'available': 0, 'fee': -99, 'rebate': 99, 'datetime': datetime.min}
+                results[symbol] = {'symbol': symbol, 'available': 0, 'fee': -99, 'rebate': 99, 'datetime': datetime.min, 'name': 'NA'}
 
         return results
 
@@ -411,7 +411,7 @@ class Borrow:
         and values as a dictionary for each field returned (including symbol)"""
         db, cursor = self._connect()
 
-        SQL = """SELECT symbol, rebate, fee, available, datetime FROM stocks JOIN borrow ON (stocks.cusip = borrow.cusip)
+        SQL = """SELECT symbol, rebate, fee, available, datetime, name FROM stocks JOIN borrow ON (stocks.cusip = borrow.cusip)
                 WHERE symbol = ANY(%s)
                 AND datetime = (SELECT max(datetime) FROM Borrow)
                 ORDER BY symbol;"""
@@ -422,7 +422,7 @@ class Borrow:
 
         dict_results = {}
         for row in results:
-            dict_results[row[0]] = {'symbol': row[0], 'rebate': row[1], 'fee': row[2], 'available': row[3], 'datetime': row[4]}
+            dict_results[row[0]] = {'symbol': row[0], 'rebate': row[1], 'fee': row[2], 'available': row[3], 'datetime': row[4], 'name': row[5]}
 
         return dict_results
 
@@ -509,7 +509,7 @@ class Borrow:
         """Ensure a symbol is safe for the database
         :rtype : Boolean
         """
-        if re.match("^[a-zA-Z]{1,4}$", text) is not None:
+        if re.match("^[\sa-zA-Z]{1,8}$", text) is not None:
             return True
         else:
             return False

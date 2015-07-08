@@ -1,6 +1,5 @@
 import ConfigParser
 import os
-import time
 import re
 
 TICKER_MATCH = re.compile(r"\$([a-zA-Z]{1,4})")
@@ -64,10 +63,13 @@ class BorrowStreamer(TwythonStreamer):
 
             # Confirm the summary report is not empty
             if summary != []:
+
+                #Grab the summary report (it is the first element in the list)
                 summary = summary[0]
 
-                #extract the relevent information from the summary report and build a status string
+                #extract the relevant information from the summary report and build a status string
                 symbol = summary['symbol']
+                name = summary['name'][:20]
                 available = '{:,}'.format(summary['available'])
                 fee = '{:.1%}'.format(summary['fee']/100)
                 datetime = summary['datetime']
@@ -75,8 +77,8 @@ class BorrowStreamer(TwythonStreamer):
 
                 screen_name = data['user']['screen_name'].encode('utf-8')
 
-                status = '@%s Symbol: %s, Available: %s, Fee: %s, Last Updated: %s ' \
-                         %(screen_name, symbol, available, fee, datetime)
+                status = '@%s $%s %s, Available: %s, Fee: %s, Last Updated: %s ' \
+                         %(screen_name, symbol, name, available, fee, datetime)
                 status = status + url
 
                 # Grab the id of the user that tweeted at the bot
