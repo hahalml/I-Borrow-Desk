@@ -1,6 +1,7 @@
 import os
 import logging
 import random
+import thread
 
 from flask import render_template, request, redirect, url_for, flash
 from flask.ext.login import login_user, logout_user, current_user, login_required
@@ -303,3 +304,7 @@ def update_database():
 
 # Create a Borrow instance
 stock_loan = Borrow(database_name='stock_loan', filename='usa', create_new=False)
+
+import twitter
+# Start separate thread to run the twitter bot
+thread.start_new_thread(twitter.run_twitter_stream, ())

@@ -8,13 +8,14 @@
             <th>Availability</th>
             <th>Timestamp</th>
         </tr>
-        {% for stock in summary %}
+
+         {% for symbol in summary %}
             <tr>
-                <td>{{ stock[0] }}</td>
-                <td>{{ '{:.1%}'.format(stock[1]/100) }}</td>
-                <td>{{ '{:.1%}'.format(stock[2]/100) }}</td>
-                <td>{{ '{:,}'.format(stock[3]) }}</td>
-                <td>{{stock[4]}}</td>
+                <td>{{symbol['symbol']}}</td>
+                <td>{{ '{:.1%}'.format(symbol['rebate']/100) }}</td>
+                <td>{{ '{:.1%}'.format(symbol['fee']/100) }}</td>
+                <td>{{ '{:,}'.format(symbol['available']) }}</td>
+                <td>{{symbol['datetime']}}</td>
             </tr>
         {% endfor %}
     </table>

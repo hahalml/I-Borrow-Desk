@@ -371,7 +371,7 @@ class Borrow:
         safe_symbols = []
         for symbol in symbols:
             if self._check_symbol(symbol):
-                safe_symbols.append(symbol)
+                safe_symbols.append(symbol.upper())
 
         # If the cache was last updated before the database was last updated, update the cache before
         # getting the summary report
