@@ -3,6 +3,7 @@ import logging
 import random
 import thread
 import string
+import memcache
 
 from flask import render_template, request, redirect, url_for, flash
 from flask.ext.login import login_user, logout_user, current_user, login_required
@@ -36,6 +37,8 @@ login_manager.login_view = 'login'
 
 ADMIN_HOMEPAGE_TEMPLATE = 'admin_homepage_template.html'
 
+
+mc = memcache.Client(['127.0.0.1:11211'], debug=0)
 
 class AdminView(BaseView):
     def is_accessible(self):
@@ -129,9 +132,23 @@ def historical_report():
     summary = []
     name = ''
 
-    # Generate a report based on the url parameters
+    # Get the company name and a report based on the url parameters.
+    # Check the memcache first for both. If they are not there, go to the db and update the cache
     if symbol:
-        name, summary = stock_loan.historical_report(symbol, real_time)
+
+        key_symbol = str(symbol)
+        name = mc.get(key_symbol)
+        if not name:
+            print 'cache miss on' + key_symbol
+            name = stock_loan.get_company_name(symbol)
+            mc.set(key_symbol, name)
+
+        key_summary = str(symbol + str(real_time))
+        summary = mc.get(key_summary)
+        if not summary:
+            print 'cache miss on' + key_summary
+            summary = stock_loan.historical_report(symbol, real_time)
+            mc.set(key_summary, summary)
 
     return render_template(HISTORICAL_REPORT_TEMPLATE, symbol=symbol, name=name, summary=summary)
 
@@ -301,6 +318,10 @@ def email_job():
 
 def update_database():
     """Helper function for updating database as scheduled"""
+    # Clear the cache
+    mc.flush_all()
+
+    # Update the db
     stock_loan.update()
 
 

@@ -45,7 +45,8 @@ class Borrow:
     def __init__(self, database_name='stock_loan', file_names=('australia', 'austria', 'belgium', 'british',
                                                               'canada', 'dutch', 'france', 'germany', 'hongkong',
                                                               'india', 'italy', 'japan', 'mexico', 'spain', 'swedish',
-                                                              'swiss', 'usa'), create_new=False):
+                                                              'swiss', 'usa'),
+                                                                create_new=False):
         """Initialize, unless create_new is True the stocks database won't be initialize.
         However, currently the class requires the proper database to be previously created"""
         self.database_name = database_name
@@ -503,15 +504,34 @@ class Borrow:
         cursor.execute(SQL, data)
         results = cursor.fetchall()
 
-        # If the search didn't find anything return None, None
+        # If the search didn't find anything return None
         if results:
-            SQL = """SELECT name FROM stocks WHERE symbol = %s;"""
-            cursor.execute(SQL, data)
-            name = cursor.fetchone()[0]
-            db.close()
-            return name, results
+            return results
         else:
-            return None, None
+            return  None
+
+    def get_company_name(self, symbol):
+        """Returns the name of a Company given a symbol. Returns None if no symbol exists"""
+        if self._check_symbol(symbol):
+            safe_symbol = symbol.upper()
+        else:
+            return None
+
+        data = (safe_symbol,)
+        db, cursor = self._connect()
+
+        SQL = """SELECT name FROM stocks WHERE symbol = %s;"""
+        cursor.execute(SQL, data)
+
+        try:
+            name = cursor.fetchone()[0]
+        except TypeError:
+            print 'Symbol not found'
+            return None
+        db.close()
+        return name
+
+
 
     @timer
     def _latest_all_symbols(self):
