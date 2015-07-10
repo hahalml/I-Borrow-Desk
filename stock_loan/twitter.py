@@ -2,7 +2,7 @@ import ConfigParser
 import os
 import re
 
-TICKER_MATCH = re.compile(r"\$([a-zA-Z]{1,4})")
+TICKER_MATCH = r"\$([a-zA-Z0-9\.]{1,8})"
 
 from twython import TwythonStreamer
 from twython import Twython
@@ -29,6 +29,7 @@ class BorrowStreamer(TwythonStreamer):
 
         # Will live inside the actual Streamer object
         TwythonStreamer.__init__(self, *a, **kw)
+        print 'in borrow streamer'
 
     def on_success(self, data):
         """If the streamer receives a tweet that matches its filter"""
@@ -44,58 +45,59 @@ class BorrowStreamer(TwythonStreamer):
 
     def on_error(self, status_code, data):
         print status_code
+        print data
 
         # Want to stop trying to get data because of the error?
         # Uncomment the next line!
-        self.disconnect()
-        print "Disconnected"
+        #self.disconnect()
+        print "There was an error"
 
     def _respond(self, data):
 
         # Grab the tweet's text and try to extract a symbol from it
         text = data['text'].encode('utf-8')
-        match = TICKER_MATCH.search(text)
-        if match:
+        matches = re.findall(TICKER_MATCH, text)
+        print 'matches were ' + str(matches)
+        if matches:
 
-            # Extract the ticker and run a summary report on it
-            ticker = match.group(0)[1:]
-            summary = stock_loan.summary_report([ticker])
+            summary = stock_loan.summary_report(matches)
 
             # Confirm the summary report is not empty
             if summary != []:
 
-                #Grab the summary report (it is the first element in the list)
-                summary = summary[0]
+                for ticker in summary:
+                    #Grab the summary report (it is the first element in the list)
 
-                #extract the relevant information from the summary report and build a status string
-                symbol = summary['symbol']
-                name = summary['name'][:20]
-                available = '{:,}'.format(summary['available'])
-                fee = '{:.1%}'.format(summary['fee']/100)
-                datetime = summary['datetime']
-                url = 'http://ec2-52-27-34-15.us-west-2.compute.amazonaws.com/historical_report?symbol=%s&&real_time=True' %symbol
+                    #extract the relevant information from the summary report and build a status string
+                    symbol = ticker['symbol']
+                    name = ticker['name'][:20]
+                    available = '{:,}'.format(ticker['available'])
+                    fee = '{:.1%}'.format(ticker['fee']/100)
+                    datetime = ticker['datetime']
+                    url = 'http://ec2-52-27-34-15.us-west-2.compute.amazonaws.com/historical_report?symbol=%s&&real_time=True' %symbol
 
-                screen_name = data['user']['screen_name'].encode('utf-8')
+                    screen_name = data['user']['screen_name'].encode('utf-8')
 
-                status = '@%s $%s %s, Available: %s, Fee: %s, Last Updated: %s ' \
-                         %(screen_name, symbol, name, available, fee, datetime)
-                status = status + url
+                    status = '@%s $%s %s, Available: %s, Fee: %s, Last Updated: %s ' \
+                             %(screen_name, symbol, name, available, fee, datetime)
+                    status = status + url
 
-                # Grab the id of the user that tweeted at the bot
-                id_str = data['id_str'].encode('utf-8').encode('utf-8')
+                    # Grab the id of the user that tweeted at the bot
+                    id_str = data['id_str'].encode('utf-8').encode('utf-8')
 
-                # Update status
-                self._twitter.update_status(status=status, in_reply_to_status_id=id_str)
+                    # Update status
+                    self._twitter.update_status(status=status, in_reply_to_status_id=id_str)
 
-                print 'Match found %s' %ticker
-                print 'Responded with %s' %status
+                    print 'Match found %s' %ticker
+                    print 'Responded with %s' %status
 
             else:
-                print 'Invalid symbol matched'
+                print 'Invalid symbols matched'
         else:
             print 'No match found'
 
 
 def run_twitter_stream():
+    print 'in run twitter stream'
     stream = BorrowStreamer(APP_KEY, APP_SECRET, OAUTH_TOKEN, OAUTH_TOKEN_SECRET)
     stream.statuses.filter(track='@IBorrowDesk')

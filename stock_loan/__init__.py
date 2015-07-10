@@ -22,6 +22,7 @@ login_manager.init_app(app)
 import stock_loan.routes
 from routes import *
 
+
 admin.add_view(AdminView(name='Home'))
 admin.add_view(DbView(User, db.session))
 
@@ -34,5 +35,6 @@ db.create_all()
 # Program launcher - in debug mode
 if __name__ == '__main__':
     app.run()
+
 
 

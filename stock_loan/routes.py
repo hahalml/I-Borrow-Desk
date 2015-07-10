@@ -303,11 +303,12 @@ def update_database():
     """Helper function for updating database as scheduled"""
     stock_loan.update()
 
-# Create a Borrow instance
-stock_loan = Borrow(database_name='stock_loan', filename='usa', create_new=False)
 
-import twitter
+
+# Create a Borrow instance
+stock_loan = Borrow(database_name='stock_loan', create_new=False)
+
+#import twitter
 
 # Start separate thread to run the twitter bot after confirming not running locally
-if string.find(dirname, 'vagrant') is None:
-    thread.start_new_thread(twitter.run_twitter_stream, ())
+#thread.start_new_thread(twitter.run_twitter_stream, ())

@@ -9,6 +9,15 @@
         	{% endif %}
 			<br>
 			<h4>Welcome to I Borrow Desk. Currently tracking {{ number_of_symbols }} symbols. </h4>
+
+            <form role="form" action= "{{url_for('historical_report')}}" method = 'GET' class="form-inline">
+                    <div class="form-group">
+                        <label for="symbol">Symbol Search</label>
+                        <input class = "form-control" type = 'text' id = 'symbol' name = 'symbol'>
+                        <input type="hidden" name="real_time" value="True">
+                        <button type='submit' class="btn btn-default">Submit</button>
+                    </div>
+            </form> <br><br>
             <p>Refresh the page to see 15 more random ones!</p>
              <table class="table table-condensed table-responsive table-hover ">
             <thead>
@@ -24,7 +33,7 @@
                 {% for symbol in summary %}
                     <tr>
                         <td>
-                        <a href="{{url_for('historical_report')}}?symbol={{symbol['symbol']}}&&real_time=False"> {{symbol['symbol']}}</a></td>
+                        <a href="{{url_for('historical_report')}}?symbol={{symbol['symbol']}}&&real_time=True"> {{symbol['symbol']}}</a></td>
                         <td>{{ '{:.1%}'.format(symbol['rebate']/100) }}</td>
                         <td>{{ '{:.1%}'.format(symbol['fee']/100) }}</td>
                         <td>{{ '{:,}'.format(symbol['available']) }}</td>

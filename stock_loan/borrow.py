@@ -18,22 +18,47 @@ parser.read(dirname + '/database_settings.cfg')
 username = parser.get('postgresql', 'username')
 password = parser.get('postgresql', 'password')
 
+# Dictionary for mapping filenames (countries) to suffixes for symbols (ie; HCG.CA)
+COUNTRY_CODE = {
+                'australia': '.AU',
+                'austria':   '.AV',
+                'belgium':   '.BB',
+                'british':   '.LN',
+                'canada':    '.CA',
+                'dutch':     '.NA',
+                'france':    '.FP',
+                'germany':   '.GR',
+                'hongkong':  '.HK',
+                'india':     '.IN',
+                'italy':     '.IM',
+                'japan':     '.JP',
+                'mexico':    '.MM',
+                'spain':     '.SM',
+                'swedish':   '.SS',
+                'swiss':     '.SW',
+                'usa':       ''
+}
 
 class Borrow:
     """Class for interacting with Interactive Broker's Borrow database"""
 
-    def __init__(self, database_name='stock_loan', filename='usa', create_new=False):
+    def __init__(self, database_name='stock_loan', file_names=('australia', 'austria', 'belgium', 'british',
+                                                              'canada', 'dutch', 'france', 'germany', 'hongkong',
+                                                              'india', 'italy', 'japan', 'mexico', 'spain', 'swedish',
+                                                              'swiss', 'usa'), create_new=False):
         """Initialize, unless create_new is True the stocks database won't be initialize.
         However, currently the class requires the proper database to be previously created"""
         self.database_name = database_name
-        self.filename = filename
+
+
+        # Check all the passed in file names against the dictionary of allowed ones, append valid ones to
+        # class variable which will keep track
+        self.file_names = []
+        for file in file_names:
+            if file in COUNTRY_CODE:
+                self.file_names.append(file)
+
         self.download_directory = DOWNLOAD_DIRECTORY
-
-        db, cursor = self._connect()
-        db.close()
-
-        if create_new:
-            self._initialize_dbase()
 
         # use for cacheing watchlists
         self._last_updated = datetime.min
@@ -50,9 +75,6 @@ class Borrow:
         # set count variables
         self.all_symbols_count = len(self.all_symbols)
         self.latest_symbols_count = len(self.latest_symbols)
-
-
-
 
     def _update_cache(self):
         """Puts a summary report(dict) for every symbol in the database into a cache
@@ -84,17 +106,17 @@ class Borrow:
 
     @timer
     def update(self):
-        """Connect to the IB ftp server and download the latest usa.txt file
+        """Connect to the IB ftp server and download the latest files
         Write to disk a filename based on the current GMT time and use that file
         to update the Borrow database"""
-        time_stamp = time.strftime('%Y-%m-%d %H %M %S', time.gmtime())
-        write_filename = self.download_directory + self.filename + ' ' + time_stamp + '.txt'
 
-        connection = FTP('ftp3.interactivebrokers.com', 'shortstock')
-        connection.retrbinary('RETR usa.txt', open(write_filename, 'wb').write)
+        # Download all the files
+        write_filenames = self._download_files()
 
-        # Update the borrow then update the cache
-        self._update_borrow(write_filename)
+        for country, filename in write_filenames.iteritems():
+            # Update the borrow database
+            self._update_borrow(country, filename)
+
         self._last_updated = datetime.now()
         self._update_cache()
         self._last_cached = datetime.now()
@@ -107,6 +129,20 @@ class Borrow:
         self.all_symbols_count = len(self.all_symbols)
         self.latest_symbols_count = len(self.latest_symbols)
 
+    def _download_files(self):
+        """Private function to connect to ftp and download required files. Returns a list of written files"""
+        connection = FTP('ftp3.interactivebrokers.com', 'shortstock')
+        write_filenames = {}
+
+        for country in self.file_names:
+            time_stamp = time.strftime('%Y-%m-%d %H %M %S', time.gmtime())
+            read_command = 'RETR ' + country + '.txt'
+            write_filename = self.download_directory + country + ' ' + time_stamp + '.txt'
+            connection.retrbinary(read_command, open(write_filename, 'wb').write)
+            write_filenames[country] = write_filename
+
+        return write_filenames
+
 
     def _connect(self):
         """Connect to the PostgreSQL database.  Returns a database connection. Default database is 'stock_loan' """
@@ -117,29 +153,34 @@ class Borrow:
         except:
             print("Could not find the %s database." % self.database_name)
 
-    def _initialize_dbase(self):
-        """Just used to initialize the stocks database"""
-        rows = []
-        with open(self.filename + '.txt', 'rb') as csvfile:
-            stockreader = csv.reader(csvfile, delimiter='|')
-            for row in stockreader:
-                rows.append(row)
+    # def _initialize_dbase(self):
+    #     """Just used to initialize the stocks database
+    #     BUG, MISSING FILE DOWNLOAD"""
+    #
+    #     write_filenames = self._download_files()
+    #     rows = []
+    #     for file in write_filenames:
+    #
+    #         with open(file + '.txt', 'rb') as csvfile:
+    #             stockreader = csv.reader(csvfile, delimiter='|')
+    #             for row in stockreader:
+    #                 rows.append(row)
+    #
+    #         rows = rows[2:]
+    #
+    #         db, cursor = self._connect()
+    #
+    #         for row in rows:
+    #             try:
+    #                 SQL, data = self._insert_stocks(row)
+    #                 cursor.execute(SQL, data)
+    #                 db.commit()
+    #             except IndexError:
+    #                 print 'Index error caught'
+    #
+    #         db.close()
 
-        rows = rows[2:]
-
-        db, cursor = self._connect()
-
-        for row in rows:
-            try:
-                SQL, data = self._insert_stocks(row)
-                cursor.execute(SQL, data)
-                db.commit()
-            except IndexError:
-                print 'Index error caught'
-
-        db.close()
-
-    def _update_borrow(self, filename):
+    def _update_borrow(self, country, filename):
         """update the Borrow database - takes a filename as argument"""
         rows = []
         with open(filename, 'rb') as csvfile:
@@ -152,48 +193,58 @@ class Borrow:
         datetime = ' '.join((date, time))
         print datetime
 
-        # Cut off the first two rows that don't contain stock data
+        # Cut off the first two rows that don't contain( stock data
         rows = rows[2:]
 
         db, cursor = self._connect()
         query = ''
         errors_caught = 0
-        for row in rows:
-            try:
-                SQL, data = self._insert_borrow(row, datetime)
-                cursor.execute(SQL, data)
-                db.commit()
 
-            # Going to happen at end of file
-            except IndexError:
-                print 'Index error caught'
+        print filename
+        print country
 
-            # Will occur when a new stock appears in the database. roll back any pending transactions
-            # Insert the stock into the stocks database then insert into Borrow database
-            except psycopg2.IntegrityError:
-                print 'Integrity error caught, rolling back'
-                print 'Hit cusip ' + row[3]
-                db.rollback()
-                SQL, data = self._insert_stocks(row)
-                cursor.execute(SQL, data)
-                db.commit()
+        if country in COUNTRY_CODE:
+            suffix = COUNTRY_CODE[country]
 
-                SQL, data = self._insert_borrow(row, datetime)
-                cursor.execute(SQL, data)
-                db.commit()
-                errors_caught += 1
+            for row in rows:
+                try:
+                    SQL, data = self._insert_borrow(row, datetime)
+                    cursor.execute(SQL, data)
+                    db.commit()
 
-            except psycopg2.InternalError:
-                print 'Internal Error caught'
-                errors_caught += 1
+                # Going to happen at end of file
+                except IndexError:
+                    print 'Index error caught'
 
-        print 'Caught ', errors_caught, ' errors.'
-        db.close()
+                # Will occur when a new stock appears in the database. roll back any pending transactions
+                # Insert the stock into the stocks database then insert into Borrow database
+                except psycopg2.IntegrityError:
+                    print 'Integrity error caught, rolling back'
+                    print 'Hit cusip ' + row[3]
+                    db.rollback()
+                    SQL, data = self._insert_stocks(row, suffix)
+                    cursor.execute(SQL, data)
+                    db.commit()
 
-    def _insert_stocks(self, row):
+                    SQL, data = self._insert_borrow(row, datetime)
+                    cursor.execute(SQL, data)
+                    db.commit()
+                    errors_caught += 1
+
+                except psycopg2.InternalError:
+                    print 'Internal Error caught'
+                    errors_caught += 1
+
+            print 'Caught ', errors_caught, ' errors.'
+            db.close()
+
+        else:
+            print 'FILENAME DIDNT MATCH PROPERLY'
+
+    def _insert_stocks(self, row, suffix):
         """Returns SQL string and data tuple for use in a row insertion to the stocks table"""
         cusip = row[3]
-        symbol = row[0]
+        symbol = row[0] + suffix
         name = row[2]
         SQL = "INSERT INTO stocks (cusip, symbol, name) VALUES (%s, %s, %s);"
         data = (cusip, symbol, name,)
@@ -370,7 +421,7 @@ class Borrow:
 
         safe_symbols = []
         for symbol in symbols:
-            if self._check_symbol(symbol):
+            if self._check_symbol(symbol) and symbol.upper() in self.all_symbols:
                 safe_symbols.append(symbol.upper())
 
         # If the cache was last updated before the database was last updated, update the cache before
@@ -389,7 +440,6 @@ class Borrow:
         results = sorted(results, key = lambda k: k['symbol'])
 
         return results
-
 
     def _summary_report_database(self, symbols):
         """DEPRECATED"""
@@ -492,7 +542,7 @@ class Borrow:
 
     @timer
     def clean_dbase(self):
-        """Remove entries _not_ bw 0930 and 0940 older than 1 week. Maintains historical record
+        """Remove entries _not_ bw 0925 and 0935 older than 1 week. Maintains historical record
         while getting rid of stale intraday data"""
         db, cursor = self._connect()
         SQL = """DELETE FROM Borrow
@@ -509,7 +559,7 @@ class Borrow:
         """Ensure a symbol is safe for the database
         :rtype : Boolean
         """
-        if re.match("^[\sa-zA-Z]{1,8}$", text) is not None:
+        if re.match("^[\sa-zA-Z0-9\.]{1,8}$", text) is not None:
             return True
         else:
             return False
