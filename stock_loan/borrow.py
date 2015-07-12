@@ -552,7 +552,7 @@ class Borrow:
         """Ensure a symbol is safe for the database
         :rtype : Boolean
         """
-        if re.match("^[\sa-zA-Z0-9\.]{1,8}$", text) is not None:
+        if re.match("^[\sa-zA-Z0-9\.]{1,15}$", text) is not None:
             return True
         else:
             return False

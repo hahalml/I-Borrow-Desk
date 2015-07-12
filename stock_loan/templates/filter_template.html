@@ -67,7 +67,7 @@
                 {% for symbol in summary %}
                     <tr>
                         <td>
-                        <a href="{{url_for('historical_report')}}?symbol={{symbol['symbol']}}&&real_time=False"> {{symbol['symbol']}}</a></td>
+                        <a href="{{url_for('historical_report')}}?symbol={{symbol['symbol']}}&&real_time=True"> {{symbol['symbol']}}</a></td>
                         <td>{{ symbol['name'] }}</td>
                         <td>{{ '{:.1%}'.format(symbol['rebate']/100) }}</td>
                         <td>{{ '{:.1%}'.format(symbol['fee']/100) }}</td>
