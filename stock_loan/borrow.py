@@ -229,7 +229,7 @@ class Borrow:
     def _insert_stocks(self, row, country, suffix):
         """Returns SQL string and data tuple for use in a row insertion to the stocks table"""
         cusip = row[3]
-        symbol = row[0] + suffix
+        symbol = row[0].replace(' ', '.') + suffix
         name = row[2]
         SQL = "INSERT INTO stocks (cusip, symbol, name, country) VALUES (%s, %s, %s, %s);"
         data = (cusip, symbol, name, country,)
