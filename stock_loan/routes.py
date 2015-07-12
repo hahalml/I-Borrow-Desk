@@ -168,6 +168,7 @@ def filter():
                                     max_available=form.max_available.data,
                                     min_fee=form.min_fee.data,
                                     max_fee=form.max_fee.data,
+                                    country=form.country.data,
                                     order_by=form.order_by.data
                                     )
         if len(summary) == 100:

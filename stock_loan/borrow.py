@@ -101,7 +101,7 @@ class Borrow:
             if symbol in self._cache:
                 results[symbol] = self._cache[symbol]
             else:
-                results[symbol] = {'symbol': symbol, 'available': 0, 'fee': -99, 'rebate': 99, 'datetime': datetime.min, 'name': 'NA'}
+                results[symbol] = {'symbol': symbol, 'available': 0, 'fee': -99, 'rebate': 99, 'datetime': datetime.min, 'name': 'NA', 'country': 'NA'}
 
         return results
 
@@ -207,7 +207,7 @@ class Borrow:
                     print 'Integrity error caught, rolling back'
                     print 'Hit cusip ' + row[3]
                     db.rollback()
-                    SQL, data = self._insert_stocks(row, suffix)
+                    SQL, data = self._insert_stocks(row, country, suffix)
                     cursor.execute(SQL, data)
                     db.commit()
 
@@ -226,13 +226,13 @@ class Borrow:
         else:
             print 'FILENAME DIDNT MATCH PROPERLY'
 
-    def _insert_stocks(self, row, suffix):
+    def _insert_stocks(self, row, country, suffix):
         """Returns SQL string and data tuple for use in a row insertion to the stocks table"""
         cusip = row[3]
         symbol = row[0] + suffix
         name = row[2]
-        SQL = "INSERT INTO stocks (cusip, symbol, name) VALUES (%s, %s, %s);"
-        data = (cusip, symbol, name,)
+        SQL = "INSERT INTO stocks (cusip, symbol, name, country) VALUES (%s, %s, %s, %s);"
+        data = (cusip, symbol, name, country,)
         return SQL, data
 
     def _insert_borrow(self, row, datetime):
@@ -374,9 +374,11 @@ class Borrow:
         return results
 
     @timer
-    def filter(self, min_available = 0, max_available = 10000000, min_fee = 0, max_fee = 100, order_by = 'symbol'):
+    def filter(self, min_available = 0, max_available = 10000000, min_fee = 0, max_fee = 100, country = 'usa', order_by = 'symbol'):
         """General filter function. Loops over the cache testing each stock against the criteria given
         returns a maximum of 100 results"""
+
+        country = country.lower()
 
         if order_by not in ['symbol', 'fee', 'available']:
             raise ValueError('Attempted to sort by an invalid field. Only symbol, fee, available allowed')
@@ -390,9 +392,10 @@ class Borrow:
 
         # Test every item in the cache against the criteria and append to a list.
         for stock in self._cache:
-            if self._cache[stock]['available'] > min_available and self._cache[stock]['available'] < max_available:
-                if self._cache[stock]['fee'] > min_fee and self._cache[stock]['fee'] < max_fee:
-                    results.append(self._cache[stock])
+            if self._cache[stock]['country'] == country:
+                if self._cache[stock]['available'] > min_available and self._cache[stock]['available'] < max_available:
+                    if self._cache[stock]['fee'] > min_fee and self._cache[stock]['fee'] < max_fee:
+                        results.append(self._cache[stock])
 
             if len(results) >= 100: break
 
@@ -426,27 +429,13 @@ class Borrow:
 
         return results
 
-    def _summary_report_database(self, symbols):
-        """DEPRECATED"""
-        db, cursor = self._connect()
-
-        SQL = """SELECT symbol, rebate, fee, available, datetime FROM stocks JOIN borrow ON (stocks.cusip = borrow.cusip)
-                WHERE symbol = ANY(%s)
-                AND datetime = (SELECT max(datetime) FROM Borrow)
-                ORDER BY symbol;"""
-        data = (symbols,)
-        cursor.execute(SQL, data)
-        results = cursor.fetchall()
-        db.close()
-
-        return results
 
     def _summary_report_dict(self, symbols):
         """Run a database query on every symbol in the list passed in. Return a dictionary with keys as symbols
         and values as a dictionary for each field returned (including symbol)"""
         db, cursor = self._connect()
 
-        SQL = """SELECT symbol, rebate, fee, available, datetime, name FROM stocks JOIN borrow ON (stocks.cusip = borrow.cusip)
+        SQL = """SELECT symbol, rebate, fee, available, datetime, name, country FROM stocks JOIN borrow ON (stocks.cusip = borrow.cusip)
                 WHERE symbol = ANY(%s)
                 AND datetime = (SELECT max(datetime) FROM Borrow)
                 ORDER BY symbol;"""
@@ -457,7 +446,7 @@ class Borrow:
 
         dict_results = {}
         for row in results:
-            dict_results[row[0]] = {'symbol': row[0], 'rebate': row[1], 'fee': row[2], 'available': row[3], 'datetime': row[4], 'name': row[5]}
+            dict_results[row[0]] = {'symbol': row[0], 'rebate': row[1], 'fee': row[2], 'available': row[3], 'datetime': row[4], 'name': row[5], 'country': row[6]}
 
         return dict_results
 
@@ -550,7 +539,7 @@ class Borrow:
         while getting rid of stale intraday data"""
         db, cursor = self._connect()
         SQL = """DELETE FROM Borrow
-              WHERE cast(datetime as time) NOT BETWEEN '9:25' and '9:35'
+              WHERE cast(datetime as time) NOT BETWEEN '9:35' and '9:44'
               AND datetime < now() - interval '7days';"""
 
         cursor.execute(SQL)

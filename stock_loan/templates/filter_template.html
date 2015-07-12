@@ -17,9 +17,11 @@
                 <div class="col-sm-4">
                     {{ form.min_available(class='form-control') }} {{ form.min_available.description }}
                 </div>
-                <div class="col-sm-2"></div>
                 <div class="col-sm-4">
                     {{ form.max_available(class='form-control') }} {{ form.max_available.description }}
+                </div>
+                <div class="col-sm-3">
+                     {{ render_field(form.country) }}
                 </div>
             </div>
             <br>
@@ -27,9 +29,11 @@
                 <div class="col-sm-4">
                     {{ form.min_fee(class='form-control') }} {{ form.min_fee.description }}
                 </div>
-                <div class="col-sm-2"></div>
                 <div class="col-sm-4">
                     {{ form.max_fee(class='form-control') }} {{ form.max_fee.description }}
+                </div>
+                <div class="col-sm-3">
+                    {{ render_field(form.order_by) }}
                 </div>
             </div>
             <br>
@@ -42,9 +46,8 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-sm-4">
-                     {{ render_field(form.order_by) }}
-                </div>
+
+
             </div>
 
         </form>

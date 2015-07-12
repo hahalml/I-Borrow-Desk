@@ -37,4 +37,13 @@ class FilterForm(Form):
     max_available = IntegerField('0', description='Max available', default=10000000)
     min_fee = FloatField('0%', description='Minimum fee (enter in %)', default=0)
     max_fee = FloatField('0%', description='Maximum fee (enter in %)', default=1000)
-    order_by = SelectField(u'Order by', description='Order by', choices=[('symbol', 'symbol'), ('fee', 'fee'), ('available', 'available')])
+    country = SelectField('Country', description='Country', choices=[('USA', 'USA'), ('Canada', 'Canada'),
+                                                                     ('Australia', 'Australia'), ('Austria', 'Austria'),
+                                                                     ('Belgium', 'Belgium'), ('British', 'British'),
+                                                                     ('Dutch', 'Dutch'), ('France', 'France'),
+                                                                     ('Germany', 'Germany'), ('HongKong', 'HongKong'),
+                                                                     ('India', 'India'), ('Italy', 'Italy'),
+                                                                     ('Japan', 'Japan'), ('Mexico', 'Mexico'),
+                                                                     ('Spain', 'Spain'), ('Swedish', 'Swedish'),
+                                                                     ('Swiss', 'Swiss')])
+    order_by = SelectField('Order by', description='Order by', choices=[('symbol', 'symbol'), ('fee', 'fee'), ('available', 'available')])
