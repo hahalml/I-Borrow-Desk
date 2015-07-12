@@ -399,8 +399,13 @@ class Borrow:
 
             if len(results) >= 100: break
 
-        # Sort the list by the given key and return results
-        return sorted(results, key = lambda k: k[order_by])
+        # Sort the list by the given key and return results. Sort by symbol in normal order.
+        # Fee and availability reversed
+        if order_by == 'symbol':
+            reverse = False
+        else:
+            reverse = True
+        return sorted(results, key = lambda k: k[order_by], reverse=reverse)
 
     @timer
     def summary_report(self, symbols):
