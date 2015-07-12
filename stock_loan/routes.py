@@ -16,6 +16,7 @@ from email_update import send_emails
 from forms import RegistrationForm, ChangePasswordForm, ChangeEmailForm, FilterForm
 from flask_admin import Admin, BaseView, expose
 from flask_admin.contrib.sqla import ModelView
+from stock_loan.timed_function import timer
 
 dirname, filename = os.path.split(os.path.abspath(__file__))
 
@@ -37,8 +38,8 @@ login_manager.login_view = 'login'
 
 ADMIN_HOMEPAGE_TEMPLATE = 'admin_homepage_template.html'
 
-
 mc = memcache.Client(['127.0.0.1:11211'], debug=0)
+
 
 class AdminView(BaseView):
     def is_accessible(self):
@@ -135,18 +136,18 @@ def historical_report():
     # Get the company name and a report based on the url parameters.
     # Check the memcache first for both. If they are not there, go to the db and update the cache
     if symbol:
-
+        print 'Running historical report on ' + symbol
         key_symbol = str(symbol)
         name = mc.get(key_symbol)
         if not name:
-            print 'cache miss on' + key_symbol
+            print 'cache miss on ' + key_symbol
             name = stock_loan.get_company_name(symbol)
             mc.set(key_symbol, name)
 
         key_summary = str(symbol + str(real_time))
         summary = mc.get(key_summary)
         if not summary:
-            print 'cache miss on' + key_summary
+            print 'cache miss on ' + key_summary
             summary = stock_loan.historical_report(symbol, real_time)
             mc.set(key_summary, summary)
 
@@ -167,10 +168,10 @@ def filter():
         if len(summary) == 100:
             flash('Results capped at 100')
         else:
-            flash('Found %s results' %len(summary))
+            flash('Found %s results' % len(summary))
         return render_template(FILTER_TEMPLATE, form=form, summary=summary)
     else:
-        return render_template(FILTER_TEMPLATE, form=form, summary = [])
+        return render_template(FILTER_TEMPLATE, form=form, summary=[])
 
 
 @login_required
@@ -306,8 +307,21 @@ def initialize():
 
     # Add a job - morning emails
     apsched.add_job(email_job, 'cron', day_of_week='mon-fri', hour=9, minute=5, timezone='America/New_York')
-    apsched.add_job(update_database, 'cron', day_of_week='mon-fri', minute='1-46/15', hour='8-17',
+
+    # Add a job for updating the entire database (940am weekdays EST to be stored for historical reports -
+    # won't collide with other updates)
+    apsched.add_job(update_database_all, 'cron', day_of_week='mon-fri', minute='40', hour='9',
                     timezone='America/New_York')
+
+    # Add jobs for each region so database is updated roughly in line with market hours
+    apsched.add_job(update_database_north_america, 'cron', day_of_week='mon-fri', minute='1-46/15', hour='8-17',
+                    timezone='America/New_York')
+
+    apsched.add_job(update_database_europe, 'cron', day_of_week='mon-fri', minute='1-46/15', hour='8-17',
+                    timezone='UTC')
+
+    apsched.add_job(update_database_asia, 'cron', day_of_week='mon-fri', minute='1-46/15', hour='0-10',
+                    timezone='UTC')
 
 
 def email_job():
@@ -316,8 +330,8 @@ def email_job():
     send_emails(users, stock_loan)
 
 
-def update_database():
-    """Helper function for updating database as scheduled"""
+def update_database_all():
+    """Helper function for updating the entire database"""
     # Clear the cache
     mc.flush_all()
 
@@ -325,11 +339,34 @@ def update_database():
     stock_loan.update()
 
 
+def update_database_north_america():
+    """Helper function for updating the North American files"""
+    # Clear the cache
+    mc.flush_all()
+    # Update the db
+    stock_loan.update(files_to_download=['usa', 'canada', 'mexico'], update_all=False)
+
+
+def update_database_europe():
+    """Helper function for updating the European files"""
+    # Clear the cache
+    mc.flush_all()
+    # Update the db
+    stock_loan.update(files_to_download=['austria', 'belgium', 'british', 'dutch', 'france', 'germany', 'italy',
+                                         'spain', 'swedish', 'swiss'], update_all=False)
+
+
+def update_database_asia():
+    """Helper function for updating the European files"""
+    # Clear the cache
+    mc.flush_all()
+    # Update the db
+    stock_loan.update(files_to_download=['australia', 'hongkong', 'india', 'japan'], update_all=False)
 
 # Create a Borrow instance
 stock_loan = Borrow(database_name='stock_loan', create_new=False)
 
-#import twitter
+# import twitter
 
 # Start separate thread to run the twitter bot after confirming not running locally
-#thread.start_new_thread(twitter.run_twitter_stream, ())
+# thread.start_new_thread(twitter.run_twitter_stream, ())

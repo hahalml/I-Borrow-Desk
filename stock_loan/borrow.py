@@ -106,13 +106,13 @@ class Borrow:
         return results
 
     @timer
-    def update(self):
+    def update(self, files_to_download = [], update_all = True):
         """Connect to the IB ftp server and download the latest files
         Write to disk a filename based on the current GMT time and use that file
         to update the Borrow database"""
 
-        # Download all the files
-        write_filenames = self._download_files()
+        # Get the files and filenames. Default is to just get them all (update_all)
+        write_filenames = self._download_files(files_to_download=files_to_download, update_all=update_all)
 
         for country, filename in write_filenames.iteritems():
             # Update the borrow database
@@ -130,12 +130,22 @@ class Borrow:
         self.all_symbols_count = len(self.all_symbols)
         self.latest_symbols_count = len(self.latest_symbols)
 
-    def _download_files(self):
+    def _download_files(self, files_to_download, update_all):
         """Private function to connect to ftp and download required files. Returns a list of written files"""
         connection = FTP('ftp3.interactivebrokers.com', 'shortstock')
+
+        # Dictionary, keys are country names, values are the actual filenames written
         write_filenames = {}
 
-        for country in self.file_names:
+        # If update_all is set to True, just hit all the files that the database is tracking.
+        # Otherwise use the parameter passed in - do a check first that it's not empty
+        if update_all:
+            files_to_download = self.file_names
+        else:
+            if files_to_download == []:
+                raise ValueError('update_all flag set to false but no files to download indicated')
+
+        for country in files_to_download:
             time_stamp = time.strftime('%Y-%m-%d %H %M %S', time.gmtime())
             read_command = 'RETR ' + country + '.txt'
             write_filename = self.download_directory + country + ' ' + time_stamp + '.txt'
@@ -154,32 +164,6 @@ class Borrow:
         except:
             print("Could not find the %s database." % self.database_name)
 
-    # def _initialize_dbase(self):
-    #     """Just used to initialize the stocks database
-    #     BUG, MISSING FILE DOWNLOAD"""
-    #
-    #     write_filenames = self._download_files()
-    #     rows = []
-    #     for file in write_filenames:
-    #
-    #         with open(file + '.txt', 'rb') as csvfile:
-    #             stockreader = csv.reader(csvfile, delimiter='|')
-    #             for row in stockreader:
-    #                 rows.append(row)
-    #
-    #         rows = rows[2:]
-    #
-    #         db, cursor = self._connect()
-    #
-    #         for row in rows:
-    #             try:
-    #                 SQL, data = self._insert_stocks(row)
-    #                 cursor.execute(SQL, data)
-    #                 db.commit()
-    #             except IndexError:
-    #                 print 'Index error caught'
-    #
-    #         db.close()
 
     def _update_borrow(self, country, filename):
         """update the Borrow database - takes a filename as argument"""
