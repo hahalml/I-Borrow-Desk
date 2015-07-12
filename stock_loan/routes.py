@@ -4,6 +4,7 @@ import random
 import thread
 import string
 import memcache
+from datetime import datetime
 
 from flask import render_template, request, redirect, url_for, flash
 from flask.ext.login import login_user, logout_user, current_user, login_required
@@ -137,6 +138,7 @@ def historical_report():
     # Check the memcache first for both. If they are not there, go to the db and update the cache
     if symbol:
         print 'Running historical report on ' + symbol
+        timein = datetime.now()
         key_symbol = str(symbol)
         name = mc.get(key_symbol)
         if not name:
@@ -150,6 +152,9 @@ def historical_report():
             print 'cache miss on ' + key_summary
             summary = stock_loan.historical_report(symbol, real_time)
             mc.set(key_summary, summary)
+
+        delta = datetime.now() - timein
+        print 'Historical report took ' + str(delta)
 
     return render_template(HISTORICAL_REPORT_TEMPLATE, symbol=symbol, name=name, summary=summary)
 
