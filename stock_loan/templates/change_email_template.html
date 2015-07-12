@@ -5,7 +5,7 @@
     {% from "_formhelpers.html" import render_field %}
     <div class= "col-sm-6">
         <h3>Change email</h3>
-        <form action="/change_email" method=post class="form-group">
+        <form action="{{ url_for('change_email') }}" method=post class="form-group">
             {{ form.hidden_tag() }}
             <dl>
                 {{ render_field(form.password) }}
