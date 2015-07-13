@@ -74,7 +74,7 @@ class BorrowStreamer(TwythonStreamer):
                     available = '{:,}'.format(ticker['available'])
                     fee = '{:.1%}'.format(ticker['fee']/100)
                     datetime = ticker['datetime']
-                    url = 'http://ec2-52-27-34-15.us-west-2.compute.amazonaws.com/historical_report?symbol=%s&&real_time=True' %symbol
+                    url = 'http://cameronmochrie.com/IBorrowDesk/historical_report?symbol=%s&&real_time=True' %symbol
 
                     screen_name = data['user']['screen_name'].encode('utf-8')
 

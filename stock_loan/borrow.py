@@ -440,13 +440,18 @@ class Borrow:
         and values as a dictionary for each field returned (including symbol)"""
         db, cursor = self._connect()
 
-        SQL = """SELECT symbol, rebate, fee, available, datetime, name, country FROM stocks JOIN borrow ON (stocks.cusip = borrow.cusip)
-                WHERE symbol = ANY(%s)
-                AND datetime = (SELECT max(datetime) FROM Borrow)
+
+        SQL = """WITH Latest (symbol, rebate, fee, available, datetime, name, country, Ord)
+                AS (
+                SELECT symbol, rebate, fee, available, datetime, name, country,
+                ROW_NUMBER() OVER (PARTITION BY borrow.cusip ORDER BY datetime DESC)
+                FROM stocks JOIN borrow ON (stocks.cusip = borrow.cusip) WHERE symbol = ANY(%s)
+                )
+                SELECT  symbol, rebate, fee, available, datetime, name, country from Latest WHERE Ord = 1
                 ORDER BY symbol;"""
-        data = (symbols,)
+        data = (symbols, )
         cursor.execute(SQL, data)
-        results = cursor.fetchall()
+        results =cursor.fetchall()
         db.close()
 
         dict_results = {}
@@ -472,6 +477,7 @@ class Borrow:
             SQL = """SELECT rebate, fee, available, datetime FROM stocks JOIN borrow ON (stocks.cusip = borrow.cusip)
                     WHERE symbol = %s
                     ORDER BY datetime DESC;"""
+
         else:
             SQL = """SELECT rebate, fee, available, cast(datetime as date) as date
                     FROM stocks JOIN Borrow ON (stocks.cusip = Borrow.cusip)
