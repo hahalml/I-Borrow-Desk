@@ -8,6 +8,7 @@ import os
 import ConfigParser
 
 import psycopg2
+from psycopg2.extensions import AsIs
 
 dirname, file_name = os.path.split(os.path.abspath(__file__))
 DOWNLOAD_DIRECTORY = dirname + '/downloads/'
@@ -20,37 +21,37 @@ password = parser.get('postgresql', 'password')
 
 # Dictionary for mapping filenames (countries) to suffixes for symbols (ie; HCG.CA)
 COUNTRY_CODE = {
-                'australia': '.AU',
-                'austria':   '.AV',
-                'belgium':   '.BB',
-                'british':   '.LN',
-                'canada':    '.CA',
-                'dutch':     '.NA',
-                'france':    '.FP',
-                'germany':   '.GR',
-                'hongkong':  '.HK',
-                'india':     '.IN',
-                'italy':     '.IM',
-                'japan':     '.JP',
-                'mexico':    '.MM',
-                'spain':     '.SM',
-                'swedish':   '.SS',
-                'swiss':     '.SW',
-                'usa':       ''
+    'australia': '.AU',
+    'austria': '.AV',
+    'belgium': '.BB',
+    'british': '.LN',
+    'canada': '.CA',
+    'dutch': '.NA',
+    'france': '.FP',
+    'germany': '.GR',
+    'hongkong': '.HK',
+    'india': '.IN',
+    'italy': '.IM',
+    'japan': '.JP',
+    'mexico': '.MM',
+    'spain': '.SM',
+    'swedish': '.SS',
+    'swiss': '.SW',
+    'usa': ''
 }
+
 
 class Borrow:
     """Class for interacting with Interactive Broker's Borrow database"""
 
     def __init__(self, database_name='stock_loan', file_names=('australia', 'austria', 'belgium', 'british',
-                                                              'canada', 'dutch', 'france', 'germany', 'hongkong',
-                                                              'india', 'italy', 'japan', 'mexico', 'spain', 'swedish',
-                                                              'swiss', 'usa'),
-                                                                create_new=False):
+                                                               'canada', 'dutch', 'france', 'germany', 'hongkong',
+                                                               'india', 'italy', 'japan', 'mexico', 'spain', 'swedish',
+                                                               'swiss', 'usa'),
+                 create_new=False):
         """Initialize, unless create_new is True the stocks database won't be initialize.
         However, currently the class requires the proper database to be previously created"""
         self.database_name = database_name
-
 
         # Check all the passed in file names against the dictionary of allowed ones, append valid ones to
         # class variable which will keep track
@@ -61,10 +62,8 @@ class Borrow:
 
         self.download_directory = DOWNLOAD_DIRECTORY
 
-        # use for cacheing watchlists
-        self._last_updated = datetime.min
-        self._cache = {}
-        self._last_cached = datetime.min
+        # global class variable for tracking duplicates during updated
+        self._cusips_updated = []
 
         self.all_symbols = []
         self.latest_symbols = []
@@ -77,36 +76,8 @@ class Borrow:
         self.all_symbols_count = len(self.all_symbols)
         self.latest_symbols_count = len(self.latest_symbols)
 
-    def _update_cache(self):
-        """Puts a summary report(dict) for every symbol in the database into a cache
-        key: symbol, values: summary report dictionary"""
-
-        db, cursor = self._connect()
-
-        SQL = "SELECT symbol FROM stocks;"
-        cursor.execute(SQL)
-        symbols = cursor.fetchall()
-        db.close()
-        self._last_cached = datetime.now()
-
-        # Cache is a summary report dict of every symbol most recently updated
-        self._cache = self._summary_report_dict(symbols)
-
-
-    def _get_cache(self, symbols):
-        """Takes a list of symbols and returns a summary report using data from the cache"""
-
-        results = {}
-        for symbol in symbols:
-            if symbol in self._cache:
-                results[symbol] = self._cache[symbol]
-            else:
-                results[symbol] = {'symbol': symbol, 'available': 0, 'fee': -99, 'rebate': 99, 'datetime': datetime.min, 'name': 'NA', 'country': 'NA'}
-
-        return results
-
     @timer
-    def update(self, files_to_download = [], update_all = True):
+    def update(self, files_to_download=[], update_all=True):
         """Connect to the IB ftp server and download the latest files
         Write to disk a filename based on the current GMT time and use that file
         to update the Borrow database"""
@@ -118,13 +89,13 @@ class Borrow:
             # Update the borrow database
             self._update_borrow(country, filename)
 
-        self._last_updated = datetime.now()
-        self._update_cache()
-        self._last_cached = datetime.now()
-
         # update symbol lists
         self._all_symbols()
         self._latest_all_symbols()
+
+        # Clear the cusips updated
+        print len(self._cusips_updated), ' symbols updated.'
+        self._cusips_updated = []
 
         # set count variables
         self.all_symbols_count = len(self.all_symbols)
@@ -154,7 +125,6 @@ class Borrow:
 
         return write_filenames
 
-
     def _connect(self):
         """Connect to the PostgreSQL database.  Returns a database connection. Default database is 'stock_loan' """
         try:
@@ -163,7 +133,6 @@ class Borrow:
             return db, cursor
         except:
             print("Could not find the %s database." % self.database_name)
-
 
     def _update_borrow(self, country, filename):
         """update the Borrow database - takes a filename as argument"""
@@ -182,7 +151,6 @@ class Borrow:
         rows = rows[2:]
 
         db, cursor = self._connect()
-        query = ''
         errors_caught = 0
 
         print filename
@@ -193,9 +161,13 @@ class Borrow:
 
             for row in rows:
                 try:
-                    SQL, data = self._insert_borrow(row, datetime)
-                    cursor.execute(SQL, data)
-                    db.commit()
+                    # duplicate check
+                    if row[3] not in self._cusips_updated:
+                        SQL, data = self._insert_borrow(row, datetime)
+                        cursor.execute(SQL, data)
+                        SQL, data = self._update_stocks(row, updated=datetime)
+                        cursor.execute(SQL, data)
+                        self._cusips_updated.append(row[3])
 
                 # Going to happen at end of file
                 except IndexError:
@@ -207,18 +179,18 @@ class Borrow:
                     print 'Integrity error caught, rolling back'
                     print 'Hit cusip ' + row[3]
                     db.rollback()
-                    SQL, data = self._insert_stocks(row, country, suffix)
+                    SQL, data = self._insert_stocks(row, country, suffix, updated=datetime)
                     cursor.execute(SQL, data)
-                    db.commit()
 
                     SQL, data = self._insert_borrow(row, datetime)
                     cursor.execute(SQL, data)
-                    db.commit()
                     errors_caught += 1
 
                 except psycopg2.InternalError:
                     print 'Internal Error caught'
                     errors_caught += 1
+
+                db.commit()
 
             print 'Caught ', errors_caught, ' errors.'
             db.close()
@@ -226,13 +198,20 @@ class Borrow:
         else:
             print 'FILENAME DIDNT MATCH PROPERLY'
 
-    def _insert_stocks(self, row, country, suffix):
+    ### SQL GENERATORS
+    def _insert_stocks(self, row, country, suffix, updated):
         """Returns SQL string and data tuple for use in a row insertion to the stocks table"""
         cusip = row[3]
         symbol = row[0].replace(' ', '.') + suffix
         name = row[2]
-        SQL = "INSERT INTO stocks (cusip, symbol, name, country) VALUES (%s, %s, %s, %s);"
-        data = (cusip, symbol, name, country,)
+        SQL = "INSERT INTO stocks (cusip, symbol, name, country, updated) VALUES (%s, %s, %s, %s, %s);"
+        data = (cusip, symbol, name, country, updated,)
+        return SQL, data
+
+    def _update_stocks(self, row, updated):
+        cusip = row[3]
+        SQL = "UPDATE stocks SET updated = %s WHERE cusip = %s;"
+        data = (updated, cusip,)
         return SQL, data
 
     def _insert_borrow(self, row, datetime):
@@ -248,6 +227,9 @@ class Borrow:
         SQL = "INSERT INTO Borrow (datetime, cusip, rebate, fee, available) VALUES (%s, %s, %s, %s, %s);"
         data = (datetime, cusip, rebate, fee, available,)
         return SQL, data
+
+    #########
+
 
     @timer
     def insert_watchlist(self, userid, symbols):
@@ -364,17 +346,7 @@ class Borrow:
         return watchlist
 
     @timer
-    def tight_borrow(self, available=5000):
-        db, cursor = self._connect()
-        SQL = "SELECT symbol, available FROM stocks JOIN Borrow ON (stocks.cusip = Borrow.cusip) WHERE available < %s;"
-        data = (available,)
-        cursor.execute(SQL, data)
-        results = cursor.fetchall()
-        db.close()
-        return results
-
-    @timer
-    def filter(self, min_available = 0, max_available = 10000000, min_fee = 0, max_fee = 100, country = 'usa', order_by = 'symbol'):
+    def filter(self, min_available=0, max_available=10000000, min_fee=0, max_fee=100, country='usa', order_by='symbol'):
         """General filter function. Loops over the cache testing each stock against the criteria given
         returns a maximum of 100 results"""
 
@@ -383,29 +355,34 @@ class Borrow:
         if order_by not in ['symbol', 'fee', 'available']:
             raise ValueError('Attempted to sort by an invalid field. Only symbol, fee, available allowed')
 
-        # If the cache was last updated before the database was last updated, update the cache before
-        # running the filter
-        if self._last_cached <= self._last_updated:
-            self._update_cache()
-
-        results = []
-
-        # Test every item in the cache against the criteria and append to a list.
-        for stock in self._cache:
-            if self._cache[stock]['country'] == country:
-                if self._cache[stock]['available'] > min_available and self._cache[stock]['available'] < max_available:
-                    if self._cache[stock]['fee'] > min_fee and self._cache[stock]['fee'] < max_fee:
-                        results.append(self._cache[stock])
-
-            if len(results) >= 100: break
-
-        # Sort the list by the given key and return results. Sort by symbol in normal order.
-        # Fee and availability reversed
         if order_by == 'symbol':
-            reverse = False
+            direction = 'ASC'
         else:
-            reverse = True
-        return sorted(results, key = lambda k: k[order_by], reverse=reverse)
+            direction = 'DESC'
+
+        db, cursor = self._connect()
+
+        # This query searches across the borrow database using only the most recent entry for each security
+        SQL = """SELECT symbol, rebate, fee, available, datetime, name, country
+                FROM stocks JOIN borrow ON
+                (stocks.cusip = borrow.cusip AND stocks.updated = borrow.datetime)
+                WHERE available > %s AND available < %s
+                AND fee > %s AND fee < %s
+                AND country = %s
+                ORDER by %s %s
+                LIMIT 100;"""
+        data = (min_available, max_available, min_fee, max_fee, country, AsIs(order_by), AsIs(direction))
+        cursor.execute(SQL, data)
+        results = cursor.fetchall()
+        db.close()
+
+        summary = []
+        for row in results:
+            summary.append(
+                dict(symbol=row[0], rebate=row[1], fee=row[2], available=row[3],
+                     datetime=row[4], name=row[5], country=row[6]))
+
+        return summary
 
     @timer
     def summary_report(self, symbols):
@@ -417,48 +394,29 @@ class Borrow:
             if self._check_symbol(symbol) and symbol.upper() in self.all_symbols:
                 safe_symbols.append(symbol.upper())
 
-        # If the cache was last updated before the database was last updated, update the cache before
-        # getting the summary report
-        if self._last_cached <= self._last_updated:
-            self._update_cache()
+        if safe_symbols:
+            # Select the most recent row for each symbol being searched for
+            db, cursor = self._connect()
+            SQL = """SELECT symbol, rebate, fee, available, datetime, name, country
+                    FROM stocks JOIN borrow ON
+                    (stocks.cusip = borrow.cusip AND stocks.updated = borrow.datetime)
+                    WHERE symbol = ANY(%s)
+                    ORDER BY symbol;"""
+            data = (symbols,)
+            cursor.execute(SQL, data)
+            results = cursor.fetchall()
+            db.close()
 
-        # Get the cache
-        results_dict = self._get_cache(safe_symbols)
+            summary = []
+            for row in results:
+                summary.append(
+                    dict(symbol=row[0], rebate=row[1], fee=row[2], available=row[3],
+                         datetime=row[4], name=row[5], country=row[6]))
 
-        # Turn the cache, which is just a dictionary, into a sorted by symbol list of dictionaries for
-        # Ease of use externally
-        results =[]
-        for item in results_dict:
-            results.append(results_dict[item])
-        results = sorted(results, key = lambda k: k['symbol'])
+            return summary
 
-        return results
-
-
-    def _summary_report_dict(self, symbols):
-        """Run a database query on every symbol in the list passed in. Return a dictionary with keys as symbols
-        and values as a dictionary for each field returned (including symbol)"""
-        db, cursor = self._connect()
-
-
-        SQL = """WITH Latest (symbol, rebate, fee, available, datetime, name, country, Ord)
-                AS (
-                SELECT symbol, rebate, fee, available, datetime, name, country,
-                ROW_NUMBER() OVER (PARTITION BY borrow.cusip ORDER BY datetime DESC)
-                FROM stocks JOIN borrow ON (stocks.cusip = borrow.cusip) WHERE symbol = ANY(%s)
-                )
-                SELECT  symbol, rebate, fee, available, datetime, name, country from Latest WHERE Ord = 1
-                ORDER BY symbol;"""
-        data = (symbols, )
-        cursor.execute(SQL, data)
-        results =cursor.fetchall()
-        db.close()
-
-        dict_results = {}
-        for row in results:
-            dict_results[row[0]] = {'symbol': row[0], 'rebate': row[1], 'fee': row[2], 'available': row[3], 'datetime': row[4], 'name': row[5], 'country': row[6]}
-
-        return dict_results
+        else:
+            return None
 
     @timer
     def historical_report(self, symbol, real_time=False):
@@ -492,7 +450,7 @@ class Borrow:
         if results:
             return results
         else:
-            return  None
+            return None
 
     def get_company_name(self, symbol):
         """Returns the name of a Company given a symbol. Returns None if no symbol exists"""
@@ -515,8 +473,6 @@ class Borrow:
         db.close()
         return name
 
-
-
     @timer
     def _latest_all_symbols(self):
         """Set the class variable list of every symbol in the latest update from IB"""
@@ -538,7 +494,7 @@ class Borrow:
         SQL = """SELECT DISTINCT symbol FROM stocks;"""
         cursor.execute(SQL)
         results = []
-        rows  = cursor.fetchall()
+        rows = cursor.fetchall()
         for row in rows:
             results.append(row[0])
         db.close()
