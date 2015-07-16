@@ -76,6 +76,9 @@ class Borrow:
         self.all_symbols_count = len(self.all_symbols)
         self.latest_symbols_count = len(self.latest_symbols)
 
+        # timestamp dictionary - for avoiding duplicate imports
+        self._timestamps = {country: None for country in self.file_names}
+
     @timer
     def update(self, files_to_download=[], update_all=True):
         """Connect to the IB ftp server and download the latest files
@@ -146,6 +149,13 @@ class Borrow:
         time = rows[0][2]
         datetime = ' '.join((date, time))
         print datetime
+
+        # Check to make sure the file hasn't already been scraped and added to the database
+        if datetime == self._timestamps[country]:
+            print 'Already updated this country - moving on'
+            return None
+        else:
+            self._timestamps[country] = datetime
 
         # Cut off the first two rows that don't contain( stock data
         rows = rows[2:]

@@ -37,16 +37,17 @@ def send_emails(users, stockLoan):
     for user in users:
         watchlist = stockLoan.get_watchlist(user.id)
         summary = stockLoan.summary_report(watchlist)
-        html = env.get_template(EMAIL_TEMPLATE).render(summary=summary, user_name=user.username)
+        if summary != []:
+            html = env.get_template(EMAIL_TEMPLATE).render(summary=summary, user_name=user.username)
 
-        sub = 'Morning email update for ' + user.username
+            sub = 'Morning email update for ' + user.username
 
-        msg = MIMEMultipart()
-        msg['From'] = 'Iborrow Desk'
-        msg['To'] = user.email
-        msg['Subject'] = sub
+            msg = MIMEMultipart()
+            msg['From'] = 'Iborrow Desk'
+            msg['To'] = user.email
+            msg['Subject'] = sub
 
-        msg.attach(MIMEText(html, 'html'))
-        server.sendmail(username, user.email, msg.as_string())
+            msg.attach(MIMEText(html, 'html'))
+            server.sendmail(username, user.email, msg.as_string())
 
     server.quit()
