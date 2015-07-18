@@ -17,10 +17,24 @@
 		<script src="https://code.jquery.com/jquery.js"></script>
 		<!-- Include all compiled plugins (below), or include individual files as needed -->
 		<script src="{{ url_for('static', filename='bootstrap.min.js')}}"></script>
-		<script src="{{ url_for('static', filename='jasny-bootstrap.min.js')}}"></script><div class = "container">
-			<div class="row page-header">
+		<script src="{{ url_for('static', filename='jasny-bootstrap.min.js')}}"></script>
+        <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-65249305-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+
+        <div class = "container">
+
+            <div class="row page-header">
 				<div class="col-sm-6">
 					<h1><a href = "{{url_for('main_page')}}">I Borrow Desk</a></h1>
+					<a href="https://twitter.com/IBorrowDesk">@IBorrowDesk</a>
 				</div>
 
 				<div class="col-sm-6 text-right">

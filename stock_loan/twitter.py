@@ -8,7 +8,7 @@ from twython import TwythonStreamer
 from twython import Twython
 
 # import the stock loan access instance from routes
-from routes import stock_loan
+from borrow import Borrow
 
 dirname, file_name = os.path.split(os.path.abspath(__file__))
 
@@ -30,6 +30,9 @@ class BorrowStreamer(TwythonStreamer):
         # Will live inside the actual Streamer object
         TwythonStreamer.__init__(self, *a, **kw)
         print 'in borrow streamer'
+
+        # Create a Borrow instance
+        self._stock_loan = Borrow(database_name='stock_loan', create_new=False)
 
     def on_success(self, data):
         """If the streamer receives a tweet that matches its filter"""
@@ -60,14 +63,15 @@ class BorrowStreamer(TwythonStreamer):
         print 'matches were ' + str(matches)
         if matches:
 
-            summary = stock_loan.summary_report(matches)
-
+            summary = self._stock_loan.summary_report(matches)
+            print summary
             # Confirm the summary report is not empty
-            if summary != []:
+            if summary != None:
 
                 for ticker in summary:
+                    print 'looping through symbols'
                     #Grab the summary report (it is the first element in the list)
-
+                    print ticker['symbol']
                     #extract the relevant information from the summary report and build a status string
                     symbol = ticker['symbol']
                     name = ticker['name'][:20]
@@ -99,5 +103,6 @@ class BorrowStreamer(TwythonStreamer):
 
 def run_twitter_stream():
     print 'in run twitter stream'
+
     stream = BorrowStreamer(APP_KEY, APP_SECRET, OAUTH_TOKEN, OAUTH_TOKEN_SECRET)
     stream.statuses.filter(track='@IBorrowDesk')

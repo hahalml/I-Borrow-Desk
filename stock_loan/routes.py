@@ -10,14 +10,13 @@ from flask import render_template, request, redirect, url_for, flash
 from flask.ext.login import login_user, logout_user, current_user, login_required
 from apscheduler.schedulers.background import BackgroundScheduler
 
-from stock_loan import app, login_manager, db
+from . import app, login_manager, db, stock_loan
 from models import User
-from borrow import Borrow
+
 from email_update import send_emails
 from forms import RegistrationForm, ChangePasswordForm, ChangeEmailForm, FilterForm
 from flask_admin import Admin, BaseView, expose
 from flask_admin.contrib.sqla import ModelView
-from stock_loan.timed_function import timer
 
 dirname, filename = os.path.split(os.path.abspath(__file__))
 
@@ -144,14 +143,19 @@ def historical_report():
         if not name:
             print 'cache miss on ' + key_symbol
             name = stock_loan.get_company_name(symbol)
-            mc.set(key_symbol, name)
+            if name:
+                mc.set(key_symbol, name)
 
         key_summary = str(symbol + str(real_time))
         summary = mc.get(key_summary)
         if not summary:
             print 'cache miss on ' + key_summary
             summary = stock_loan.historical_report(symbol, real_time)
-            mc.set(key_summary, summary)
+            if summary:
+                mc.set(key_summary, summary)
+
+        if not summary:
+            flash(symbol +  ' not found')
 
         delta = datetime.now() - timein
         print 'Historical report took ' + str(delta)
@@ -312,7 +316,7 @@ def initialize():
     apsched.start()
 
     # Add a job - morning emails
-    apsched.add_job(email_job, 'cron', day_of_week='mon-fri', hour=9, minute=5, timezone='America/New_York')
+    apsched.add_job(email_job, 'cron', day_of_week='mon-fri', hour=9, minute=4, timezone='America/New_York')
 
     # Add a job for updating the entire database (940am weekdays EST to be stored for historical reports -
     # won't collide with other updates)
@@ -369,10 +373,3 @@ def update_database_asia():
     # Update the db
     stock_loan.update(files_to_download=['australia', 'hongkong', 'india', 'japan'], update_all=False)
 
-# Create a Borrow instance
-stock_loan = Borrow(database_name='stock_loan', create_new=False)
-
-# import twitter
-
-# Start separate thread to run the twitter bot after confirming not running locally
-# thread.start_new_thread(twitter.run_twitter_stream, ())

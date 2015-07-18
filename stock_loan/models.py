@@ -1,5 +1,5 @@
 __author__ = 'Cameron'
-from stock_loan import db
+from . import db
 from werkzeug import generate_password_hash, check_password_hash
 
 

@@ -51,6 +51,9 @@ class Borrow:
                  create_new=False):
         """Initialize, unless create_new is True the stocks database won't be initialize.
         However, currently the class requires the proper database to be previously created"""
+
+        print("Initializing Borrow")
+
         self.database_name = database_name
 
         # Check all the passed in file names against the dictionary of allowed ones, append valid ones to
@@ -240,7 +243,6 @@ class Borrow:
 
     #########
 
-
     @timer
     def insert_watchlist(self, userid, symbols):
         """Takes a userid and list of symbols, adds them to the watchlist database.
@@ -401,10 +403,12 @@ class Borrow:
 
         safe_symbols = []
         for symbol in symbols:
+
             if self._check_symbol(symbol) and symbol.upper() in self.all_symbols:
                 safe_symbols.append(symbol.upper())
 
         if safe_symbols:
+
             # Select the most recent row for each symbol being searched for
             db, cursor = self._connect()
             SQL = """SELECT symbol, rebate, fee, available, datetime, name, country
@@ -412,7 +416,7 @@ class Borrow:
                     (stocks.cusip = borrow.cusip AND stocks.updated = borrow.datetime)
                     WHERE symbol = ANY(%s)
                     ORDER BY symbol;"""
-            data = (symbols,)
+            data = (safe_symbols,)
             cursor.execute(SQL, data)
             results = cursor.fetchall()
             db.close()
@@ -436,7 +440,7 @@ class Borrow:
         if self._check_symbol(symbol):
             safe_symbol = symbol.upper()
         else:
-            return None, None
+            return None
 
         db, cursor = self._connect()
         data = (safe_symbol,)
@@ -479,6 +483,7 @@ class Borrow:
             name = cursor.fetchone()[0]
         except TypeError:
             print 'Symbol not found'
+            db.close()
             return None
         db.close()
         return name
