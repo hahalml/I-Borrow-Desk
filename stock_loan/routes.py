@@ -184,8 +184,9 @@ def filter():
         return render_template(FILTER_TEMPLATE, form=form, summary=[])
 
 
-@login_required
+
 @app.route('/change_morning_email')
+@login_required
 def change_morning_email():
     """Change morning email preference"""
     new_preference = request.args['receive']
@@ -202,8 +203,9 @@ def change_morning_email():
     return redirect(url_for('watch_list'))
 
 
-@login_required
+
 @app.route('/change_password', methods=['GET', 'POST'])
+@login_required
 def change_password():
     """Change password handler"""
     form = ChangePasswordForm(request.form)
@@ -221,8 +223,8 @@ def change_password():
     return render_template(CHANGE_PASSWORD_TEMPLATE, form=form)
 
 
-@login_required
 @app.route('/change_email', methods=['GET', 'POST'])
+@login_required
 def change_email():
     """Change email handler"""
     form = ChangeEmailForm(request.form)
