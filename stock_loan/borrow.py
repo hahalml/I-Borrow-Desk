@@ -521,7 +521,7 @@ class Borrow:
         while getting rid of stale intraday data"""
         db, cursor = self._connect()
         SQL = """DELETE FROM Borrow
-              WHERE cast(datetime as time) NOT BETWEEN '9:35' and '9:44'
+              WHERE cast(datetime as time) NOT BETWEEN '9:25' and '9:35'
               AND datetime < now() - interval '7days';"""
 
         cursor.execute(SQL)

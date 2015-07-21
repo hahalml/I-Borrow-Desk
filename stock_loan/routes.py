@@ -325,6 +325,9 @@ def initialize():
     apsched.add_job(update_database_all, 'cron', day_of_week='mon-fri', minute='40', hour='9',
                     timezone='America/New_York')
 
+    # Add a job for cleaning the database
+    apsched.add_job(clean_db, 'cron', day_of_week='mon-fri', minute='5', hour='0', timezone='America/New_York')
+
     # Add jobs for each region so database is updated roughly in line with market hours
     apsched.add_job(update_database_north_america, 'cron', day_of_week='mon-fri', minute='1-46/15', hour='8-17',
                     timezone='America/New_York')
@@ -375,3 +378,6 @@ def update_database_asia():
     # Update the db
     stock_loan.update(files_to_download=['australia', 'hongkong', 'india', 'japan'], update_all=False)
 
+def clean_db():
+    """Helper function for cleaning the database"""
+    stock_loan.clean_dbase()

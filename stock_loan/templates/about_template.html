@@ -2,7 +2,6 @@
 
 {% block content %}
 
-
     <div class= "col-sm-9">
         <h3>About</h3>
         <p>I worked in finance for the past five years, with my last year or so doing a decent amount of short
@@ -14,9 +13,12 @@
         <a href="https://www.udacity.com/course/full-stack-web-developer-nanodegree--nd004">Full Stack Nanodegree</a>
         I figured this database would be a fun place to start building a working (maybe even useful) web app.</p>
 
-        <p>Built in Python, I used the <a href="http://flask.pocoo.org/">Flask</a> framework and SQLAlchemy/SQLite
-            for the user database and postgreSQL for the borrow database. Performance is ok thanks to caching for
-            everything but historical reports.</p>
+        <p>Built in Python, I used the <a href="http://flask.pocoo.org/">Flask</a> framework and SQLAlchemy
+            for the user database and postgreSQL for the borrow database. Memcached caches historical reports for
+        those pesky Twitter bots.</p>
+
+        <p>Speaking of Twitter bots <a href="https://twitter.com/IBorrowDesk">@IBorrowDesk</a> has access to this database.
+            Tweet a ticker symbol at it and it will tweet back its fee and availability!</p>
 
         <p>You can reach me at <a href="mailto:cameron.mochrie@gmail.com">cameron.mochrie@gmail.com</a>. The source for
         I Borrow Desk is available at <a href="https://github.com/cjmochrie/I-Borrow-Desk">GitHub</a></p>
