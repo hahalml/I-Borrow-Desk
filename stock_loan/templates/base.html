@@ -40,7 +40,9 @@
 				<div class="col-sm-6 text-right">
 					{% if current_user.is_authenticated() %}
 						<a href='{{url_for('logout')}}'>Logout </a><br>
-                        <a href="{{ url_for('adminview.index') }}">Admin</a>
+						{% if current_user.is_admin() %}
+						    <a href="{{ url_for('adminview.index') }}">Admin</a>
+                        {% endif %}
 					{% else %}
 						<a href='{{url_for('login')}}'>Login </a>
 					{% endif %}
