@@ -11,3 +11,4 @@ CREATE TABLE borrow (id SERIAL PRIMARY KEY, datetime TIMESTAMP,
 
 CREATE TABLE watchlist (userid INT, cusip INT REFERENCES stocks(cusip));
 
+CREATE TABLE search (id SERIAL PRIMARY KEY, symbol TEXT, userid INT, datetime TIMESTAMP);

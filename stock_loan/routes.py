@@ -160,6 +160,12 @@ def historical_report():
         delta = datetime.now() - timein
         print 'Historical report took ' + str(delta)
 
+        if current_user.is_authenticated():
+            stock_loan.search(symbol=symbol, userid=current_user.id)
+        else:
+           stock_loan.search(symbol=symbol)
+
+
     return render_template(HISTORICAL_REPORT_TEMPLATE, symbol=symbol, name=name, summary=summary)
 
 

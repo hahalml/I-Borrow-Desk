@@ -33,7 +33,7 @@ admin.add_view(DbView(User, db.session))
 import twitter
 
 #Start separate thread to run the twitter bot after confirming not running locally
-thread.start_new_thread(twitter.run_twitter_stream, ())
+#thread.start_new_thread(twitter.run_twitter_stream, ())
 
 
 #Build the database

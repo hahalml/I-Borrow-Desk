@@ -466,6 +466,19 @@ class Borrow:
         else:
             return None
 
+    @timer
+    def search(self, symbol, userid=None):
+        """Method to record searches of the database"""
+
+        db, cursor = self._connect()
+
+        data = (symbol, userid, datetime.now())
+        SQL = """INSERT INTO search(symbol, userid, datetime) VALUES(%s, %s, %s);"""
+        cursor.execute(SQL, data)
+        db.commit()
+        db.close()
+
+
     def get_company_name(self, symbol):
         """Returns the name of a Company given a symbol. Returns None if no symbol exists"""
         if self._check_symbol(symbol):
