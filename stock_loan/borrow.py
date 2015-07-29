@@ -394,6 +394,12 @@ class Borrow:
                 dict(symbol=row[0], rebate=row[1], fee=row[2], available=row[3],
                      datetime=row[4], name=row[5], country=row[6]))
 
+        print "Running Filter"
+        print country
+        print min_available, ' ', max_available
+        print min_fee, ' ', max_fee
+        print order_by
+
         return summary
 
     @timer
