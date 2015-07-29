@@ -1,11 +1,13 @@
+from __future__ import print_function
+from __future__ import absolute_import
 import csv
-from timed_function import timer
+from .timed_function import timer
 from ftplib import FTP
 import time
 from datetime import datetime
 import re
 import os
-import ConfigParser
+import configparser
 
 import psycopg2
 from psycopg2.extensions import AsIs
@@ -14,7 +16,7 @@ dirname, file_name = os.path.split(os.path.abspath(__file__))
 DOWNLOAD_DIRECTORY = dirname + '/downloads/'
 
 # Grab database config
-parser = ConfigParser.ConfigParser()
+parser = configparser.ConfigParser()
 parser.read(dirname + '/database_settings.cfg')
 username = parser.get('postgresql', 'username')
 password = parser.get('postgresql', 'password')
@@ -83,7 +85,7 @@ class Borrow:
         self._timestamps = {country: None for country in self.file_names}
 
     @timer
-    def update(self, files_to_download=[], update_all=True):
+    def update(self, files_to_download=None, update_all=True):
         """Connect to the IB ftp server and download the latest files
         Write to disk a filename based on the current GMT time and use that file
         to update the Borrow database"""
@@ -100,7 +102,7 @@ class Borrow:
         self._latest_all_symbols()
 
         # Clear the cusips updated
-        print len(self._cusips_updated), ' symbols updated.'
+        print(len(self._cusips_updated), ' symbols updated.')
         self._cusips_updated = []
 
         # set count variables
@@ -119,7 +121,7 @@ class Borrow:
         if update_all:
             files_to_download = self.file_names
         else:
-            if files_to_download == []:
+            if files_to_download is None:
                 raise ValueError('update_all flag set to false but no files to download indicated')
 
         for country in files_to_download:
@@ -151,11 +153,11 @@ class Borrow:
         date = rows[0][1].replace('.', '-')
         time = rows[0][2]
         datetime = ' '.join((date, time))
-        print datetime
+        print(datetime)
 
         # Check to make sure the file hasn't already been scraped and added to the database
         if datetime == self._timestamps[country]:
-            print 'Already updated this country - moving on'
+            print('Already updated this country - moving on')
             return None
         else:
             self._timestamps[country] = datetime
@@ -166,8 +168,8 @@ class Borrow:
         db, cursor = self._connect()
         errors_caught = 0
 
-        print filename
-        print country
+        print(filename)
+        print(country)
 
         if country in COUNTRY_CODE:
             suffix = COUNTRY_CODE[country]
@@ -184,13 +186,13 @@ class Borrow:
 
                 # Going to happen at end of file
                 except IndexError:
-                    print 'Index error caught'
+                    print('Index error caught')
 
                 # Will occur when a new stock appears in the database. roll back any pending transactions
                 # Insert the stock into the stocks database then insert into Borrow database
                 except psycopg2.IntegrityError:
-                    print 'Integrity error caught, rolling back'
-                    print 'Hit cusip ' + row[3]
+                    print('Integrity error caught, rolling back')
+                    print('Hit cusip ' + row[3])
                     db.rollback()
                     SQL, data = self._insert_stocks(row, country, suffix, updated=datetime)
                     cursor.execute(SQL, data)
@@ -200,16 +202,16 @@ class Borrow:
                     errors_caught += 1
 
                 except psycopg2.InternalError:
-                    print 'Internal Error caught'
+                    print('Internal Error caught')
                     errors_caught += 1
 
                 db.commit()
 
-            print 'Caught ', errors_caught, ' errors.'
+            print('Caught ', errors_caught, ' errors.')
             db.close()
 
         else:
-            print 'FILENAME DIDNT MATCH PROPERLY'
+            print('FILENAME DIDNT MATCH PROPERLY')
 
     ### SQL GENERATORS
     def _insert_stocks(self, row, country, suffix, updated):
@@ -394,11 +396,11 @@ class Borrow:
                 dict(symbol=row[0], rebate=row[1], fee=row[2], available=row[3],
                      datetime=row[4], name=row[5], country=row[6]))
 
-        print "Running Filter"
-        print country
-        print min_available, ' ', max_available
-        print min_fee, ' ', max_fee
-        print order_by
+        print("Running Filter")
+        print(country)
+        print(min_available, ' ', max_available)
+        print(min_fee, ' ', max_fee)
+        print(order_by)
 
         return summary
 
@@ -501,7 +503,7 @@ class Borrow:
         try:
             name = cursor.fetchone()[0]
         except TypeError:
-            print 'Symbol not found'
+            print('Symbol not found')
             db.close()
             return None
         db.close()

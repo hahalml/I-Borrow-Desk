@@ -1,11 +1,12 @@
+from __future__ import print_function
 #
 # Script to run every morning to send out email updates of watch lists
 #
 # http://www.jayrambhia.com/blog/send-emails-using-python/
 import smtplib
 import os
-from email.MIMEMultipart import MIMEMultipart
-from email.MIMEText import MIMEText
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 import jinja2
 
 dirname, filename = os.path.split(os.path.abspath(__file__))
@@ -38,8 +39,8 @@ def send_emails(users, stockLoan):
         watchlist = stockLoan.get_watchlist(user.id)
         summary = stockLoan.summary_report(watchlist)
         if summary:
-            print 'Running email for ', user.username
-            print summary [0]
+            print('Running email for ', user.username)
+            print(summary [0])
             html = env.get_template(EMAIL_TEMPLATE).render(summary=summary, user_name=user.username)
 
             sub = 'Morning email update for ' + user.username
@@ -52,6 +53,6 @@ def send_emails(users, stockLoan):
             msg.attach(MIMEText(html, 'html'))
             server.sendmail(username, user.email, msg.as_string())
         else:
-            print 'Empty watchlist for ', user.username
+            print('Empty watchlist for ', user.username)
 
     server.quit()

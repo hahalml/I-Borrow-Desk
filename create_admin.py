@@ -7,10 +7,10 @@ def create_admin(username, password, email, receive_email):
         admin = User(username, password, email, bool(receive_email), True)
         db.session.add(admin)
         db.session.commit()
-        print 'Admin with username %s successfully created.' %username
+        print('Admin with username %s successfully created.' %username)
         return None
     except:
-         print "Something went wrong. No username created."
+         print("Something went wrong. No username created.")
          return None
 
 

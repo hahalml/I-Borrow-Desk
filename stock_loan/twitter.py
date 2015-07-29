@@ -1,4 +1,6 @@
-import ConfigParser
+from __future__ import print_function
+from __future__ import absolute_import
+import configparser
 import os
 import re
 
@@ -8,12 +10,12 @@ from twython import TwythonStreamer
 from twython import Twython
 
 # import the stock loan access instance from routes
-from borrow import Borrow
+from .borrow import Borrow
 
 dirname, file_name = os.path.split(os.path.abspath(__file__))
 
 # Grab Twitter  config
-parser = ConfigParser.ConfigParser()
+parser = configparser.ConfigParser()
 parser.read(dirname + '/twitter_settings.cfg')
 APP_KEY = parser.get('twitter', 'APP_KEY')
 APP_SECRET = parser.get('twitter', 'APP_SECRET')
@@ -29,7 +31,7 @@ class BorrowStreamer(TwythonStreamer):
 
         # Will live inside the actual Streamer object
         TwythonStreamer.__init__(self, *a, **kw)
-        print 'in borrow streamer'
+        print('in borrow streamer')
 
         # Create a Borrow instance
         self._stock_loan = Borrow(database_name='stock_loan', create_new=False)
@@ -40,38 +42,38 @@ class BorrowStreamer(TwythonStreamer):
             # Check that it wasn't one of the bot's own tweets
             if data['user']['screen_name'] != 'IBorrowDesk':
                 #Print out the tweet's text, author screename and id and call the respond function
-                print data['text'].encode('utf-8')
-                print data['user']['screen_name'].encode('utf-8')
-                print data['id_str'].encode('utf-8')
+                print(data['text'].encode('utf-8'))
+                print(data['user']['screen_name'].encode('utf-8'))
+                print(data['id_str'].encode('utf-8'))
                 self._respond(data)
 
 
     def on_error(self, status_code, data):
-        print status_code
-        print data
+        print(status_code)
+        print(data)
 
         # Want to stop trying to get data because of the error?
         # Uncomment the next line!
         #self.disconnect()
-        print "There was an error"
+        print("There was an error")
 
     def _respond(self, data):
 
         # Grab the tweet's text and try to extract a symbol from it
         text = data['text'].encode('utf-8')
         matches = re.findall(TICKER_MATCH, text)
-        print 'matches were ' + str(matches)
+        print('matches were ' + str(matches))
         if matches:
 
             summary = self._stock_loan.summary_report(matches)
-            print summary
+            print(summary)
             # Confirm the summary report is not empty
             if summary != None:
 
                 for ticker in summary:
-                    print 'looping through symbols'
+                    print('looping through symbols')
                     #Grab the summary report (it is the first element in the list)
-                    print ticker['symbol']
+                    print(ticker['symbol'])
                     #extract the relevant information from the summary report and build a status string
                     symbol = ticker['symbol']
                     name = ticker['name'][:20]
@@ -92,17 +94,17 @@ class BorrowStreamer(TwythonStreamer):
                     # Update status
                     self._twitter.update_status(status=status, in_reply_to_status_id=id_str)
 
-                    print 'Match found %s' %ticker
-                    print 'Responded with %s' %status
+                    print('Match found %s' %ticker)
+                    print('Responded with %s' %status)
 
             else:
-                print 'Invalid symbols matched'
+                print('Invalid symbols matched')
         else:
-            print 'No match found'
+            print('No match found')
 
 
 def run_twitter_stream():
-    print 'in run twitter stream'
+    print('in run twitter stream')
 
     stream = BorrowStreamer(APP_KEY, APP_SECRET, OAUTH_TOKEN, OAUTH_TOKEN_SECRET)
     stream.statuses.filter(track='@IBorrowDesk')

@@ -1,7 +1,8 @@
+from __future__ import print_function
+from __future__ import absolute_import
 import os
 import logging
 import random
-import thread
 import string
 import memcache
 from datetime import datetime
@@ -11,10 +12,10 @@ from flask.ext.login import login_user, logout_user, current_user, login_require
 from apscheduler.schedulers.background import BackgroundScheduler
 
 from . import app, login_manager, db, stock_loan
-from models import User
+from .models import User
 
-from email_update import send_emails
-from forms import RegistrationForm, ChangePasswordForm, ChangeEmailForm, FilterForm
+from .email_update import send_emails
+from .forms import RegistrationForm, ChangePasswordForm, ChangeEmailForm, FilterForm
 from flask_admin import Admin, BaseView, expose
 from flask_admin.contrib.sqla import ModelView
 
@@ -78,7 +79,7 @@ def load_user(userid):
 @app.route('/')
 def main_page():
     """Mainpage handler"""
-    symbols = [random.choice(stock_loan.latest_symbols) for i in xrange(0, 15)]
+    symbols = [random.choice(stock_loan.latest_symbols) for i in range(0, 15)]
     summary = stock_loan.summary_report(symbols)
     number_of_symbols = stock_loan.all_symbols_count
     return render_template(MAIN_PAGE_TEMPLATE, summary=summary, number_of_symbols=number_of_symbols)
@@ -136,12 +137,12 @@ def historical_report():
     # Get the company name and a report based on the url parameters.
     # Check the memcache first for both. If they are not there, go to the db and update the cache
     if symbol:
-        print 'Running historical report on ' + symbol
+        print('Running historical report on ' + symbol)
         timein = datetime.now()
         key_symbol = str(symbol)
         name = mc.get(key_symbol)
         if not name:
-            print 'cache miss on ' + key_symbol
+            print('cache miss on ' + key_symbol)
             name = stock_loan.get_company_name(symbol)
             if name:
                 mc.set(key_symbol, name)
@@ -149,7 +150,7 @@ def historical_report():
         key_summary = str(symbol + str(real_time))
         summary = mc.get(key_summary)
         if not summary:
-            print 'cache miss on ' + key_summary
+            print('cache miss on ' + key_summary)
             summary = stock_loan.historical_report(symbol, real_time)
             if summary:
                 mc.set(key_summary, summary)
@@ -158,7 +159,7 @@ def historical_report():
             flash(symbol +  ' not found')
 
         delta = datetime.now() - timein
-        print 'Historical report took ' + str(delta)
+        print('Historical report took ' + str(delta))
 
         if current_user.is_authenticated():
             stock_loan.search(symbol=symbol, userid=current_user.id)

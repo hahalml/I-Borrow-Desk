@@ -1,7 +1,9 @@
+from __future__ import print_function
+from __future__ import absolute_import
 import Quandl
 from Quandl.Quandl import DatasetNotFound
 
-from borrow import Borrow
+from .borrow import Borrow
 
 with open('quandl.txt') as f:
     auth_token = f.read()
