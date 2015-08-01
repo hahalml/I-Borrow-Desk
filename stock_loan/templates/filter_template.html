@@ -11,7 +11,7 @@
         {% from "_formhelpers.html" import render_field %}
 
         <h3>Database Search</h3>
-        <form action="{{ url_for('filter') }}" method=post class="form-group">
+        <form action="{{ url_for('filter_db') }}" method=post class="form-group">
             {{ form.hidden_tag() }}
             <div class="row">
                 <div class="col-sm-4">

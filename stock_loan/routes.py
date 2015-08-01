@@ -101,16 +101,16 @@ def watch_list():
             symbols_added, symbols_failed_to_be_added = stock_loan.insert_watchlist(current_user.id, symbols)
             if symbols_added:
                 for symbol in symbols_added:
-                    flash("Added %s to your watchlist" % symbol)
+                    flash("Added {} to your watchlist".format(symbol))
             if symbols_failed_to_be_added:
                 for symbol in symbols_failed_to_be_added:
-                    flash("Failed to add %s to your watchlist" % symbol)
+                    flash("Failed to add {} to your watchlist".format(symbol))
 
         if symbols_to_remove != ['']:
             symbols_removed = stock_loan.remove_watchlist(current_user.id, symbols_to_remove)
             if symbols_removed:
                 for symbol in symbols_removed:
-                    flash("Removed %s from your watchlist" % symbol)
+                    flash("Removed {} from your watchlist".format(symbol))
 
     # Get user's watchlist summary
     watchlist = stock_loan.get_watchlist(current_user.id)
@@ -170,12 +170,12 @@ def historical_report():
     return render_template(HISTORICAL_REPORT_TEMPLATE, symbol=symbol, name=name, summary=summary)
 
 
-@app.route('/filter', methods=['GET', 'POST'])
-def filter():
-    """Handler for the filter page"""
+@app.route('/filter_db', methods=['GET', 'POST'])
+def filter_db():
+    """Handler for the filter_db page"""
     form = FilterForm(request.form)
     if request.method == 'POST' and form.validate():
-        summary = stock_loan.filter(min_available=form.min_available.data,
+        summary = stock_loan.filter_db(min_available=form.min_available.data,
                                     max_available=form.max_available.data,
                                     min_fee=form.min_fee.data,
                                     max_fee=form.max_fee.data,
@@ -185,7 +185,7 @@ def filter():
         if len(summary) == 100:
             flash('Results capped at 100')
         else:
-            flash('Found %s results' % len(summary))
+            flash('Found {} results'.format(len(summary)))
         return render_template(FILTER_TEMPLATE, form=form, summary=summary)
     else:
         return render_template(FILTER_TEMPLATE, form=form, summary=[])
@@ -240,7 +240,7 @@ def change_email():
             current_user.email = form.new_email.data
             db.session.add(current_user)
             db.session.commit()
-            flash('Email changed to %s' % form.new_email.data)
+            flash('Email changed to {}'.format(form.new_email.data))
             return redirect(url_for('watch_list'))
         else:
             flash('Incorrect password entered')
@@ -294,7 +294,7 @@ def login():
     # Flask login
     login_user(user)
 
-    flash('Welcome %s!' % user.username)
+    flash('Welcome {}!'.format(user.username))
     return redirect(url_for('watch_list'))
 
 

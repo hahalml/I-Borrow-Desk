@@ -35,7 +35,7 @@ class User(db.Model):
         return False
 
     def get_id(self):
-        return unicode(self.id)
+        return self.id
 
     def is_admin(self):
         return self.admin

@@ -7,7 +7,7 @@ def timer(f):
         ts = time.time()
         result = f(*args, **kw)
         te = time.time()
-        print(f.__name__ + ' took %s seconds' % (te - ts))
+        print(f.__name__ + ' took {} seconds'.format(te - ts))
         return result
 
     return decorated

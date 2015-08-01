@@ -7,16 +7,16 @@ def create_admin(username, password, email, receive_email):
         admin = User(username, password, email, bool(receive_email), True)
         db.session.add(admin)
         db.session.commit()
-        print('Admin with username %s successfully created.' %username)
+        print('Admin with username {} successfully created.'.format(username))
         return None
     except:
          print("Something went wrong. No username created.")
          return None
 
 
-username = raw_input("Admin username: ")
-password = raw_input("Admin password: ")
-email = raw_input("Admin email: ")
-receive_email = raw_input("Receive Email? True/False: ")
+username = input("Admin username: ")
+password = input("Admin password: ")
+email = input("Admin email: ")
+receive_email = input("Receive Email? True/False: ")
 
 create_admin(username, password, email, receive_email)

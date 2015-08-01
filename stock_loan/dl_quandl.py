@@ -12,7 +12,7 @@ shares_out = []
 
 
 stock_loan=Borrow()
-symbols = stock_loan.filter(order_by='fee')
+symbols = stock_loan.filter_db(order_by='fee')
 
 for symbol in symbols[:100]:
     request_string = "SEC/{}MARKETCAPITALIZATION_Q".format(symbol['symbol'])

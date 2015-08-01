@@ -22,6 +22,7 @@ APP_SECRET = parser.get('twitter', 'APP_SECRET')
 OAUTH_TOKEN = parser.get('twitter', 'OAUTH_TOKEN')
 OAUTH_TOKEN_SECRET = parser.get('twitter', 'OAUTH_TOKEN_SECRET')
 
+
 class BorrowStreamer(TwythonStreamer):
     """Twitter Streamer class for responding to tweets at the bot"""
     def __init__(self, *a, **kw):
@@ -37,14 +38,14 @@ class BorrowStreamer(TwythonStreamer):
         self._stock_loan = Borrow(database_name='stock_loan', create_new=False)
 
     def on_success(self, data):
-        """If the streamer receives a tweet that matches its filter"""
+        """If the streamer receives a tweet that matches its filter_db"""
         if 'text' in data:
             # Check that it wasn't one of the bot's own tweets
             if data['user']['screen_name'] != 'IBorrowDesk':
                 #Print out the tweet's text, author screename and id and call the respond function
-                print(data['text'].encode('utf-8'))
-                print(data['user']['screen_name'].encode('utf-8'))
-                print(data['id_str'].encode('utf-8'))
+                print(data['text'])
+                print(data['user']['screen_name'])
+                print(data['id_str'])
                 self._respond(data)
 
 
@@ -60,7 +61,7 @@ class BorrowStreamer(TwythonStreamer):
     def _respond(self, data):
 
         # Grab the tweet's text and try to extract a symbol from it
-        text = data['text'].encode('utf-8')
+        text = data['text']
         matches = re.findall(TICKER_MATCH, text)
         print('matches were ' + str(matches))
         if matches:
@@ -80,22 +81,22 @@ class BorrowStreamer(TwythonStreamer):
                     available = '{:,}'.format(ticker['available'])
                     fee = '{:.1%}'.format(ticker['fee']/100)
                     datetime = ticker['datetime']
-                    url = 'http://cameronmochrie.com/IBorrowDesk/historical_report?symbol=%s&&real_time=True' %symbol
+                    url = 'http://cameronmochrie.com/IBorrowDesk/historical_report?symbol={}&&real_time=True'.format(symbol)
 
-                    screen_name = data['user']['screen_name'].encode('utf-8')
+                    screen_name = data['user']['screen_name']
 
-                    status = '@%s $%s %s, Available: %s, Fee: %s, Last Updated: %s ' \
-                             %(screen_name, symbol, name, available, fee, datetime)
+                    status = '@{} ${} {}, Available: {}, Fee: {}, Last Updated: {} '.format(screen_name, symbol, name,
+                                                                                            available, fee, datetime)
                     status = status + url
 
                     # Grab the id of the user that tweeted at the bot
-                    id_str = data['id_str'].encode('utf-8').encode('utf-8')
+                    id_str = data['id_str']
 
                     # Update status
                     self._twitter.update_status(status=status, in_reply_to_status_id=id_str)
 
-                    print('Match found %s' %ticker)
-                    print('Responded with %s' %status)
+                    print('Match found {}'.format(ticker))
+                    print('Responded with {}'.format(status))
 
             else:
                 print('Invalid symbols matched')

@@ -93,7 +93,7 @@ class Borrow:
         # Get the files and filenames. Default is to just get them all (update_all)
         write_filenames = self._download_files(files_to_download=files_to_download, update_all=update_all)
 
-        for country, filename in write_filenames.iteritems():
+        for country, filename in write_filenames.items():
             # Update the borrow database
             self._update_borrow(country, filename)
 
@@ -140,12 +140,12 @@ class Borrow:
             cursor = db.cursor()
             return db, cursor
         except:
-            print("Could not find the %s database." % self.database_name)
+            print("Could not find the {} database.".format(self.database_name))
 
     def _update_borrow(self, country, filename):
         """update the Borrow database - takes a filename as argument"""
         rows = []
-        with open(filename, 'rb') as csvfile:
+        with open(filename, 'r') as csvfile:
             stockreader = csv.reader(csvfile, delimiter='|')
             for row in stockreader:
                 rows.append(row)
@@ -253,7 +253,7 @@ class Borrow:
         # Sanitize symbols
         safe_symbols = []
         for symbol in symbols:
-            if self._check_symbol(symbol):
+            if Borrow._check_symbol(symbol):
                 safe_symbols.append(symbol.upper())
 
         # Make sure only new symbols to the user's wishlist will be added
@@ -300,7 +300,7 @@ class Borrow:
         # Sanitize symbols
         safe_symbols = []
         for symbol in symbols:
-            if self._check_symbol(symbol):
+            if Borrow._check_symbol(symbol):
                 safe_symbols.append(symbol.upper())
 
         # Make sure symbols to be removed are on the user's wishlist
@@ -360,8 +360,8 @@ class Borrow:
         return watchlist
 
     @timer
-    def filter(self, min_available=0, max_available=10000000, min_fee=0, max_fee=100, country='usa', order_by='symbol'):
-        """General filter function. Loops over the cache testing each stock against the criteria given
+    def filter_db(self, min_available=0, max_available=10000000, min_fee=0, max_fee=100, country='usa', order_by='symbol'):
+        """General filter_db function. Loops over the cache testing each stock against the criteria given
         returns a maximum of 100 results"""
 
         country = country.lower()
@@ -412,7 +412,7 @@ class Borrow:
         safe_symbols = []
         for symbol in symbols:
 
-            if self._check_symbol(symbol) and symbol.upper() in self.all_symbols:
+            if Borrow._check_symbol(symbol) and symbol.upper() in self.all_symbols:
                 safe_symbols.append(symbol.upper())
 
         if safe_symbols:
@@ -445,7 +445,7 @@ class Borrow:
         """Return historical report of rebate, fee, availability for a given symbol  along with the Company name
         The default interval is daily (9:30AM for the opening of the market) - if realtime flag is set to True
         the last 100 entries will be returned - about 3 days of data."""
-        if self._check_symbol(symbol):
+        if Borrow._check_symbol(symbol):
             safe_symbol = symbol.upper()
         else:
             return None
@@ -489,7 +489,7 @@ class Borrow:
 
     def get_company_name(self, symbol):
         """Returns the name of a Company given a symbol. Returns None if no symbol exists"""
-        if self._check_symbol(symbol):
+        if Borrow._check_symbol(symbol):
             safe_symbol = symbol.upper()
         else:
             return None
@@ -551,7 +551,8 @@ class Borrow:
 
         return None
 
-    def _check_symbol(self, text):
+    @staticmethod
+    def _check_symbol(text):
         """Ensure a symbol is safe for the database
         :rtype : Boolean
         """
