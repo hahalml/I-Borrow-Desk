@@ -13,7 +13,7 @@ from .borrow import Borrow
 
 # Create a Flask instance
 app = Flask(__name__)
-app.config.from_object('flask_config')
+app.config.from_object('config')
 sslify = SSLify(app, skips=['main_page', 'about', 'faq'])
 admin = Admin(app)
 

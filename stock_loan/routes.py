@@ -1,5 +1,3 @@
-from __future__ import print_function
-from __future__ import absolute_import
 import os
 import logging
 import random
@@ -325,7 +323,7 @@ def initialize():
     apsched.start()
 
     # Add a job - morning emails
-    apsched.add_job(email_job, 'cron', day_of_week='mon-fri', hour=9, minute=4, timezone='America/New_York')
+    apsched.add_job(email_job, 'cron', day_of_week='mon-fri', hour='9', minute='04', timezone='America/New_York')
 
     # Add a job for updating the entire database (940am weekdays EST to be stored for historical reports -
     # won't collide with other updates)

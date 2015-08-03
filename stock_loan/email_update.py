@@ -24,12 +24,14 @@ def send_emails(users, stockLoan):
     # Grab the account password and set username
     with open(dirname + '/account.txt', 'rb') as fp:
         password = fp.read()
+
+    password = password.decode(encoding='UTF-8')
+
     username = 'iborrowdesk'
     fromaddr = 'iborrowdesk@gmail.com'
 
     # Connect to the gmail account
-    server = smtplib.SMTP()
-    server.connect(host='smtp.gmail.com', port=587)  # for eg. host = 'smtp.gmail.com', port = 587
+    server = smtplib.SMTP(host='smtp.gmail.com', port=587)
     server.ehlo()
     server.starttls()
     server.login(username, password)

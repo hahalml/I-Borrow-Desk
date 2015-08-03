@@ -45,7 +45,6 @@ COUNTRY_CODE = {
 
 class Borrow:
     """Class for interacting with Interactive Broker's Borrow database"""
-
     def __init__(self, database_name='stock_loan', file_names=('australia', 'austria', 'belgium', 'british',
                                                                'canada', 'dutch', 'france', 'germany', 'hongkong',
                                                                'india', 'italy', 'japan', 'mexico', 'spain', 'swedish',
@@ -178,9 +177,9 @@ class Borrow:
                 try:
                     # duplicate check
                     if row[3] not in self._cusips_updated:
-                        SQL, data = self._insert_borrow(row, datetime)
+                        SQL, data = Borrow._insert_borrow(row, datetime)
                         cursor.execute(SQL, data)
-                        SQL, data = self._update_stocks(row, updated=datetime)
+                        SQL, data = Borrow._update_stocks(row, updated=datetime)
                         cursor.execute(SQL, data)
                         self._cusips_updated.append(row[3])
 
@@ -194,10 +193,10 @@ class Borrow:
                     print('Integrity error caught, rolling back')
                     print('Hit cusip ' + row[3])
                     db.rollback()
-                    SQL, data = self._insert_stocks(row, country, suffix, updated=datetime)
+                    SQL, data = Borrow._insert_stocks(row, country, suffix, updated=datetime)
                     cursor.execute(SQL, data)
 
-                    SQL, data = self._insert_borrow(row, datetime)
+                    SQL, data = Borrow._insert_borrow(row, datetime)
                     cursor.execute(SQL, data)
                     errors_caught += 1
 
@@ -214,7 +213,8 @@ class Borrow:
             print('FILENAME DIDNT MATCH PROPERLY')
 
     ### SQL GENERATORS
-    def _insert_stocks(self, row, country, suffix, updated):
+    @staticmethod
+    def _insert_stocks(row, country, suffix, updated):
         """Returns SQL string and data tuple for use in a row insertion to the stocks table"""
         cusip = row[3]
         symbol = row[0].replace(' ', '.') + suffix
@@ -223,13 +223,16 @@ class Borrow:
         data = (cusip, symbol, name, country, updated,)
         return SQL, data
 
-    def _update_stocks(self, row, updated):
+    @staticmethod
+    def _update_stocks(row, updated):
+        """Returns SQL string and data tuple for use in row update for the stocks updates"""
         cusip = row[3]
         SQL = "UPDATE stocks SET updated = %s WHERE cusip = %s;"
         data = (updated, cusip,)
         return SQL, data
 
-    def _insert_borrow(self, row, datetime):
+    @staticmethod
+    def _insert_borrow(row, datetime):
         """Returns SQL string and data tuple for use in a row insertion to the Borrow table"""
         cusip = row[3]
         # Replace NA rebates and fees with nonsensical dummy values
@@ -270,7 +273,7 @@ class Borrow:
             cursor.execute(SQL, [safe_symbols])
             cusips = cursor.fetchall()
 
-            if cusips != []:
+            if cusips:
 
                 # Build a list of symbols that were actually inserted into the watchlist (valid ones essentially)
                 SQL = "SELECT symbol FROM stocks WHERE cusip = ANY(%s)"
@@ -360,7 +363,8 @@ class Borrow:
         return watchlist
 
     @timer
-    def filter_db(self, min_available=0, max_available=10000000, min_fee=0, max_fee=100, country='usa', order_by='symbol'):
+    def filter_db(self, min_available=0, max_available=10000000,
+                  min_fee=0, max_fee=100, country='usa', order_by='symbol'):
         """General filter_db function. Loops over the cache testing each stock against the criteria given
         returns a maximum of 100 results"""
 
