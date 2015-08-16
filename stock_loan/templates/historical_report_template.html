@@ -1,58 +1,32 @@
 {% extends 'base.html' %}
 
 {% block content %}
+	<div class= "col-md-2"></div>
+    <div class="col-md-8">
+         {% if summary != None %}
+            <h3>{{name}} - {{ symbol }} - <a href=" {{ url_for('add_to_watchlist', symbol=symbol) }}">Add to Watchlist</a></h3>
+             <table class="table table-condensed table-responsive">
 
-
-
-		<div class= "col-sm-9">
-			{% if current_user.is_authenticated() %}
-				YOU ARE LOGGED IN WITH USERNAME: {{current_user.username}}
-			{% endif %}
-
-            <div class ="row">
-                <div class="col-sm-12">
-                    <form role="form" action= "{{url_for('historical_report')}}" method = 'GET' class="form-inline">
-                        <div class="form-group">
-                            <label for="symbol">Symbol</label>
-                            <input class = "form-control" type = 'text' id = 'symbol' name = 'symbol' value="{{symbol}}">
-
-                            <select class="form-control" name="real_time">
-                                <option value="True">Real-Time</option>
-                                <option value="False">Historical</option>
-                            </select>
-
-
-                            <button type='submit' class="btn btn-default">Submit</button>
-                        </div>
-                    </form>
-                    <br>
-                    (Add .CA for Canadian symbols, see <a href="https://www.lib.uwo.ca/business/country_codes.html">here</a>
-                    for other countries)
-                </div>
-            </div>
-             {% if summary != None %}
-                <h3>{{name}}</h3>
-                 <table class="table table-condensed table-responsive">
-
-                    <tr>
-                        <th>Rebate</th>
-                        <th>Fee</th>
-                        <th>Availability</th>
-                        <th>Timestamp</th>
-                     </tr>
-
-                {% for stock in summary %}
                 <tr>
-                    <td>{{ '{:.1%}'.format(stock[0]/100) }}</td>
-                    <td>{{ '{:.1%}'.format(stock[1]/100) }}</td>
-                    <td>{{ '{:,}'.format(stock[2]) }}</td>
-                    <td>{{stock[3]}}</td>
+                    <th>Rebate</th>
+                    <th>Fee</th>
+                    <th>Availability</th>
+                    <th>Timestamp (EST) </th>
+                 </tr>
 
-                </tr>
-                {% endfor %}
-             </table>
-           {% endif %}
+            {% for stock in summary %}
+            <tr>
+                <td>{{ '{:.1%}'.format(stock[0]/100) }}</td>
+                <td>{{ '{:.1%}'.format(stock[1]/100) }}</td>
+                <td>{{ '{:,}'.format(stock[2]) }}</td>
+                <td>{{stock[3]}}</td>
 
-		</div>
+            </tr>
+            {% endfor %}
+         </table>
+       {% endif %}
+
+	</div>
+    <div class= "col-md-2"></div>
 
 {% endblock %}

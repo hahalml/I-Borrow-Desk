@@ -3,8 +3,13 @@
 {% block content %}
 
     {% from "_formhelpers.html" import render_field %}
-    <div class= "col-sm-6">
-        <h3>Change email</h3>
+    <div class= "col-md-12">
+
+        <h2>Change email</h2>
+         <div class = "row">
+            <div class="col-md-4"></div>
+            <div class="col-md-4">
+
         <form action="{{ url_for('change_email') }}" method=post class="form-group">
             {{ form.hidden_tag() }}
             <dl>
@@ -19,6 +24,8 @@
             </div>
         </form>
 
+             </div>
+             <div class="col-md-4"></div>
     </div>
 
 {% endblock %}

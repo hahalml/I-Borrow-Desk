@@ -3,10 +3,38 @@
 {% block content %}
     {% from "_formhelpers.html" import render_field %}
 
+<script>
+    $(document).ready(function()
+    {
+        $("#stocks").tablesorter({
+            headers: {
+                6: {
+                    sorter: false
+                },
+                7: {
+                    sorter: false
+                }
+            }
+        });
+    });
 
-    <div class= "col-sm-9">
-        <p>Hi {{current_user.username}}!</p>
 
+</script>
+
+
+    <div class= "col-md-12">
+        <h2>Watchlist</h2>
+
+        <form class="form-inline"  role="form" action= "" method = 'POST'>
+            <div class="form-group">
+                <label class="control-label" for="symbols">Add:</label>
+                <input class = "form-control" type = 'text' id = 'symbols' name = 'symbols' placeholder = 'BAC, IBM' value=''>
+                <label class="control-label" for="remove-symbols">Remove:</label>
+                <input class = "form-control" type = 'text' id = 'remove-symbols' name = 'remove-symbols' placeholder = 'BAC, IBM' value=''>
+                <button type='submit' class="btn btn-primary">Submit</button>
+            </div>
+        </form>
+        <br><br>
         {% if current_user.receive_email == True %}
             You are receiving a morning email.<br>
             <a href="{{ url_for('change_morning_email') }}?receive=False">Click here if you'd like to stop receiving these emails</a>
@@ -14,14 +42,17 @@
             Not receiving a morning email at the moment.<br>
             <a href="{{ url_for('change_morning_email') }}?receive=True">Click here if you'd like to start receiving these emails</a>
         {% endif %}
-        <table class="table table-condensed table-responsive table-hover ">
+
+    <hr>
+         <table class="tablesorter table table-condensed table-responsive table-hover" id="stocks">
             <thead>
                 <tr>
                     <th>Symbol</th>
+                    <th>Name</th>
                     <th>Rebate</th>
                     <th>Fee</th>
                     <th>Availability</th>
-                    <th>Timestamp</th>
+                    <th>Timestamp (EST) </th>
                 </tr>
             </thead>
             <tbody data-link="row" class="rowlink">
@@ -30,6 +61,7 @@
                         <tr>
                             <td>
                             <a href="{{url_for('historical_report')}}?symbol={{symbol['symbol']}}&&real_time=True"> {{symbol['symbol']}}</a></td>
+                           <td>{{ symbol['name'] }}</td>
                             <td>{{ '{:.1%}'.format(symbol['rebate']/100) }}</td>
                             <td>{{ '{:.1%}'.format(symbol['fee']/100) }}</td>
                             <td>{{ '{:,}'.format(symbol['available']) }}</td>
@@ -39,20 +71,6 @@
                 {% endif %}
             </tbody>
         </table>
-        <form role="form" action= "" method = 'POST'>
-            <div class="form-group">
-                <label for="symbols">Add symbols to Watch list (comma separated for batch updating)</label>
-                <input class = "form-control" type = 'text' id = 'symbols' name = 'symbols' placeholder = 'BAC, IBM' value=''>
-            </div>
-
-            <div class="form-group">
-                <label for="remove-symbols">Remove symbols from Watch list (comma separated for batch updating)</label>
-                <input class = "form-control" type = 'text' id = 'remove-symbols' name = 'remove-symbols' placeholder = 'BAC, IBM' value=''>
-            </div>
-
-            <button type='submit' class="btn btn-default">Submit</button>
-        </form>
-
 
 
     </div>

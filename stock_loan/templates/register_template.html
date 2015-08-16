@@ -3,8 +3,14 @@
 {% block content %}
 
     {% from "_formhelpers.html" import render_field %}
-    <div class= "col-sm-6">
-        <h3>Registration page</h3>
+    <div class= "col-md-12">
+        <h2>Register</h2>
+
+        <div class = "row">
+            <div class="col-md-3"></div>
+            <div class="col-md-6">
+                 <p><strong>Register to maintain a watchlist, receive morning updates, and show your appreciation!</strong></p>
+
         <form action="{{ url_for('register') }}" method=post class="form-group">
             {{ form.hidden_tag() }}
             <dl>
@@ -21,7 +27,20 @@
                 </div>
             </div>
         </form>
+        <p> See below for a screenshot of an I Borrow Desk Watchlist!</p>
+                <a href="{{ url_for('static', filename='watchlist_screenshot.png') }}">
+<img src="{{ url_for('static', filename='watchlist_screenshot_sm.png') }}"  class="img-responsive img-rounded center-block" alt="">
+</a>
+            </div>
+
+
+            <div class="col-md-3"></div>
 
     </div>
 
+
+             </div>
+
 {% endblock %}
+
+

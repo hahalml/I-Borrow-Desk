@@ -77,9 +77,19 @@ def load_user(userid):
 @app.route('/')
 def main_page():
     """Mainpage handler"""
-    symbols = [random.choice(stock_loan.latest_symbols) for i in range(0, 15)]
-    summary = stock_loan.summary_report(symbols)
+    #symbols = [random.choice(stock_loan.latest_symbols) for i in range(0, 15)]
+    #summary = stock_loan.summary_report(symbols)
     number_of_symbols = stock_loan.all_symbols_count
+
+    summary = mc.get('mainpage')
+    if not summary:
+        summary = stock_loan.filter_db(min_available=10000, min_fee=20, order_by='fee')
+        summary = summary[:20]
+        mc.set('mainpage', summary)
+        print('mainpage cache miss')
+    else:
+        print('mainpage cache hit')
+
     return render_template(MAIN_PAGE_TEMPLATE, summary=summary, number_of_symbols=number_of_symbols)
 
 
@@ -115,6 +125,19 @@ def watch_list():
     summary = stock_loan.summary_report(watchlist)
 
     return render_template(WATCH_LIST_TEMPLATE, summary=summary)
+
+@app.route('/watchlist/add/<symbol>', methods=['GET'])
+@login_required
+def add_to_watchlist(symbol):
+    symbols_added, symbols_failed_to_be_added = stock_loan.insert_watchlist(current_user.id, [symbol])
+    if symbols_added:
+        for symbol in symbols_added:
+            flash("Added {} to your watchlist".format(symbol))
+            if symbols_failed_to_be_added:
+                for symbol in symbols_failed_to_be_added:
+                    flash("Failed to add {} to your watchlist".format(symbol))
+
+    return redirect(url_for('watch_list'))
 
 
 @app.route('/historical_report', methods=['GET'])
@@ -323,7 +346,7 @@ def initialize():
     apsched.start()
 
     # Add a job - morning emails
-    apsched.add_job(email_job, 'cron', day_of_week='mon-fri', hour='9', minute='04', timezone='America/New_York')
+    apsched.add_job(email_job, 'cron', day_of_week='mon-fri', hour='9', minute='4', timezone='America/New_York')
 
     # Add a job for updating the entire database (940am weekdays EST to be stored for historical reports -
     # won't collide with other updates)

@@ -6,23 +6,31 @@
 
 
 {% block content %}
-  <div class= "col-sm-6">
+    {% from "_formhelpers.html" import render_field %}
+<div class= "col-md-12">
+    <h2>Signin to I Borrow Desk </h2>
 
-     <form action="" method=post class="form-horizontal">
-        <h3>Signin to I Borrow Desk </h3>
-        <div class="form-group">
-            <input type="text" id="username" name="username" class="form-control"
-                placeholder="Enter Username" required>
-        </div>
+    <div class="row">
+        <div class="col-md-4"></div>
+            <div class="col-md-4">
+                <form action="" method=post class="form-group">
 
-        <div class="form-group">
-              <input type="password" id="password" name="password" class="form-control"
-                placeholder="Enter Password" required>
-        </div>
+                <div class="form-group">
+                    <input type="text" id="username" name="username" class="form-control"
+                        placeholder="Enter Username" required>
+                </div>
 
-        <div class="form-group">
-            <button type="submit" class="btn btn-success">Signin</button>
-        </div>
-     </form>
-  </div>
+                <div class="form-group">
+                      <input type="password" id="password" name="password" class="form-control"
+                        placeholder="Enter Password" required>
+                </div>
+
+                <div class="control-group">
+                    <button type="submit" class="btn btn-success">Signin</button>
+                </div>
+             </form>
+             </div>
+        <div class="col-md-4"></div>
+    </div>
+</div>
 {% endblock %}

@@ -365,8 +365,7 @@ class Borrow:
     @timer
     def filter_db(self, min_available=0, max_available=10000000,
                   min_fee=0, max_fee=100, country='usa', order_by='symbol'):
-        """General filter_db function. Loops over the cache testing each stock against the criteria given
-        returns a maximum of 100 results"""
+        """General filter_db function."""
 
         country = country.lower()
 

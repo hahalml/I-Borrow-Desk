@@ -2,47 +2,61 @@
 
 {% block content %}
 
-    <div class= "col-sm-9">
-        {% if current_user.is_authenticated() %}
-            YOU ARE LOGGED IN WITH USERNAME: {{current_user.username}}
-        {% endif %}
+<script>
+    $(document).ready(function()
+    {
+        $("#stocks").tablesorter({
+            headers: {
+                6: {
+                    sorter: false
+                },
+                7: {
+                    sorter: false
+                }
+            }
+        });
+    });
 
+
+</script>
+
+    <div class= "col-md-12">
 
         {% from "_formhelpers.html" import render_field %}
 
-        <h3>Database Search</h3>
+        <h2>Database Search</h2>
         <form action="{{ url_for('filter_db') }}" method=post class="form-group">
             {{ form.hidden_tag() }}
             <div class="row">
-                <div class="col-sm-4">
+                <div class="col-md-4">
                     {{ form.min_available(class='form-control') }} {{ form.min_available.description }}
                 </div>
-                <div class="col-sm-4">
+                <div class="col-md-4">
                     {{ form.max_available(class='form-control') }} {{ form.max_available.description }}
                 </div>
-                <div class="col-sm-3">
+                <div class="col-md-4">
                      {{ render_field(form.country) }}
                 </div>
             </div>
             <br>
             <div class="row">
-                <div class="col-sm-4">
+                <div class="col-md-4">
                     {{ form.min_fee(class='form-control') }} {{ form.min_fee.description }}
                 </div>
-                <div class="col-sm-4">
+                <div class="col-md-4">
                     {{ form.max_fee(class='form-control') }} {{ form.max_fee.description }}
                 </div>
-                <div class="col-sm-3">
+                <div class="col-md-4">
                     {{ render_field(form.order_by) }}
                 </div>
             </div>
             <br>
 
             <div class="row">
-                <div class="col-sm-6">
+                <div class="col-md-12">
                     <div class="control-group">
                         <div class="controls">
-                          <button type="submit" class="btn btn-success">Submit</button> Maximum 100 results returned
+                          <button type="submit" class="btn btn-primary">Submit</button> Maximum 100 results returned
                         </div>
                     </div>
                 </div>
@@ -52,7 +66,7 @@
 
         </form>
 
-         <table class="table table-condensed table-responsive table-hover ">
+         <table class="tablesorter table table-condensed table-responsive table-hover" id="stocks">
             <thead>
                 <tr>
                     <th>Symbol</th>
@@ -60,7 +74,7 @@
                     <th>Rebate</th>
                     <th>Fee</th>
                     <th>Availability</th>
-                    <th>Timestamp</th>
+                    <th>Timestamp (EST)</th>
                 </tr>
             </thead>
             <tbody data-link="row" class="rowlink">
