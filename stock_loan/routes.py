@@ -27,6 +27,7 @@ LOGIN_TEMPLATE = 'login_template.html'
 MAIN_PAGE_TEMPLATE = 'mainpage_template.html'
 WATCH_LIST_TEMPLATE = 'watch_list_template.html'
 HISTORICAL_REPORT_TEMPLATE = 'historical_report_template.html'
+NAME_SEARCH_TEMPLATE = 'name_search_template.html'
 FILTER_TEMPLATE = 'filter_template.html'
 ABOUT_TEMPLATE = 'about_template.html'
 FAQ_TEMPLATE = 'faq_template.html'
@@ -178,6 +179,7 @@ def historical_report():
 
         if not summary:
             flash(symbol +  ' not found')
+            flash('For Canadian stocks use a .CA suffix. For other countries check the FAQ.')
 
         delta = datetime.now() - timein
         print('Historical report took ' + str(delta))
@@ -190,6 +192,23 @@ def historical_report():
 
     return render_template(HISTORICAL_REPORT_TEMPLATE, symbol=symbol, name=name, summary=summary)
 
+
+@app.route('/name_search', methods=['GET'])
+def name_search():
+
+    try:
+        name = request.args['name']
+        print(name)
+        name = ''.join(c for c in name if (c.isalnum() or c == ' '))
+    except:
+        name = ''
+
+    summary = []
+
+    if name:
+        summary = stock_loan.name_search(name)
+
+    return render_template(NAME_SEARCH_TEMPLATE, summary=summary, name=name)
 
 @app.route('/filter_db', methods=['GET', 'POST'])
 def filter_db():
@@ -210,6 +229,9 @@ def filter_db():
         return render_template(FILTER_TEMPLATE, form=form, summary=summary)
     else:
         return render_template(FILTER_TEMPLATE, form=form, summary=[])
+
+
+
 
 
 

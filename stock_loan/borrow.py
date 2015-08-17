@@ -249,6 +249,21 @@ class Borrow:
     #########
 
     @timer
+    def name_search(self, name):
+        """Method to return summary report of companies matching a search by name query"""
+        name = ''.join(c for c in name if (c.isalnum() or c == ' '))
+
+        db, cursor = self._connect()
+        SQL = "SELECT symbol, similarity(name, %s) AS sml FROM stocks WHERE name %% %s ORDER BY sml DESC, name limit 10;"
+        data = (name, name, )
+        cursor.execute(SQL, data)
+        results = cursor.fetchall()
+
+        return self.summary_report([row[0] for row in results])
+
+
+
+    @timer
     def insert_watchlist(self, userid, symbols):
         """Takes a userid and list of symbols, adds them to the watchlist database.
         Returns a list of symbols added, and a list of symbols failed to be added"""
@@ -422,7 +437,7 @@ class Borrow:
 
             # Select the most recent row for each symbol being searched for
             db, cursor = self._connect()
-            SQL = """SELECT symbol, rebate, fee, available, datetime, name, country
+            SQL = """SELECT DISTINCT symbol, rebate, fee, available, datetime, name, country
                     FROM stocks JOIN borrow ON
                     (stocks.cusip = borrow.cusip AND stocks.updated = borrow.datetime)
                     WHERE symbol = ANY(%s)
@@ -550,6 +565,23 @@ class Borrow:
 
         cursor.execute(SQL)
         db.commit()
+
+        # Update the most recent updated column in the stocks table in case the most recent entry was deleted
+
+
+
+       # TODO: THINK ABOUT THIS MORE
+        # for symbol in self.all_symbols:
+        #     SQL = """SELECT max(datetime) FROM borrow JOIN stocks ON (stocks.cusip = borrow.cusip) WHERE symbol = %s;"""
+        #     data = (symbol,)
+        #     cursor.execute(SQL, data)
+        #
+        #     last_updated = cursor.fetchone()[0]
+        #     SQL = "UPDATE stocks SET updated = %s WHERE symbol = %s;"
+        #     data = (last_updated, symbol)
+        #     cursor.execute(SQL, data)
+        #     db.commit()
+
         db.close()
 
         return None
