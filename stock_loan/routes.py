@@ -132,13 +132,26 @@ def watch_list():
 def add_to_watchlist(symbol):
     symbols_added, symbols_failed_to_be_added = stock_loan.insert_watchlist(current_user.id, [symbol])
     if symbols_added:
-        for symbol in symbols_added:
-            flash("Added {} to your watchlist".format(symbol))
+        for symbol_added in symbols_added:
+            flash("Added {} to your watchlist".format(symbol_added))
             if symbols_failed_to_be_added:
-                for symbol in symbols_failed_to_be_added:
-                    flash("Failed to add {} to your watchlist".format(symbol))
+                for symbol_failed in symbols_failed_to_be_added:
+                    flash("Failed to add {} to your watchlist".format(symbol_failed))
 
     return redirect(url_for('watch_list'))
+
+@app.route('/watchlist/remove/<symbol>', methods=['GET'])
+@login_required
+def remove_from_watchlist(symbol):
+    symbols_removed = stock_loan.remove_watchlist(current_user.id, [symbol])
+    if symbols_removed:
+        for symbol_removed in symbols_removed:
+            flash("Removed {} from your watchlist".format(symbol_removed))
+    else:
+        flash("Failed to remove {} from your watchlist".format(symbol))
+
+    return redirect(url_for('watch_list'))
+
 
 
 @app.route('/historical_report', methods=['GET'])
