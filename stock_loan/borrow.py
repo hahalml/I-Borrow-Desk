@@ -83,6 +83,10 @@ class Borrow:
         # timestamp dictionary - for avoiding duplicate imports
         self._timestamps = {country: None for country in self.file_names}
 
+        # update trending lists
+        self.update_trending()
+
+
     @timer
     def update(self, files_to_download=None, update_all=True):
         """Connect to the IB ftp server and download the latest files
@@ -107,6 +111,9 @@ class Borrow:
         # set count variables
         self.all_symbols_count = len(self.all_symbols)
         self.latest_symbols_count = len(self.latest_symbols)
+
+        # Update trending lists
+        self.update_trending()
 
     def _download_files(self, files_to_download, update_all):
         """Private function to connect to ftp and download required files. Returns a list of written files"""
@@ -585,6 +592,55 @@ class Borrow:
         db.close()
 
         return None
+
+    @timer
+    def update_trending(self):
+        """
+        Updates lists of 'trending' stocks - ie; those stocks with large changes in fees or availability from average
+        """
+        db, cursor = self._connect()
+
+        min_fee = 20
+        min_available = 10000
+        data = (min_fee, min_available,)
+
+        SQL = """SELECT stocks.symbol FROM stocks JOIN borrow ON (stocks.cusip = borrow.cusip AND stocks.updated = borrow.datetime)
+                JOIN
+                    (SELECT symbol, avg(fee) as avg_fee
+                    FROM stocks JOIN borrow ON
+                        (stocks.cusip = borrow.cusip)
+                    WHERE symbol in
+                        (SELECT symbol FROM stocks JOIN borrow ON (stocks.cusip = borrow.cusip AND stocks.updated = borrow.datetime)
+                            WHERE fee > %s AND available > %s)
+                    AND borrow.datetime > now() - interval '7days'
+                    GROUP BY symbol) as avg_table
+                ON avg_table.symbol = stocks.symbol
+                ORDER BY fee/avg_table.avg_fee DESC
+                LIMIT 20;"""
+
+        cursor.execute(SQL, data)
+        rows = cursor.fetchall()
+        self.trending_fee = [row[0] for row in rows]
+
+        SQL = """SELECT stocks.symbol FROM stocks JOIN borrow ON (stocks.cusip = borrow.cusip AND stocks.updated = borrow.datetime)
+                JOIN
+                    (SELECT symbol, avg(available) as avg_available
+                    FROM stocks JOIN borrow ON
+                        (stocks.cusip = borrow.cusip)
+                    WHERE symbol in
+                        (SELECT symbol FROM stocks JOIN borrow ON (stocks.cusip = borrow.cusip AND stocks.updated = borrow.datetime)
+                            WHERE fee > %s AND available > %s)
+                    AND borrow.datetime > now() - interval '7days'
+                    GROUP BY symbol) as avg_table
+                ON avg_table.symbol = stocks.symbol
+                ORDER BY available/avg_table.avg_available
+                LIMIT 20;"""
+
+        cursor.execute(SQL, data)
+        rows = cursor.fetchall()
+        self.trending_available = [row[0] for row in rows]
+
+
 
     @staticmethod
     def _check_symbol(text):

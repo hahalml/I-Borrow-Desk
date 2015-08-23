@@ -7,7 +7,7 @@
 		<link rel="stylesheet" media="screen" href="{{ url_for('static', filename='jasny-bootstrap.min.css') }}">
          <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css')}}">
 
-		<title>I Borrow Desk</title>
+		<title>IBorrow Desk</title>
 		{% block head %}
 		{% endblock %}
 	</head>
@@ -70,8 +70,9 @@
 
                  {% else %}
                     <li><a href=" {{ url_for('login') }} ">Login</a></li>
-                  <li><a href=" {{ url_for('register') }} ">Register</a></li>
+                    <li><a href=" {{ url_for('register') }} ">Register</a></li>
                  {% endif %}
+                   <li><a href=" {{ url_for('trending') }} ">Trending</a></li>
                    <li><a href=" {{ url_for('filter_db') }} ">Filter</a></li>
                   <li><a href=" {{ url_for('name_search') }}">Search</a></li>
                     <li><a href=" {{ url_for('about') }} ">About <span class="sr-only">(current)</span></a></li>

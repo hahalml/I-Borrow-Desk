@@ -31,6 +31,7 @@ NAME_SEARCH_TEMPLATE = 'name_search_template.html'
 FILTER_TEMPLATE = 'filter_template.html'
 ABOUT_TEMPLATE = 'about_template.html'
 FAQ_TEMPLATE = 'faq_template.html'
+TRENDING_TEMPLATE = 'trending_template.html'
 
 logging.basicConfig()
 
@@ -93,6 +94,30 @@ def main_page():
 
     return render_template(MAIN_PAGE_TEMPLATE, summary=summary, number_of_symbols=number_of_symbols)
 
+
+@app.route('/trending')
+def trending():
+    """
+    Handler for the trending view
+    """
+
+    trending_fee = mc.get('trending_fee')
+    if not trending_fee:
+        trending_fee = stock_loan.summary_report(stock_loan.trending_fee)
+        mc.set('trending_fee', trending_fee)
+        print('trending_fee cache miss')
+    else:
+        print('trending_fee cache hit')
+
+    trending_available = mc.get('trending_available')
+    if not trending_available:
+        trending_available = stock_loan.summary_report(stock_loan.trending_available)
+        mc.set('trending_available', trending_available)
+        print('trending_available cache miss')
+    else:
+        print('trending_available cache hit')
+
+    return render_template(TRENDING_TEMPLATE, trending_fee=trending_fee, trending_available=trending_available)
 
 @app.route('/watchlist', methods=['GET', 'POST'])
 @login_required

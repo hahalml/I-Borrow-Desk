@@ -14,13 +14,12 @@
                  </tr>
 
             {% for stock in summary %}
-            <tr>
-                <td>{{ '{:.1%}'.format(stock[0]/100) }}</td>
-                <td>{{ '{:.1%}'.format(stock[1]/100) }}</td>
-                <td>{{ '{:,}'.format(stock[2]) }}</td>
-                <td>{{stock[3]}}</td>
-
-            </tr>
+                <tr>
+                    <td>{{ '{:.1%}'.format(stock[0]/100) }}</td>
+                    <td>{{ '{:.1%}'.format(stock[1]/100) }}</td>
+                    <td>{{ '{:,}'.format(stock[2]) }}</td>
+                    <td>{{stock[3]}}</td>
+                </tr>
             {% endfor %}
          </table>
        {% endif %}
