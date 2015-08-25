@@ -1,13 +1,8 @@
 import configparser
 import os
 import re
-
-TICKER_MATCH = r"\$([a-zA-Z0-9\.]{1,8})"
-
 from twython import TwythonStreamer
 from twython import Twython
-
-# import the stock loan access instance from routes
 from borrow import Borrow
 
 dirname, file_name = os.path.split(os.path.abspath(__file__))
@@ -20,22 +15,21 @@ APP_SECRET = parser.get('twitter', 'APP_SECRET')
 OAUTH_TOKEN = parser.get('twitter', 'OAUTH_TOKEN')
 OAUTH_TOKEN_SECRET = parser.get('twitter', 'OAUTH_TOKEN_SECRET')
 
+TICKER_MATCH = r"\$([a-zA-Z0-9\.]{1,8})"
 
 class BorrowStreamer(TwythonStreamer):
     """Twitter Streamer class for responding to tweets at the bot"""
     def __init__(self, *a, **kwargs):
-
         # Create a Twitter Rest API instance for responding to tweets
         self._twitter = Twython(*a)
-
-        # Will live inside the actual Streamer object
-        TwythonStreamer.__init__(self, *a, **kwargs)
 
         # Create a Borrow instance
         self._stock_loan = Borrow(database_name='stock_loan', create_new=False)
 
+        TwythonStreamer.__init__(self, *a, **kwargs)
+
     def on_success(self, data):
-        """If the streamer receives a tweet that matches its filter_db"""
+        """If the streamer receives a tweet that matches its filter"""
         if 'text' in data:
             # Check that it wasn't one of the bot's own tweets
             if data['user']['screen_name'] != 'IBorrowDesk':
@@ -49,29 +43,22 @@ class BorrowStreamer(TwythonStreamer):
     def on_error(self, status_code, data):
         print(status_code)
         print(data)
-
-        # Want to stop trying to get data because of the error?
-        # Uncomment the next line!
-        #self.disconnect()
         print("There was an error")
 
     def _respond(self, data):
-
         # Grab the tweet's text and try to extract a symbol from it
         text = data['text']
         matches = re.findall(TICKER_MATCH, text)
         print('matches were {} \n'.format(str(matches)))
         if matches:
-
             summary = self._stock_loan.summary_report(matches)
             print(summary)
+
             # Confirm the summary report is not empty
             if summary != None:
-
                 for ticker in summary:
-                    print('looping through symbols \n')
-                    #Grab the summary report (it is the first element in the list)
                     print(ticker['symbol'])
+
                     #extract the relevant information from the summary report and build a status string
                     symbol = ticker['symbol']
                     name = ticker['name'][:20]
@@ -79,7 +66,6 @@ class BorrowStreamer(TwythonStreamer):
                     fee = '{:.1%}'.format(ticker['fee']/100)
                     datetime = ticker['datetime']
                     url = 'http://cameronmochrie.com/IBorrowDesk/historical_report?symbol={}&&real_time=True'.format(symbol)
-
                     screen_name = data['user']['screen_name']
 
                     status = '@{} ${} {}, Available: {}, Fee: {}, Last Updated: {} '.format(screen_name, symbol, name,
@@ -99,7 +85,6 @@ class BorrowStreamer(TwythonStreamer):
                 print('Invalid symbols matched \n')
         else:
             print('No match found \n')
-
 
 
 stream = BorrowStreamer(APP_KEY, APP_SECRET, OAUTH_TOKEN, OAUTH_TOKEN_SECRET)
