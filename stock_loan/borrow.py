@@ -1,13 +1,13 @@
 from __future__ import print_function
 from __future__ import absolute_import
 import csv
-from .timed_function import timer
 from ftplib import FTP
-import time
 from datetime import datetime
 import re
 import os
 import configparser
+import time
+
 
 import psycopg2
 from psycopg2.extensions import AsIs
@@ -41,6 +41,17 @@ COUNTRY_CODE = {
     'swiss': '.SW',
     'usa': ''
 }
+
+
+def timer(f):
+    def decorated(*args, **kw):
+        ts = time.time()
+        result = f(*args, **kw)
+        te = time.time()
+        print(f.__name__ + ' took {} seconds'.format(te - ts))
+        return result
+
+    return decorated
 
 
 class Borrow:

@@ -8,7 +8,7 @@ from twython import TwythonStreamer
 from twython import Twython
 
 # import the stock loan access instance from routes
-from .borrow import Borrow
+from borrow import Borrow
 
 dirname, file_name = os.path.split(os.path.abspath(__file__))
 
@@ -23,14 +23,13 @@ OAUTH_TOKEN_SECRET = parser.get('twitter', 'OAUTH_TOKEN_SECRET')
 
 class BorrowStreamer(TwythonStreamer):
     """Twitter Streamer class for responding to tweets at the bot"""
-    def __init__(self, *a, **kw):
+    def __init__(self, *a, **kwargs):
 
         # Create a Twitter Rest API instance for responding to tweets
         self._twitter = Twython(*a)
 
         # Will live inside the actual Streamer object
-        TwythonStreamer.__init__(self, *a, **kw)
-        print('in borrow streamer')
+        TwythonStreamer.__init__(self, *a, **kwargs)
 
         # Create a Borrow instance
         self._stock_loan = Borrow(database_name='stock_loan', create_new=False)
@@ -61,7 +60,7 @@ class BorrowStreamer(TwythonStreamer):
         # Grab the tweet's text and try to extract a symbol from it
         text = data['text']
         matches = re.findall(TICKER_MATCH, text)
-        print('matches were ' + str(matches))
+        print('matches were {} \n'.format(str(matches)))
         if matches:
 
             summary = self._stock_loan.summary_report(matches)
@@ -70,7 +69,7 @@ class BorrowStreamer(TwythonStreamer):
             if summary != None:
 
                 for ticker in summary:
-                    print('looping through symbols')
+                    print('looping through symbols \n')
                     #Grab the summary report (it is the first element in the list)
                     print(ticker['symbol'])
                     #extract the relevant information from the summary report and build a status string
@@ -93,17 +92,15 @@ class BorrowStreamer(TwythonStreamer):
                     # Update status
                     self._twitter.update_status(status=status, in_reply_to_status_id=id_str)
 
-                    print('Match found {}'.format(ticker))
-                    print('Responded with {}'.format(status))
+                    print('Match found {} \n'.format(ticker))
+                    print('Responded with {} \n'.format(status))
 
             else:
-                print('Invalid symbols matched')
+                print('Invalid symbols matched \n')
         else:
-            print('No match found')
+            print('No match found \n')
 
 
-def run_twitter_stream():
-    print('in run twitter stream')
 
-    stream = BorrowStreamer(APP_KEY, APP_SECRET, OAUTH_TOKEN, OAUTH_TOKEN_SECRET)
-    stream.statuses.filter(track='@IBorrowDesk')
+stream = BorrowStreamer(APP_KEY, APP_SECRET, OAUTH_TOKEN, OAUTH_TOKEN_SECRET)
+stream.statuses.filter(track='@IBorrowDesk')
