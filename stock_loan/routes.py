@@ -408,23 +408,9 @@ def initialize():
     # Add a job - morning emails
     apsched.add_job(email_job, 'cron', day_of_week='mon-fri', hour='9', minute='4', timezone='America/New_York')
 
-    # Add a job for updating the entire database (940am weekdays EST to be stored for historical reports -
-    # won't collide with other updates)
-    apsched.add_job(update_database_all, 'cron', day_of_week='mon-fri', minute='40', hour='9',
-                    timezone='America/New_York')
+    # Refresh trending stocks and collective stats on the hour
+    apsched.add_job(refresh_borrow, 'cron', minute='5')
 
-    # Add a job for cleaning the database
-    apsched.add_job(clean_db, 'cron', day_of_week='mon-fri', minute='5', hour='0', timezone='America/New_York')
-
-    # Add jobs for each region so database is updated roughly in line with market hours
-    apsched.add_job(update_database_north_america, 'cron', day_of_week='mon-fri', minute='1-46/15', hour='8-17',
-                    timezone='America/New_York')
-
-    apsched.add_job(update_database_europe, 'cron', day_of_week='mon-fri', minute='1-46/15', hour='8-17',
-                    timezone='UTC')
-
-    apsched.add_job(update_database_asia, 'cron', day_of_week='mon-fri', minute='1-46/15', hour='0-10',
-                    timezone='UTC')
 
 
 def email_job():
@@ -433,39 +419,11 @@ def email_job():
     send_emails(users, stock_loan)
 
 
-def update_database_all():
-    """Helper function for updating the entire database"""
-    # Clear the cache
-    mc.flush_all()
+def refresh_borrow():
+    """Helper function for refreshing instance summary data for the Borrow object
+    Does NOT perform any actual database updates"""
+    stock_loan.update_trending()
+    stock_loan.refresh_all_symbols()
+    stock_loan.refresh_latest_all_symbols()
+    print("Refreshed Local Borrow data")
 
-    # Update the db
-    stock_loan.update()
-
-
-def update_database_north_america():
-    """Helper function for updating the North American files"""
-    # Clear the cache
-    mc.flush_all()
-    # Update the db
-    stock_loan.update(files_to_download=['usa', 'canada', 'mexico'], update_all=False)
-
-
-def update_database_europe():
-    """Helper function for updating the European files"""
-    # Clear the cache
-    mc.flush_all()
-    # Update the db
-    stock_loan.update(files_to_download=['austria', 'belgium', 'british', 'dutch', 'france', 'germany', 'italy',
-                                         'spain', 'swedish', 'swiss'], update_all=False)
-
-
-def update_database_asia():
-    """Helper function for updating the European files"""
-    # Clear the cache
-    mc.flush_all()
-    # Update the db
-    stock_loan.update(files_to_download=['australia', 'hongkong', 'india', 'japan'], update_all=False)
-
-def clean_db():
-    """Helper function for cleaning the database"""
-    stock_loan.clean_dbase()

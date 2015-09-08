@@ -84,8 +84,8 @@ class Borrow:
         self.latest_symbols = []
 
         # update symbols tracked
-        self._all_symbols()
-        self._latest_all_symbols()
+        self.refresh_all_symbols()
+        self.refresh_latest_all_symbols()
 
         # set count variables
         self.all_symbols_count = len(self.all_symbols)
@@ -111,20 +111,18 @@ class Borrow:
             # Update the borrow database
             self._update_borrow(country, filename)
 
-        # update symbol lists
-        self._all_symbols()
-        self._latest_all_symbols()
+        # # update symbol lists
+        # self.refresh_all_symbols()
+        # self.refresh_latest_all_symbols()
 
         # Clear the cusips updated
         print(len(self._cusips_updated), ' symbols updated.')
         self._cusips_updated = []
 
-        # set count variables
-        self.all_symbols_count = len(self.all_symbols)
-        self.latest_symbols_count = len(self.latest_symbols)
+        # # set count variables
+        # self.all_symbols_count = len(self.all_symbols)
+        # self.latest_symbols_count = len(self.latest_symbols)
 
-        # Update trending lists
-        self.update_trending()
 
     def _download_files(self, files_to_download, update_all):
         """Private function to connect to ftp and download required files. Returns a list of written files"""
@@ -546,7 +544,7 @@ class Borrow:
         return name
 
     @timer
-    def _latest_all_symbols(self):
+    def refresh_latest_all_symbols(self):
         """Set the class variable list of every symbol in the latest update from IB"""
         db, cursor = self._connect()
         SQL = """SELECT distinct symbol FROM stocks JOIN borrow ON (stocks.cusip = borrow.cusip)
@@ -560,7 +558,7 @@ class Borrow:
         self.latest_symbols = results
 
     @timer
-    def _all_symbols(self):
+    def refresh_all_symbols(self):
         """Set the list of all symbols in the database"""
         db, cursor = self._connect()
         SQL = """SELECT DISTINCT symbol FROM stocks;"""
