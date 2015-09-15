@@ -7,6 +7,7 @@ import re
 import os
 import configparser
 import time
+import collections
 
 
 import psycopg2
@@ -42,6 +43,8 @@ COUNTRY_CODE = {
     'usa': ''
 }
 
+Stock = collections.namedtuple('Stock', ['symbol', 'rebate', 'fee', 'available', 'datetime', 'name',
+                                                       'country'])
 
 def timer(f):
     def decorated(*args, **kw):
@@ -111,18 +114,9 @@ class Borrow:
             # Update the borrow database
             self._update_borrow(country, filename)
 
-        # # update symbol lists
-        # self.refresh_all_symbols()
-        # self.refresh_latest_all_symbols()
-
-        # Clear the cusips updated
+         # Clear the cusips updated
         print(len(self._cusips_updated), ' symbols updated.')
         self._cusips_updated = []
-
-        # # set count variables
-        # self.all_symbols_count = len(self.all_symbols)
-        # self.latest_symbols_count = len(self.latest_symbols)
-
 
     def _download_files(self, files_to_download, update_all):
         """Private function to connect to ftp and download required files. Returns a list of written files"""
@@ -285,10 +279,7 @@ class Borrow:
         Returns a list of symbols added, and a list of symbols failed to be added"""
 
         # Sanitize symbols
-        safe_symbols = []
-        for symbol in symbols:
-            if Borrow._check_symbol(symbol):
-                safe_symbols.append(symbol.upper())
+        safe_symbols = [symbol.upper() for symbol in symbols if Borrow._check_symbol(symbol)]
 
         # Make sure only new symbols to the user's wishlist will be added
         if safe_symbols is not None:
@@ -332,19 +323,11 @@ class Borrow:
         """Takes a userid and list of symbols, removes them from the watchlist database"""
 
         # Sanitize symbols
-        safe_symbols = []
-        for symbol in symbols:
-            if Borrow._check_symbol(symbol):
-                safe_symbols.append(symbol.upper())
+        safe_symbols = [symbol.upper() for symbol in symbols if Borrow._check_symbol(symbol)]
 
         # Make sure symbols to be removed are on the user's wishlist
         current_watchlist = self.get_watchlist(userid)
-        symbols_to_remove = []
-        for symbol in safe_symbols:
-            if symbol in current_watchlist:
-                symbols_to_remove.append(symbol)
-
-        symbols_removed = []
+        symbols_to_remove = [symbol for symbol in safe_symbols if symbol in current_watchlist]
 
         if symbols_to_remove:
             db, cursor = self._connect()
@@ -356,9 +339,8 @@ class Borrow:
             # Build a list of symbols that were actually removed from the watchlist (valid ones essentially)
             SQL = "SELECT symbol FROM stocks WHERE cusip = ANY(%s)"
             cursor.execute(SQL, [cusips])
-            results = cursor.fetchall()
-            for row in results:
-                symbols_removed.append(row[0])
+
+            symbols_removed = [row[0] for row in cursor.fetchall()]
 
             # Remove the cusips and userid from the watchlist
             for cusip in cusips:
@@ -369,6 +351,9 @@ class Borrow:
             db.commit()
             db.close()
 
+        else:
+            return None
+
         # Return a list of symbols removed
         return symbols_removed
 
@@ -377,21 +362,16 @@ class Borrow:
         """Get a list of stocks that a user has on his/her watchlist"""
 
         db, cursor = self._connect()
-        SQL = "SELECT cusip FROM watchlist WHERE userid = %s;"
+        SQL = "SELECT symbol FROM stocks WHERE cusip = ANY(SELECT cusip FROM watchlist WHERE userid = %s);"
         data = (userid,)
         cursor.execute(SQL, data)
         results = cursor.fetchall()
-
-        SQL = "SELECT symbol FROM stocks WHERE cusip = ANY(%s);"
-        data = (results,)
-        cursor.execute(SQL, data)
-        results = cursor.fetchall()
-
-        watchlist = []
-        for result in results:
-            watchlist.append(result[0])
         db.close()
-        return watchlist
+
+        # list comprehension to extract the watchlist
+        return [result[0] for result in results]
+
+
 
     @timer
     def filter_db(self, min_available=0, max_available=10000000,
@@ -424,11 +404,7 @@ class Borrow:
         results = cursor.fetchall()
         db.close()
 
-        summary = []
-        for row in results:
-            summary.append(
-                dict(symbol=row[0], rebate=row[1], fee=row[2], available=row[3],
-                     datetime=row[4], name=row[5], country=row[6]))
+        summary = [Stock._make(row) for row in results]
 
         print("Running Filter")
         print(country)
@@ -460,16 +436,12 @@ class Borrow:
                     ORDER BY symbol;"""
             data = (safe_symbols,)
             cursor.execute(SQL, data)
+
             results = cursor.fetchall()
             db.close()
 
-            summary = []
-            for row in results:
-                summary.append(
-                    dict(symbol=row[0], rebate=row[1], fee=row[2], available=row[3],
-                         datetime=row[4], name=row[5], country=row[6]))
-
-            return summary
+            # Make a Stock named tuple for each row in the results and add to list
+            return [Stock._make(row) for row in results]
 
         else:
             return None
@@ -545,17 +517,14 @@ class Borrow:
 
     @timer
     def refresh_latest_all_symbols(self):
-        """Set the class variable list of every symbol in the latest update from IB"""
+        """Set the instance variable list of every symbol in the latest update from IB"""
         db, cursor = self._connect()
         SQL = """SELECT distinct symbol FROM stocks JOIN borrow ON (stocks.cusip = borrow.cusip)
                 WHERE datetime = (SELECT max(datetime) FROM borrow);"""
         cursor.execute(SQL)
-        results = []
-        rows = cursor.fetchall()
-        for row in rows:
-            results.append(row[0])
+
+        self.latest_symbols = [row[0] for row in cursor.fetchall()]
         db.close()
-        self.latest_symbols = results
 
     @timer
     def refresh_all_symbols(self):
@@ -563,12 +532,10 @@ class Borrow:
         db, cursor = self._connect()
         SQL = """SELECT DISTINCT symbol FROM stocks;"""
         cursor.execute(SQL)
-        results = []
-        rows = cursor.fetchall()
-        for row in rows:
-            results.append(row[0])
+
+        self.all_symbols = [row[0] for row in cursor.fetchall()]
         db.close()
-        self.all_symbols = results
+
 
     @timer
     def clean_dbase(self):
