@@ -1,8 +1,11 @@
-from __future__ import print_function
 #
 # Script to run every morning to send out email updates of watch lists
 #
 # http://www.jayrambhia.com/blog/send-emails-using-python/
+from __future__ import print_function
+from collections import defaultdict
+from decimal import *
+import requests
 import smtplib
 import os
 from email.mime.multipart import MIMEMultipart
@@ -40,10 +43,12 @@ def send_emails(users, stockLoan):
     for user in users:
         watchlist = stockLoan.get_watchlist(user.id)
         summary = stockLoan.summary_report(watchlist)
+        prices = get_prices(summary)
+        print(prices)
         if summary:
             print('Running email for ', user.username)
             print(summary [0])
-            html = env.get_template(EMAIL_TEMPLATE).render(summary=summary, user_name=user.username)
+            html = env.get_template(EMAIL_TEMPLATE).render(summary=summary, prices=prices, user_name=user.username)
 
             sub = 'Morning email update for ' + user.username
 
@@ -58,3 +63,28 @@ def send_emails(users, stockLoan):
             print('Empty watchlist for ', user.username)
 
     server.quit()
+
+def get_prices(summary):
+    """Query Yahoo Finance and return dictionary of symbol:price pairs"""
+
+    # Only bothering with US symbols here
+    valid_symbols = [symbol.symbol for symbol in summary if symbol.country == 'usa']
+
+    # God damn this is ugly
+    string_symbols = '%22'
+    for symbol in valid_symbols[:-1]:
+        string_symbols += symbol
+        string_symbols += '%22%2C%22'
+    string_symbols += valid_symbols[-1] + '%22'
+    url = """https://query.yahooapis.com/v1/public/yql?q=select%20symbol%2C%20LastTradePriceOnly%20from%20yahoo.finance.quotes%20where%20symbol%20in%20(""" \
+          + string_symbols + """)&format=json&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys&callback="""
+
+    response = requests.get(url).json()
+    prices = response['query']['results']['quote']
+
+    results = defaultdict(Decimal)
+    for symbol in prices:
+        results[symbol['symbol']] = symbol['LastTradePriceOnly']
+
+    return results
+

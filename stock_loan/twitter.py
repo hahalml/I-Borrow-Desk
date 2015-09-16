@@ -21,7 +21,7 @@ class BorrowStreamer(TwythonStreamer):
     """Twitter Streamer class for responding to tweets at the bot"""
     def __init__(self, *a, **kwargs):
         # Create a Twitter Rest API instance for responding to tweets
-        self._twitter = Twython(*a)
+        #self._twitter = Twython(*a)
 
         # Create a Borrow instance
         self._stock_loan = Borrow(database_name='stock_loan', create_new=False)
@@ -46,6 +46,10 @@ class BorrowStreamer(TwythonStreamer):
         print("There was an error")
 
     def _respond(self, data):
+
+        #
+        twitter_rest = Twython(APP_KEY, APP_SECRET, OAUTH_TOKEN, OAUTH_TOKEN_SECRET)
+
         # Grab the tweet's text and try to extract a symbol from it
         text = data['text']
         matches = re.findall(TICKER_MATCH, text)
@@ -57,14 +61,14 @@ class BorrowStreamer(TwythonStreamer):
             # Confirm the summary report is not empty
             if summary != None:
                 for ticker in summary:
-                    print(ticker['symbol'])
+                    print(ticker.symbol)
 
                     #extract the relevant information from the summary report and build a status string
-                    symbol = ticker['symbol']
-                    name = ticker['name'][:20]
-                    available = '{:,}'.format(ticker['available'])
-                    fee = '{:.1%}'.format(ticker['fee']/100)
-                    datetime = ticker['datetime']
+                    symbol = ticker.symbol
+                    name = ticker.name[:20]
+                    available = '{:,}'.format(ticker.available)
+                    fee = '{:.1%}'.format(ticker.fee/100)
+                    datetime = ticker.datetime
                     url = 'http://cameronmochrie.com/IBorrowDesk/historical_report?symbol={}&&real_time=True'.format(symbol)
                     screen_name = data['user']['screen_name']
 
@@ -76,7 +80,7 @@ class BorrowStreamer(TwythonStreamer):
                     id_str = data['id_str']
 
                     # Update status
-                    self._twitter.update_status(status=status, in_reply_to_status_id=id_str)
+                    twitter_rest.update_status(status=status, in_reply_to_status_id=id_str)
 
                     print('Match found {} \n'.format(ticker))
                     print('Responded with {} \n'.format(status))
