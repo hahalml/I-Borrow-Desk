@@ -43,9 +43,14 @@ def send_emails(users, stockLoan):
     for user in users:
         watchlist = stockLoan.get_watchlist(user.id)
         summary = stockLoan.summary_report(watchlist)
-        prices = get_prices(summary)
-        print(prices)
+
         if summary:
+            try:
+                prices = get_prices(summary)
+                print(prices)
+            except ValueError:
+                prices = None
+
             print('Running email for ', user.username)
             print(summary [0])
             html = env.get_template(EMAIL_TEMPLATE).render(summary=summary, prices=prices, user_name=user.username)
@@ -69,6 +74,9 @@ def get_prices(summary):
 
     # Only bothering with US symbols here
     valid_symbols = [symbol.symbol for symbol in summary if symbol.country == 'usa']
+
+    if not valid_symbols:
+        raise ValueError('No valid symbols')
 
     # God damn this is ugly
     string_symbols = '%22'

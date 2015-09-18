@@ -17,7 +17,7 @@
                 <td>{{ '{:,}'.format(symbol['available']) }}</td>
                 <td>{{symbol['datetime']}}</td>
                 <td>
-                    {% if prices[symbol.symbol] != 0 %}
+                    {% if prices and prices[symbol.symbol] != 0 %}
                         ${{ prices[symbol.symbol] }}
                     {% else %}
                         NA
