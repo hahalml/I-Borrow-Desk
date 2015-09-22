@@ -90,9 +90,17 @@ def get_prices(summary):
     response = requests.get(url).json()
     prices = response['query']['results']['quote']
 
-    results = defaultdict(Decimal)
-    for symbol in prices:
-        results[symbol['symbol']] = symbol['LastTradePriceOnly']
 
-    return results
+
+    results = defaultdict(Decimal)
+
+    # Yahoo response is simply a dict if only one symbol returned, not a list
+    if type(prices) == dict:
+        results[prices['symbol']] = prices['LastTradePriceOnly']
+        return results
+    else:
+        for symbol in prices:
+            results[symbol['symbol']] = symbol['LastTradePriceOnly']
+
+        return results
 

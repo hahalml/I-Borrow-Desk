@@ -62,9 +62,8 @@ class Borrow:
     def __init__(self, database_name='stock_loan', file_names=('australia', 'austria', 'belgium', 'british',
                                                                'canada', 'dutch', 'france', 'germany', 'hongkong',
                                                                'india', 'italy', 'japan', 'mexico', 'spain', 'swedish',
-                                                               'swiss', 'usa'),
-                 create_new=False):
-        """Initialize, unless create_new is True the stocks database won't be initialize.
+                                                               'swiss', 'usa'), create_new=False):
+        """Initialize, unless create_new is True the stocks database won't be initialized.
         However, currently the class requires the proper database to be previously created"""
 
         print("Initializing Borrow")
@@ -72,7 +71,7 @@ class Borrow:
         self.database_name = database_name
 
         # Check all the passed in file names against the dictionary of allowed ones, append valid ones to
-        # class variable which will keep track
+        # instance variable which will keep track
         self.file_names = []
         for file in file_names:
             if file in COUNTRY_CODE:
@@ -80,7 +79,7 @@ class Borrow:
 
         self.download_directory = DOWNLOAD_DIRECTORY
 
-        # global class variable for tracking duplicates during updated
+        # global instance variable for tracking duplicates during updated
         self._cusips_updated = []
 
         self.all_symbols = []
@@ -271,8 +270,6 @@ class Borrow:
 
         return self.summary_report([row[0] for row in results])
 
-
-
     @timer
     def insert_watchlist(self, userid, symbols):
         """Takes a userid and list of symbols, adds them to the watchlist database.
@@ -421,12 +418,10 @@ class Borrow:
 
         safe_symbols = []
         for symbol in symbols:
-
             if Borrow._check_symbol(symbol) and symbol.upper() in self.all_symbols:
                 safe_symbols.append(symbol.upper())
 
         if safe_symbols:
-
             # Select the most recent row for each symbol being searched for
             db, cursor = self._connect()
             SQL = """SELECT DISTINCT symbol, rebate, fee, available, datetime, name, country
@@ -440,7 +435,7 @@ class Borrow:
             results = cursor.fetchall()
             db.close()
 
-            # Make a Stock named tuple for each row in the results and add to list
+            # Make a Stock for each row in the results and add to list
             return [Stock._make(row) for row in results]
 
         else:
@@ -449,7 +444,7 @@ class Borrow:
     @timer
     def historical_report(self, symbol, real_time=False):
         """Return historical report of rebate, fee, availability for a given symbol  along with the Company name
-        The default interval is daily (9:30AM for the opening of the market) - if realtime flag is set to True
+        The default interval is daily (9:30AM for the opening of the market) - if real-time flag is set to True
         the last 100 entries will be returned - about 3 days of data."""
         if Borrow._check_symbol(symbol):
             safe_symbol = symbol.upper()
