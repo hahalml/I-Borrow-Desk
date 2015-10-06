@@ -7,15 +7,15 @@ from datetime import datetime
 
 from flask import render_template, request, redirect, url_for, flash
 from flask.ext.login import login_user, logout_user, current_user, login_required
-from apscheduler.schedulers.background import BackgroundScheduler
-
-from . import app, login_manager, db, stock_loan
-from .models import User
-
-from .email_update import send_emails
-from .forms import RegistrationForm, ChangePasswordForm, ChangeEmailForm, FilterForm
 from flask_admin import Admin, BaseView, expose
 from flask_admin.contrib.sqla import ModelView
+from apscheduler.schedulers.background import BackgroundScheduler
+
+from . import app, login_manager, db, stock_loan, mc
+from .models import User
+from .email_update import send_emails
+from .forms import RegistrationForm, ChangePasswordForm, ChangeEmailForm, FilterForm
+from .utils import historical_report_cache
 
 dirname, filename = os.path.split(os.path.abspath(__file__))
 
@@ -39,7 +39,6 @@ login_manager.login_view = 'login'
 
 ADMIN_HOMEPAGE_TEMPLATE = 'admin_homepage_template.html'
 
-mc = memcache.Client(['127.0.0.1:11211'], debug=0)
 
 
 class AdminView(BaseView):
@@ -185,7 +184,7 @@ def historical_report():
     on and the time period (last few days every 15mins or daily long-term)"""
 
     # Grab the symbol and real-time flag form the url
-    symbol = request.args['symbol'].strip().upper()
+    symbol = str(request.args['symbol'].strip().upper())
     if request.args['real_time'] == 'True':
         real_time = True
     else:
@@ -197,38 +196,26 @@ def historical_report():
     # Get the company name and a report based on the url parameters.
     # Check the memcache first for both. If they are not there, go to the db and update the cache
     if symbol:
-        print('Running historical report on ' + symbol)
-        timein = datetime.now()
-        key_symbol = str(symbol)
-        name = mc.get(key_symbol)
+        summary = historical_report_cache(symbol=symbol, real_time=real_time)
+
+        name = mc.get(symbol)
         if not name:
-            print('cache miss on ' + key_symbol)
+            print('cache miss on ' + symbol)
             name = stock_loan.get_company_name(symbol)
             if name:
-                mc.set(key_symbol, name)
-
-        key_summary = str(symbol + str(real_time))
-        summary = mc.get(key_summary)
-        if not summary:
-            print('cache miss on ' + key_summary)
-            summary = stock_loan.historical_report(symbol, real_time)
-            if summary:
-                mc.set(key_summary, summary)
-
-        if not summary:
-            flash(symbol +  ' not found')
-            flash('For Canadian stocks use a .CA suffix. For other countries check the FAQ.')
-
-        delta = datetime.now() - timein
-        print('Historical report took ' + str(delta))
+                mc.set(symbol, name)
 
         if current_user.is_authenticated():
             stock_loan.search(symbol=symbol, userid=current_user.id)
         else:
            stock_loan.search(symbol=symbol)
 
+        if not summary:
+            flash(symbol +  ' not found')
+            flash('For Canadian stocks use a .CA suffix. For other countries check the FAQ.')
 
-    return render_template(HISTORICAL_REPORT_TEMPLATE, symbol=symbol, name=name, summary=summary)
+
+    return render_template(HISTORICAL_REPORT_TEMPLATE, symbol=symbol, name=name, summary=summary, real_time=real_time)
 
 
 @app.route('/name_search', methods=['GET'])
@@ -426,4 +413,5 @@ def refresh_borrow():
     stock_loan.refresh_all_symbols()
     stock_loan.refresh_latest_all_symbols()
     print("Refreshed Local Borrow data")
+
 

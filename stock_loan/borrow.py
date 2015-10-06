@@ -456,7 +456,7 @@ class Borrow:
 
         if real_time:
             SQL = """SELECT rebate, fee, available, datetime FROM stocks JOIN borrow ON (stocks.cusip = borrow.cusip)
-                    WHERE symbol = %s
+                    WHERE symbol = %s AND borrow.datetime > now() - interval '7days'
                     ORDER BY datetime DESC;"""
 
         else:
@@ -467,7 +467,10 @@ class Borrow:
                     ORDER BY datetime DESC;"""
 
         cursor.execute(SQL, data)
-        results = cursor.fetchall()
+        results = [{'rebate': float(row[0])/100, 'fee': float(row[1])/100, 'available': float(row[2]), 'time': row[
+            3].isoformat()} for
+                   row in
+                   cursor.fetchall()]
 
         # If the search didn't find anything return None
         if results:
