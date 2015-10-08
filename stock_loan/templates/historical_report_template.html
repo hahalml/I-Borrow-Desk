@@ -39,17 +39,18 @@
 
     var svg = dimple.newSvg("#chartContainer", 600, 400);
 
-    if ( "{{ real_time }}" === "False") {
+//    if (true === true) {
         var format_string = "%Y-%m-%d";
         var display_string = "%Y-%m-%d";
         var order_rule = "Date";
-    } else {
-        var format_string = "%Y-%m-%dT%H:%M:%S";
-        var display_string = "%m-%d %H:%M";
-        var order_rule = "Time";
-    }
+//    } else {
+//        var format_string = "%Y-%m-%dT%H:%M:%S";
+//        var display_string = "%m-%d %H:%M";
+//        var order_rule = "Time";
+//    }
 
-        d3.json($SCRIPT_ROOT + '/_json_historical_report' + "?symbol={{ symbol }}" + "&&real_time={{ real_time }}",
+
+        d3.json($SCRIPT_ROOT + '/_json_historical_report' + "?symbol={{ symbol }}" + "&&real_time=False",
                 function (data) {
 
                     var myChart = new dimple.chart(svg, data['data']);

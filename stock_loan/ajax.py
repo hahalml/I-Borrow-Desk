@@ -8,8 +8,9 @@ def json_historical_report():
 
     symbol = request.args.get('symbol')
     real_time = request.args.get('real_time')
-    print(real_time)
+
     print("AJAX request for {}".format(symbol))
-    report = historical_report_cache(symbol=symbol, real_time=real_time)
+    report = historical_report_cache(symbol=symbol, real_time=False)
+
 
     return jsonify(data=report)

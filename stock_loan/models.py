@@ -11,6 +11,7 @@ class User(db.Model):
     password_hash = db.Column(db.String(250))
     receive_email = db.Column(db.Boolean, index=True)
     admin = db.Column(db.Boolean)
+    _views = db.Column(db.Integer)
 
     def __init__(self, username, password, email, receive_email=True, admin = False):
         self.username = username
@@ -18,6 +19,7 @@ class User(db.Model):
         self.email = email
         self.receive_email = receive_email
         self.admin = admin
+        self._views = 0
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -39,4 +41,7 @@ class User(db.Model):
 
     def is_admin(self):
         return self.admin
+
+    def increment_views(self):
+        self._views += 1
 

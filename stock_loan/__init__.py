@@ -25,6 +25,7 @@ login_manager.init_app(app)
 stock_loan = Borrow(database_name='stock_loan', create_new=False)
 
 mc = memcache.Client(['127.0.0.1:11211'], debug=0)
+mc.flush_all()
 
 from .routes import *
 from .ajax import *

@@ -454,6 +454,8 @@ class Borrow:
         db, cursor = self._connect()
         data = (safe_symbol,)
 
+
+
         if real_time:
             SQL = """SELECT rebate, fee, available, datetime FROM stocks JOIN borrow ON (stocks.cusip = borrow.cusip)
                     WHERE symbol = %s AND borrow.datetime > now() - interval '7days'
@@ -464,11 +466,11 @@ class Borrow:
                     FROM stocks JOIN Borrow ON (stocks.cusip = Borrow.cusip)
                     WHERE symbol = %s
                     AND cast(datetime as time) between '9:30' and '9:40'
-                    ORDER BY datetime DESC;"""
+                    ORDER BY datetime DESC
+                    LIMIT 90;"""
 
         cursor.execute(SQL, data)
-        results = [{'rebate': float(row[0])/100, 'fee': float(row[1])/100, 'available': float(row[2]), 'time': row[
-            3].isoformat()} for
+        results = [{'rebate': float(row[0])/100, 'fee': float(row[1])/100, 'available': float(row[2]), 'time': row[3].isoformat()} for
                    row in
                    cursor.fetchall()]
 
@@ -613,7 +615,6 @@ class Borrow:
         cursor.execute(SQL, data)
         rows = cursor.fetchall()
         self.trending_available = [row[0] for row in rows]
-
 
 
     @staticmethod

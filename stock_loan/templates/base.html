@@ -22,8 +22,8 @@
 		<script src="{{ url_for('static', filename='jasny-bootstrap.min.js')}}"></script>
         <script src="{{ url_for('static', filename='jquery.tablesorter.min.js')}}"></script>
 
-        <script src="http://d3js.org/d3.v3.min.js"></script>
-        <script src="http://dimplejs.org/dist/dimple.v2.0.0.min.js"></script>
+        <script src="{{ url_for('static', filename='d3.min.js') }}"></script>
+        <script src="{{ url_for('static', filename='dimple.v2.1.6.min.js') }}"></script>
         <script>
             $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
         </script>

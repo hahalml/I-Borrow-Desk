@@ -15,7 +15,7 @@ from . import app, login_manager, db, stock_loan, mc
 from .models import User
 from .email_update import send_emails
 from .forms import RegistrationForm, ChangePasswordForm, ChangeEmailForm, FilterForm
-from .utils import historical_report_cache
+from .utils import historical_report_cache, view_logger
 
 dirname, filename = os.path.split(os.path.abspath(__file__))
 
@@ -76,6 +76,7 @@ def load_user(userid):
 
 
 @app.route('/')
+@view_logger
 def main_page():
     """Mainpage handler"""
     #symbols = [random.choice(stock_loan.latest_symbols) for i in range(0, 15)]
@@ -95,6 +96,7 @@ def main_page():
 
 
 @app.route('/trending')
+@view_logger
 def trending():
     """
     Handler for the trending view
@@ -120,6 +122,7 @@ def trending():
 
 @app.route('/watchlist', methods=['GET', 'POST'])
 @login_required
+@view_logger
 def watch_list():
     """Watchlist handler"""
 
@@ -179,6 +182,7 @@ def remove_from_watchlist(symbol):
 
 
 @app.route('/historical_report', methods=['GET'])
+@view_logger
 def historical_report():
     """Historical report handler, uses url arguments to determine the symbol to report
     on and the time period (last few days every 15mins or daily long-term)"""
@@ -219,6 +223,7 @@ def historical_report():
 
 
 @app.route('/name_search', methods=['GET'])
+@view_logger
 def name_search():
 
     try:
@@ -236,6 +241,7 @@ def name_search():
     return render_template(NAME_SEARCH_TEMPLATE, summary=summary, name=name)
 
 @app.route('/filter_db', methods=['GET', 'POST'])
+@view_logger
 def filter_db():
     """Handler for the filter_db page"""
     form = FilterForm(request.form)
