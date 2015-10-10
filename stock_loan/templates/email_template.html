@@ -3,16 +3,14 @@
     <table cellpadding="10">
         <tr>
             <th>Symbol</th>
-            <th>Rebate</th>
             <th>Fee</th>
             <th>Availability</th>
-            <th>Timestamp</th>
+            <th>Last Updated (EST)</th>
             <th>Last Trade</th>
         </tr>
          {% for symbol in summary %}
             <tr>
                 <td><a href="https://cameronmochrie.com/IBorrowDesk/historical_report?symbol={{symbol['symbol']}}&&real_time=False">{{symbol['symbol']}}</a></td>
-                <td>{{ '{:.1%}'.format(symbol['rebate']/100) }}</td>
                 <td>{{ '{:.1%}'.format(symbol['fee']/100) }}</td>
                 <td>{{ '{:,}'.format(symbol['available']) }}</td>
                 <td>{{symbol['datetime']}}</td>

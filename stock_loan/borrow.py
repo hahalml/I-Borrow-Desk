@@ -452,8 +452,6 @@ class Borrow:
         db, cursor = self._connect()
         data = (safe_symbol,)
 
-
-
         if real_time:
             SQL = """SELECT fee, available, datetime FROM stocks JOIN borrow ON (stocks.cusip = borrow.cusip)
                     WHERE symbol = %s AND borrow.datetime > now() - interval '7days'
@@ -468,7 +466,7 @@ class Borrow:
                     LIMIT 90;"""
 
         cursor.execute(SQL, data)
-        results = [{'fee': float(row[0])/100, 'available': float(row[1]), 'time': row[2].isoformat()} for
+        results = [{'fee': float(row[0])/100, 'available': row[1], 'time': row[2].isoformat()} for
                    row in cursor.fetchall()]
 
         # If the search didn't find anything return None
