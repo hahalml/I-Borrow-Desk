@@ -262,10 +262,6 @@ def filter_db():
         return render_template(FILTER_TEMPLATE, form=form, summary=[])
 
 
-
-
-
-
 @app.route('/change_morning_email')
 @login_required
 def change_morning_email():

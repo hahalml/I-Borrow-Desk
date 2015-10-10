@@ -15,17 +15,15 @@
 
              <table class="table table-condensed table-responsive">
                 <tr>
-                    <th>Rebate</th>
                     <th>Fee</th>
                     <th>Availability</th>
-                    <th>Timestamp (EST) </th>
+                    <th>Time (EST) </th>
                  </tr>
 
             {% for stock in summary %}
                 <tr>
-                    <td>{{ '{:.1%}'.format(stock['rebate']) }}</td>
                     <td>{{ '{:.1%}'.format(stock['fee']) }}</td>
-                    <td>{{ '{:,}'.format(stock['available']) }}</td>
+                    <td>{{ '{:,}'.format(stock['available']|round) }}</td>
                     <td>{{stock['time']}}</td>
                 </tr>
             {% endfor %}

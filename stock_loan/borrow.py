@@ -43,8 +43,7 @@ COUNTRY_CODE = {
     'usa': ''
 }
 
-Stock = collections.namedtuple('Stock', ['symbol', 'rebate', 'fee', 'available', 'datetime', 'name',
-                                                       'country'])
+Stock = collections.namedtuple('Stock', ['symbol', 'fee', 'available', 'datetime', 'name', 'country'])
 
 def timer(f):
     def decorated(*args, **kw):
@@ -244,15 +243,14 @@ class Borrow:
     def _insert_borrow(row, datetime):
         """Returns SQL string and data tuple for use in a row insertion to the Borrow table"""
         cusip = row[3]
-        # Replace NA rebates and fees with nonsensical dummy values
-        rebate = row[5].replace('NA', '99')
+        # Replace NA fees with nonsensical dummy values
         fee = row[6].replace('NA', '-99')
 
         # Ignore '>' symbol
         available = row[7].replace('>', '')
 
-        SQL = "INSERT INTO Borrow (datetime, cusip, rebate, fee, available) VALUES (%s, %s, %s, %s, %s);"
-        data = (datetime, cusip, rebate, fee, available,)
+        SQL = "INSERT INTO Borrow (datetime, cusip, fee, available) VALUES (%s, %s, %s, %s);"
+        data = (datetime, cusip, fee, available,)
         return SQL, data
 
     #########
@@ -388,7 +386,7 @@ class Borrow:
         db, cursor = self._connect()
 
         # This query searches across the borrow database using only the most recent entry for each security
-        SQL = """SELECT symbol, rebate, fee, available, datetime, name, country
+        SQL = """SELECT symbol, fee, available, datetime, name, country
                 FROM stocks JOIN borrow ON
                 (stocks.cusip = borrow.cusip AND stocks.updated = borrow.datetime)
                 WHERE available > %s AND available < %s
@@ -413,7 +411,7 @@ class Borrow:
 
     @timer
     def summary_report(self, symbols):
-        """Return a sorted by symbol list of dictionaries including symbols and latest rebate,
+        """Return a sorted by symbol list of dictionaries including symbols and latest
         fee, availability, and date/time of last update"""
 
         safe_symbols = []
@@ -424,7 +422,7 @@ class Borrow:
         if safe_symbols:
             # Select the most recent row for each symbol being searched for
             db, cursor = self._connect()
-            SQL = """SELECT DISTINCT symbol, rebate, fee, available, datetime, name, country
+            SQL = """SELECT DISTINCT symbol, fee, available, datetime, name, country
                     FROM stocks JOIN borrow ON
                     (stocks.cusip = borrow.cusip AND stocks.updated = borrow.datetime)
                     WHERE symbol = ANY(%s)
@@ -443,7 +441,7 @@ class Borrow:
 
     @timer
     def historical_report(self, symbol, real_time=False):
-        """Return historical report of rebate, fee, availability for a given symbol  along with the Company name
+        """Return historical report of fee, availability for a given symbol  along with the Company name
         The default interval is daily (9:30AM for the opening of the market) - if real-time flag is set to True
         the last 100 entries will be returned - about 3 days of data."""
         if Borrow._check_symbol(symbol):
@@ -457,12 +455,12 @@ class Borrow:
 
 
         if real_time:
-            SQL = """SELECT rebate, fee, available, datetime FROM stocks JOIN borrow ON (stocks.cusip = borrow.cusip)
+            SQL = """SELECT fee, available, datetime FROM stocks JOIN borrow ON (stocks.cusip = borrow.cusip)
                     WHERE symbol = %s AND borrow.datetime > now() - interval '7days'
                     ORDER BY datetime DESC;"""
 
         else:
-            SQL = """SELECT rebate, fee, available, cast(datetime as date) as date
+            SQL = """SELECT fee, available, cast(datetime as date) as date
                     FROM stocks JOIN Borrow ON (stocks.cusip = Borrow.cusip)
                     WHERE symbol = %s
                     AND cast(datetime as time) between '9:30' and '9:40'
@@ -470,9 +468,8 @@ class Borrow:
                     LIMIT 90;"""
 
         cursor.execute(SQL, data)
-        results = [{'rebate': float(row[0])/100, 'fee': float(row[1])/100, 'available': float(row[2]), 'time': row[3].isoformat()} for
-                   row in
-                   cursor.fetchall()]
+        results = [{'fee': float(row[0])/100, 'available': float(row[1]), 'time': row[2].isoformat()} for
+                   row in cursor.fetchall()]
 
         # If the search didn't find anything return None
         if results:
