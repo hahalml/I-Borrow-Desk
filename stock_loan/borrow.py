@@ -227,16 +227,27 @@ class Borrow:
         cusip = row[3]
         symbol = row[0].replace(' ', '.') + suffix
         name = row[2]
-        SQL = "INSERT INTO stocks (cusip, symbol, name, country, updated) VALUES (%s, %s, %s, %s, %s);"
-        data = (cusip, symbol, name, country, updated,)
+
+        fee = row[6].replace('NA', '-99')
+        # Ignore '>' symbol
+        available = row[7].replace('>', '')
+
+        SQL = """INSERT INTO stocks (cusip, symbol, name, country, latest_fee, latest_available, updated)
+              VALUES (%s, %s, %s, %s, %s, %s, %s);"""
+        data = (cusip, symbol, name, country, fee, row, updated,)
         return SQL, data
 
     @staticmethod
     def _update_stocks(row, updated):
         """Returns SQL string and data tuple for use in row update for the stocks updates"""
         cusip = row[3]
-        SQL = "UPDATE stocks SET updated = %s WHERE cusip = %s;"
-        data = (updated, cusip,)
+        fee = row[6].replace('NA', '-99')
+        # Ignore '>' symbol
+        available = row[7].replace('>', '')
+
+        SQL = """UPDATE stocks SET updated = %s, latest_fee = %s, latest_available = %s WHERE cusip = %s;"""
+        data = (updated, fee, available, cusip)
+
         return SQL, data
 
     @staticmethod
@@ -382,15 +393,15 @@ class Borrow:
             direction = 'ASC'
         else:
             direction = 'DESC'
+            order_by = 'latest_' + order_by
 
         db, cursor = self._connect()
 
-        # This query searches across the borrow database using only the most recent entry for each security
-        SQL = """SELECT symbol, fee, available, datetime, name, country
-                FROM stocks JOIN borrow ON
-                (stocks.cusip = borrow.cusip AND stocks.updated = borrow.datetime)
-                WHERE available > %s AND available < %s
-                AND fee > %s AND fee < %s
+        # This query searches across the stocks database
+        SQL = """SELECT symbol, latest_fee, latest_available, updated, name, country
+                FROM stocks
+                WHERE latest_available > %s AND latest_available < %s
+                AND latest_fee > %s AND latest_fee < %s
                 AND country = %s
                 ORDER by %s %s
                 LIMIT 100;"""
@@ -422,9 +433,8 @@ class Borrow:
         if safe_symbols:
             # Select the most recent row for each symbol being searched for
             db, cursor = self._connect()
-            SQL = """SELECT DISTINCT symbol, fee, available, datetime, name, country
-                    FROM stocks JOIN borrow ON
-                    (stocks.cusip = borrow.cusip AND stocks.updated = borrow.datetime)
+            SQL = """SELECT DISTINCT symbol, latest_fee, latest_available, updated, name, country
+                    FROM stocks
                     WHERE symbol = ANY(%s)
                     ORDER BY symbol;"""
             data = (safe_symbols,)
