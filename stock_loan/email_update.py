@@ -90,8 +90,6 @@ def get_prices(summary):
     response = requests.get(url).json()
     prices = response['query']['results']['quote']
 
-
-
     results = defaultdict(Decimal)
 
     # Yahoo response is simply a dict if only one symbol returned, not a list

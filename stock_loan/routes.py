@@ -188,11 +188,8 @@ def historical_report():
     on and the time period (last few days every 15mins or daily long-term)"""
 
     # Grab the symbol and real-time flag form the url
-    symbol = str(request.args['symbol'].strip().upper())
-    if request.args['real_time'] == 'True':
-        real_time = True
-    else:
-        real_time = False
+    symbol = str(request.args['symbol'].replace(' ', '').upper())
+    real_time = True if request.args['real_time'] == 'True' else False
 
     summary = []
     name = ''
