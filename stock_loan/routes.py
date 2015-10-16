@@ -40,7 +40,6 @@ login_manager.login_view = 'login'
 ADMIN_HOMEPAGE_TEMPLATE = 'admin_homepage_template.html'
 
 
-
 class AdminView(BaseView):
     def is_accessible(self):
         if current_user.is_authenticated():
@@ -79,8 +78,7 @@ def load_user(userid):
 @view_logger
 def main_page():
     """Mainpage handler"""
-    #symbols = [random.choice(stock_loan.latest_symbols) for i in range(0, 15)]
-    #summary = stock_loan.summary_report(symbols)
+
     number_of_symbols = stock_loan.all_symbols_count
 
     summary = mc.get('mainpage')
@@ -98,9 +96,7 @@ def main_page():
 @app.route('/trending')
 @view_logger
 def trending():
-    """
-    Handler for the trending view
-    """
+    """Handler for the trending view"""
 
     trending_fee = mc.get('trending_fee')
     if not trending_fee:
@@ -119,6 +115,7 @@ def trending():
         print('trending_available cache hit')
 
     return render_template(TRENDING_TEMPLATE, trending_fee=trending_fee, trending_available=trending_available)
+
 
 @app.route('/watchlist', methods=['GET', 'POST'])
 @login_required
@@ -154,6 +151,7 @@ def watch_list():
 
     return render_template(WATCH_LIST_TEMPLATE, summary=summary)
 
+
 @app.route('/watchlist/add/<symbol>', methods=['GET'])
 @login_required
 def add_to_watchlist(symbol):
@@ -167,6 +165,7 @@ def add_to_watchlist(symbol):
 
     return redirect(url_for('watch_list'))
 
+
 @app.route('/watchlist/remove/<symbol>', methods=['GET'])
 @login_required
 def remove_from_watchlist(symbol):
@@ -178,7 +177,6 @@ def remove_from_watchlist(symbol):
         flash("Failed to remove {} from your watchlist".format(symbol))
 
     return redirect(url_for('watch_list'))
-
 
 
 @app.route('/historical_report', methods=['GET'])
@@ -209,12 +207,11 @@ def historical_report():
         if current_user.is_authenticated():
             stock_loan.search(symbol=symbol, userid=current_user.id)
         else:
-           stock_loan.search(symbol=symbol)
+            stock_loan.search(symbol=symbol)
 
         if not summary:
-            flash(symbol +  ' not found')
+            flash(symbol + ' not found')
             flash('For Canadian stocks use a .CA suffix. For other countries check the FAQ.')
-
 
     return render_template(HISTORICAL_REPORT_TEMPLATE, symbol=symbol, name=name, summary=summary, real_time=real_time)
 
@@ -222,7 +219,7 @@ def historical_report():
 @app.route('/name_search', methods=['GET'])
 @view_logger
 def name_search():
-
+    """Handler for searching the database by name"""
     try:
         name = request.args['name']
         print(name)
@@ -237,6 +234,7 @@ def name_search():
 
     return render_template(NAME_SEARCH_TEMPLATE, summary=summary, name=name)
 
+
 @app.route('/filter_db', methods=['GET', 'POST'])
 @view_logger
 def filter_db():
@@ -244,12 +242,11 @@ def filter_db():
     form = FilterForm(request.form)
     if request.method == 'POST' and form.validate():
         summary = stock_loan.filter_db(min_available=form.min_available.data,
-                                    max_available=form.max_available.data,
-                                    min_fee=form.min_fee.data,
-                                    max_fee=form.max_fee.data,
-                                    country=form.country.data,
-                                    order_by=form.order_by.data
-                                    )
+                                       max_available=form.max_available.data,
+                                       min_fee=form.min_fee.data,
+                                       max_fee=form.max_fee.data,
+                                       country=form.country.data,
+                                       order_by=form.order_by.data)
         if len(summary) == 100:
             flash('Results capped at 100')
         else:
@@ -275,7 +272,6 @@ def change_morning_email():
         db.session.commit()
         flash('No longer receiving morning emails')
     return redirect(url_for('watch_list'))
-
 
 
 @app.route('/change_password', methods=['GET', 'POST'])
@@ -398,7 +394,6 @@ def initialize():
     apsched.add_job(refresh_borrow, 'cron', minute='5')
 
 
-
 def email_job():
     """Helper function for scheduled email sender function"""
     users = User.query.filter_by(receive_email=True).all()
@@ -412,5 +407,3 @@ def refresh_borrow():
     stock_loan.refresh_all_symbols()
     stock_loan.refresh_latest_all_symbols()
     print("Refreshed Local Borrow data")
-
-

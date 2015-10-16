@@ -45,6 +45,7 @@ COUNTRY_CODE = {
 
 Stock = collections.namedtuple('Stock', ['symbol', 'fee', 'available', 'datetime', 'name', 'country'])
 
+
 def timer(f):
     def decorated(*args, **kw):
         ts = time.time()
@@ -98,7 +99,6 @@ class Borrow:
         # update trending lists
         self.update_trending()
 
-
     @timer
     def update(self, files_to_download=None, update_all=True):
         """Connect to the IB ftp server and download the latest files
@@ -112,7 +112,7 @@ class Borrow:
             # Update the borrow database
             self._update_borrow(country, filename)
 
-         # Clear the cusips updated
+        # Clear the cusips updated
         print(len(self._cusips_updated), ' symbols updated.')
         self._cusips_updated = []
 
@@ -220,7 +220,7 @@ class Borrow:
         else:
             print('FILENAME DIDNT MATCH PROPERLY')
 
-    ### SQL GENERATORS
+    # SQL GENERATORS
     @staticmethod
     def _insert_stocks(row, country, suffix, updated):
         """Returns SQL string and data tuple for use in a row insertion to the stocks table"""
@@ -377,8 +377,6 @@ class Borrow:
         # list comprehension to extract the watchlist
         return [result[0] for result in results]
 
-
-
     @timer
     def filter_db(self, min_available=0, max_available=10000000,
                   min_fee=0, max_fee=100, country='usa', order_by='symbol'):
@@ -497,7 +495,6 @@ class Borrow:
         db.commit()
         db.close()
 
-
     def get_company_name(self, symbol):
         """Returns the name of a Company given a symbol. Returns None if no symbol exists"""
         if Borrow._check_symbol(symbol):
@@ -555,10 +552,7 @@ class Borrow:
         db.commit()
 
         # Update the most recent updated column in the stocks table in case the most recent entry was deleted
-
-
-
-       # TODO: THINK ABOUT THIS MORE
+        # TODO: THINK ABOUT THIS MORE
         # for symbol in self.all_symbols:
         #     SQL = """SELECT max(datetime) FROM borrow JOIN stocks ON (stocks.cusip = borrow.cusip) WHERE symbol = %s;"""
         #     data = (symbol,)
@@ -620,7 +614,6 @@ class Borrow:
         cursor.execute(SQL, data)
         rows = cursor.fetchall()
         self.trending_available = [row[0] for row in rows]
-
 
     @staticmethod
     def _check_symbol(text):

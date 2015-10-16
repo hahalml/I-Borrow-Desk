@@ -3,6 +3,7 @@ from . import stock_loan, db
 from functools import wraps
 from flask.ext.login import current_user
 
+
 def historical_report_cache(*, symbol, real_time):
     """Return the historical report for a given symbol and real_time flag. Takes care of memcache"""
     print('Running historical report on ' + symbol)
@@ -17,6 +18,7 @@ def historical_report_cache(*, symbol, real_time):
             mc.set(key_summary, summary)
 
     return summary
+
 
 def view_logger(func):
     """View decorator to track page views by logged in users"""

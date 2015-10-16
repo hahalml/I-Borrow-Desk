@@ -1,16 +1,13 @@
 APPLICATION_NAME = "Stock Loan App"
-
 import logging
 from logging.handlers import SMTPHandler, QueueHandler, QueueListener
 import queue
-
 import memcache
 from flask import Flask
 from flask.ext.login import LoginManager
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask_sslify import SSLify
 from flask_admin import Admin
-
 from .borrow import Borrow
 
 # Create a Flask instance
@@ -36,12 +33,12 @@ from .ajax import *
 admin.add_view(AdminView(name='Home'))
 admin.add_view(DbView(User, db.session))
 
-#Build the database
+# Build the database
 db.create_all()
 
 # logging
 if not app.debug:
-    que = queue.Queue(-1) # no limit on size
+    que = queue.Queue(-1)  # no limit on size
     # Create a QueueHandler to receive logging
     queue_handler = QueueHandler(que)
     queue_handler.setLevel(logging.ERROR)
@@ -57,5 +54,3 @@ if not app.debug:
 
     # Add the queue handler to the app
     app.logger.addHandler(queue_handler)
-
-

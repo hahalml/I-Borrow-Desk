@@ -2,6 +2,7 @@ from flask import request, jsonify
 from . import app, login_manager, db, stock_loan, mc
 from .utils import historical_report_cache
 
+
 @app.route('/_json_historical_report')
 def json_historical_report():
     """Handler to deliver historical report in JSON format"""
@@ -11,6 +12,5 @@ def json_historical_report():
 
     print("AJAX request for {}".format(symbol))
     report = historical_report_cache(symbol=symbol, real_time=real_time)
-
 
     return jsonify(data=report)
