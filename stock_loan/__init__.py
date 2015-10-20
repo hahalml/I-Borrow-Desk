@@ -1,5 +1,6 @@
 APPLICATION_NAME = "Stock Loan App"
 import logging
+from logging import StreamHandler
 from logging.handlers import SMTPHandler, QueueHandler, QueueListener
 import queue
 import memcache
@@ -8,6 +9,7 @@ from flask.ext.login import LoginManager
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask_sslify import SSLify
 from flask_admin import Admin
+from flask_limiter import Limiter
 from .borrow import Borrow
 
 # Create a Flask instance
@@ -21,6 +23,10 @@ db = SQLAlchemy(app)
 
 login_manager = LoginManager()
 login_manager.init_app(app)
+
+# Rate limiter app
+limiter = Limiter(app)
+limiter.logger.addHandler(StreamHandler())
 
 stock_loan = Borrow(database_name='stock_loan', create_new=False)
 

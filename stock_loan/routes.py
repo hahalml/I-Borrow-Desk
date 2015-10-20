@@ -11,7 +11,7 @@ from flask_admin import Admin, BaseView, expose
 from flask_admin.contrib.sqla import ModelView
 from apscheduler.schedulers.background import BackgroundScheduler
 
-from . import app, login_manager, db, stock_loan, mc
+from . import app, login_manager, db, stock_loan, mc, limiter
 from .models import User
 from .email_update import send_emails
 from .forms import RegistrationForm, ChangePasswordForm, ChangeEmailForm, FilterForm
@@ -181,6 +181,8 @@ def remove_from_watchlist(symbol):
 
 @app.route('/historical_report', methods=['GET'])
 @view_logger
+@limiter.limit("60 per hour")
+@limiter.limit("10 per minute")
 def historical_report():
     """Historical report handler, uses url arguments to determine the symbol to report
     on and the time period (last few days every 15mins or daily long-term)"""
@@ -338,6 +340,8 @@ def register():
 
 
 @app.route('/login', methods=['GET', 'POST'])
+@limiter.limit("30 per hour")
+@limiter.limit("10 per minute")
 def login():
     """Login page handler"""
     if request.method == 'GET':
