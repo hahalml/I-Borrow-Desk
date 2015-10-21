@@ -234,7 +234,7 @@ class Borrow:
 
         SQL = """INSERT INTO stocks (cusip, symbol, name, country, latest_fee, latest_available, updated)
               VALUES (%s, %s, %s, %s, %s, %s, %s);"""
-        data = (cusip, symbol, name, country, fee, row, updated,)
+        data = (cusip, symbol, name, country, fee, available, updated,)
         return SQL, data
 
     @staticmethod
