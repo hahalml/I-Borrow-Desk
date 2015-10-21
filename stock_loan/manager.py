@@ -56,13 +56,13 @@ if __name__ == '__main__':
     apsched.add_job(clean_db, 'cron', day_of_week='mon-fri', minute='5', hour='0', timezone='America/New_York')
 
     # Add jobs for each region so database is updated roughly in line with market hours
-    apsched.add_job(update_database_north_america, 'cron', day_of_week='mon-fri', minute='2-47/15', hour='8-17',
+    apsched.add_job(update_database_north_america, 'cron', day_of_week='mon-fri', minute='3-48/15', hour='8-17',
                     timezone='America/New_York')
 
-    apsched.add_job(update_database_europe, 'cron', day_of_week='mon-fri', minute='2-47/15', hour='8-17',
+    apsched.add_job(update_database_europe, 'cron', day_of_week='mon-fri', minute='3-48/15', hour='8-17',
                     timezone='UTC')
 
-    apsched.add_job(update_database_asia, 'cron', day_of_week='mon-fri', minute='2-47/15', hour='0-10',
+    apsched.add_job(update_database_asia, 'cron', day_of_week='mon-fri', minute='3-48/15', hour='0-10',
                     timezone='UTC')
 
     apsched.start()
