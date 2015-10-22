@@ -23,7 +23,6 @@ def update_database_europe():
     # Update the db
     stock_loan.update(files_to_download=['austria', 'belgium', 'british', 'dutch', 'france', 'germany', 'italy',
                                          'spain', 'swedish', 'swiss'], update_all=False)
-
     # Clear the cache
     mc.flush_all()
 

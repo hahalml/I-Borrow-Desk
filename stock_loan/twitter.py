@@ -69,7 +69,7 @@ class BorrowStreamer(TwythonStreamer):
                     available = '{:,}'.format(ticker.available)
                     fee = '{:.1%}'.format(ticker.fee/100)
                     datetime = ticker.datetime
-                    url = 'http://cameronmochrie.com/IBorrowDesk/historical_report?symbol={}&&real_time=True'.format(symbol)
+                    url = 'http://cameronmochrie.com/IBorrowDesk/historical_report?symbol={}&&real_time=False'.format(symbol)
                     screen_name = data['user']['screen_name']
 
                     status = '@{} ${} {}, Available: {}, Fee: {}, Last Updated: {} '.format(screen_name, symbol, name,
