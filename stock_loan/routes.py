@@ -213,7 +213,7 @@ def historical_report():
             if name:
                 mc.set(symbol, name)
 
-        if current_user.is_authenticated():
+        if current_user.is_authenticated:
             stock_loan.search(symbol=symbol, userid=current_user.id)
         else:
             stock_loan.search(symbol=symbol)
