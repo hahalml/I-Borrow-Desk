@@ -43,8 +43,8 @@ ADMIN_HOMEPAGE_TEMPLATE = 'admin_homepage_template.html'
 
 class AdminView(BaseView):
     def is_accessible(self):
-        if current_user.is_authenticated():
-            return current_user.is_admin()
+        if current_user.is_authenticated:
+            return current_user.is_admin
         else:
             return False
 
@@ -59,8 +59,8 @@ class AdminView(BaseView):
 
 class DbView(ModelView):
     def is_accessible(self):
-        if current_user.is_authenticated():
-            return current_user.is_admin()
+        if current_user.is_authenticated:
+            return current_user.is_admin
         else:
             return False
 

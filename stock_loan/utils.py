@@ -25,7 +25,7 @@ def view_logger(func):
     @wraps(func)
     def decorated_view(*args, **kwargs):
         # Only track logged in users
-        if not current_user.is_anonymous():
+        if not current_user.is_anonymous:
             current_user.increment_views()
             db.session.commit()
         return func(*args, **kwargs)
