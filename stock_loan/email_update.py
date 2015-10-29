@@ -53,7 +53,9 @@ def send_emails(users, stockLoan):
 
             print('Running email for ', user.username)
             print(summary [0])
-            html = env.get_template(EMAIL_TEMPLATE).render(summary=summary, prices=prices, user_name=user.username)
+            html = env.get_template(EMAIL_TEMPLATE).render(summary=summary,
+                                                           prices=prices,
+                                                           user_name=user.username)
 
             sub = 'Morning email update for ' + user.username
 

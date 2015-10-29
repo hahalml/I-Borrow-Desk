@@ -33,7 +33,8 @@ class BorrowStreamer(TwythonStreamer):
         if 'text' in data:
             # Check that it wasn't one of the bot's own tweets
             if data['user']['screen_name'] != 'IBorrowDesk':
-                #Print out the tweet's text, author screename and id and call the respond function
+                #Print out the tweet's text, author screename and id
+                # and call the respond function
                 print(data['text'])
                 print(data['user']['screen_name'])
                 print(data['id_str'])
@@ -63,17 +64,19 @@ class BorrowStreamer(TwythonStreamer):
                 for ticker in summary:
                     print(ticker.symbol)
 
-                    #extract the relevant information from the summary report and build a status string
+                    #extract the relevant information from the
+                    # summary report and build a status string
                     symbol = ticker.symbol
                     name = ticker.name[:20]
                     available = '{:,}'.format(ticker.available)
                     fee = '{:.1%}'.format(ticker.fee/100)
                     datetime = ticker.datetime
-                    url = 'http://cameronmochrie.com/IBorrowDesk/historical_report?symbol={}&&real_time=False'.format(symbol)
+                    url = 'http://cameronmochrie.com/IBorrowDesk/historical_report?symbol={}&&real_time=False'.\
+                        format(symbol)
                     screen_name = data['user']['screen_name']
 
-                    status = '@{} ${} {}, Available: {}, Fee: {}, Last Updated: {} '.format(screen_name, symbol, name,
-                                                                                            available, fee, datetime)
+                    status = '@{} ${} {}, Available: {}, Fee: {}, Last Updated: {} '.\
+                        format(screen_name, symbol, name, available, fee, datetime)
                     status = status + url
 
                     # Grab the id of the user that tweeted at the bot

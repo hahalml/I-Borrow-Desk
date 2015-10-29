@@ -10,19 +10,23 @@ from wtforms import validators
 
 
 class RegistrationForm(Form):
-    username = StringField('Username', [validators.required(), validators.length(min=4, max=25)])
-    email = StringField('Email', [validators.email(), validators.length(min=6, max=35), validators.required()])
+    username = StringField('Username',
+                           [validators.required(), validators.length(min=4, max=25)])
+    email = StringField('Email', [validators.email(), validators.length(min=6, max=35),
+                                  validators.required()])
     password = PasswordField('Password', [
         validators.length(min=2), validators.required(),
         validators.equal_to('confirm', message='Passwords must match')])
     confirm = PasswordField('Repeat Password')
-    receive_emails = BooleanField('Would you like to receive morning update emails?', default=True)
+    receive_emails = BooleanField('Would you like to receive morning update emails?',
+                                  default=True)
 
 
 class ChangePasswordForm(Form):
     password = PasswordField('Password', [validators.length(min=2), validators.required()])
-    new_password = PasswordField('New Password', [validators.length(min=2), validators.required(),
-                                                  validators.equal_to('confirm', message='Passwords must match')])
+    new_password = PasswordField('New Password',
+                                 [validators.length(min=2), validators.required(),
+                                  validators.equal_to('confirm', message='Passwords must match')])
     confirm = PasswordField('Repeat New Password')
 
 
@@ -37,13 +41,16 @@ class FilterForm(Form):
     max_available = IntegerField('0', description='Max available', default=10000000)
     min_fee = FloatField('0%', description='Minimum fee (enter in %)', default=0)
     max_fee = FloatField('0%', description='Maximum fee (enter in %)', default=1000)
-    country = SelectField('Country', description='Country', choices=[('USA', 'USA'), ('Canada', 'Canada'),
-                                                                     ('Australia', 'Australia'), ('Austria', 'Austria'),
-                                                                     ('Belgium', 'Belgium'), ('British', 'British'),
-                                                                     ('Dutch', 'Dutch'), ('France', 'France'),
-                                                                     ('Germany', 'Germany'), ('HongKong', 'HongKong'),
-                                                                     ('India', 'India'), ('Italy', 'Italy'),
-                                                                     ('Japan', 'Japan'), ('Mexico', 'Mexico'),
-                                                                     ('Spain', 'Spain'), ('Swedish', 'Swedish'),
-                                                                     ('Swiss', 'Swiss')])
-    order_by = SelectField('Order by', description='Order by', choices=[('symbol', 'symbol'), ('fee', 'fee'), ('available', 'available')])
+    country = SelectField('Country', description='Country',
+                          choices=[('USA', 'USA'), ('Canada', 'Canada'),
+                                   ('Australia', 'Australia'), ('Austria', 'Austria'),
+                                   ('Belgium', 'Belgium'), ('British', 'British'),
+                                   ('Dutch', 'Dutch'), ('France', 'France'),
+                                   ('Germany', 'Germany'), ('HongKong', 'HongKong'),
+                                   ('India', 'India'), ('Italy', 'Italy'),
+                                   ('Japan', 'Japan'), ('Mexico', 'Mexico'),
+                                   ('Spain', 'Spain'), ('Swedish', 'Swedish'),
+                                   ('Swiss', 'Swiss')])
+    order_by = SelectField('Order by', description='Order by',
+                           choices=[('symbol', 'symbol'), ('fee', 'fee'),
+                                    ('available', 'available')])

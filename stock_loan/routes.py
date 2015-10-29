@@ -4,6 +4,7 @@ import random
 import string
 import memcache
 from datetime import datetime
+import time
 
 from flask import render_template, request, redirect, url_for, flash
 from flask.ext.login import login_user, logout_user, current_user, login_required
@@ -90,7 +91,8 @@ def main_page():
     else:
         print('mainpage cache hit')
 
-    return render_template(MAIN_PAGE_TEMPLATE, summary=summary, number_of_symbols=number_of_symbols)
+    return render_template(MAIN_PAGE_TEMPLATE, summary=summary,
+                           number_of_symbols=number_of_symbols)
 
 
 @app.route('/trending')
@@ -114,7 +116,8 @@ def trending():
     else:
         print('trending_available cache hit')
 
-    return render_template(TRENDING_TEMPLATE, trending_fee=trending_fee, trending_available=trending_available)
+    return render_template(TRENDING_TEMPLATE, trending_fee=trending_fee,
+                           trending_available=trending_available)
 
 
 @app.route('/watchlist', methods=['GET', 'POST'])
@@ -131,7 +134,8 @@ def watch_list():
 
             # Insertion/deletion method returns two lists - symbols added, and symbols that failed to be added
             # Render some user feedback with flashed messages
-            symbols_added, symbols_failed_to_be_added = stock_loan.insert_watchlist(current_user.id, symbols)
+            symbols_added, symbols_failed_to_be_added = stock_loan.insert_watchlist(current_user.id,
+                                                                                    symbols)
             if symbols_added:
                 for symbol in symbols_added:
                     flash("Added {} to your watchlist".format(symbol))
@@ -149,13 +153,16 @@ def watch_list():
     watchlist = stock_loan.get_watchlist(current_user.id)
     summary = stock_loan.summary_report(watchlist)
 
+    print('Rendering watchlist for user: {}'.format(current_user.username))
+
     return render_template(WATCH_LIST_TEMPLATE, summary=summary)
 
 
 @app.route('/watchlist/add/<symbol>', methods=['GET'])
 @login_required
 def add_to_watchlist(symbol):
-    symbols_added, symbols_failed_to_be_added = stock_loan.insert_watchlist(current_user.id, [symbol])
+    symbols_added, symbols_failed_to_be_added = stock_loan.insert_watchlist(current_user.id,
+                                                                            [symbol])
     if symbols_added:
         for symbol_added in symbols_added:
             flash("Added {} to your watchlist".format(symbol_added))
@@ -215,7 +222,8 @@ def historical_report():
             flash(symbol + ' not found')
             flash('For Canadian stocks use a .CA suffix. For other countries check the FAQ.')
 
-    return render_template(HISTORICAL_REPORT_TEMPLATE, symbol=symbol, name=name, summary=summary, real_time=real_time)
+    return render_template(HISTORICAL_REPORT_TEMPLATE, symbol=symbol, name=name,
+                           summary=summary, real_time=real_time)
 
 
 @app.route('/name_search', methods=['GET'])
@@ -329,7 +337,8 @@ def register():
             return redirect(url_for('register'))
 
         else:
-            user = User(form.username.data, form.password.data, form.email.data, form.receive_emails.data)
+            user = User(form.username.data, form.password.data, form.email.data,
+                        form.receive_emails.data)
             db.session.add(user)
             db.session.commit()
             flash('User successfully registered')
@@ -362,6 +371,7 @@ def login():
     login_user(user)
 
     flash('Welcome {}!'.format(user.username))
+    print('User: {} logged in'.format(user.username))
     return redirect(url_for('watch_list'))
 
 
@@ -392,7 +402,9 @@ def initialize():
     apsched.start()
 
     # Add a job - morning emails
-    apsched.add_job(email_job, 'cron', day_of_week='mon-fri', hour='9', minute='4', timezone='America/New_York')
+    apsched.add_job(email_job, 'cron',
+                    day_of_week='mon-fri', hour='9', minute='4',
+                    timezone='America/New_York')
 
     # Refresh trending stocks and collective stats on the hour
     apsched.add_job(refresh_borrow, 'cron', minute='5')

@@ -13,7 +13,8 @@ def update_database_all():
 def update_database_north_america():
     """Helper function for updating the North American files"""
     # Update the db
-    stock_loan.update(files_to_download=['usa', 'canada', 'mexico'], update_all=False)
+    stock_loan.update(files_to_download=['usa', 'canada', 'mexico'],
+                      update_all=False)
     # Clear the cache
     mc.flush_all()
 
@@ -21,8 +22,10 @@ def update_database_north_america():
 def update_database_europe():
     """Helper function for updating the European files"""
     # Update the db
-    stock_loan.update(files_to_download=['austria', 'belgium', 'british', 'dutch', 'france', 'germany', 'italy',
-                                         'spain', 'swedish', 'swiss'], update_all=False)
+    stock_loan.update(files_to_download=['austria', 'belgium', 'british', 'dutch',
+                                         'france', 'germany', 'italy', 'spain',
+                                         'swedish', 'swiss'],
+                      update_all=False)
     # Clear the cache
     mc.flush_all()
 
@@ -30,7 +33,8 @@ def update_database_europe():
 def update_database_asia():
     """Helper function for updating the European files"""
     # Update the db
-    stock_loan.update(files_to_download=['australia', 'hongkong', 'india', 'japan'], update_all=False)
+    stock_loan.update(files_to_download=['australia', 'hongkong', 'india', 'japan'],
+                      update_all=False)
     # Clear the cache
     mc.flush_all()
 
@@ -48,20 +52,26 @@ if __name__ == '__main__':
 
     # Add a job for updating the entire database (940am weekdays EST to be stored for historical reports -
     # won't collide with other updates)
-    apsched.add_job(update_database_all, 'cron', day_of_week='mon-fri', minute='40', hour='9',
+    apsched.add_job(update_database_all, 'cron',
+                    day_of_week='mon-fri', minute='40', hour='9',
                     timezone='America/New_York')
 
     # Add a job for cleaning the database
-    apsched.add_job(clean_db, 'cron', day_of_week='mon-fri', minute='5', hour='0', timezone='America/New_York')
-
-    # Add jobs for each region so database is updated roughly in line with market hours
-    apsched.add_job(update_database_north_america, 'cron', day_of_week='mon-fri', minute='3-48/15', hour='8-17',
+    apsched.add_job(clean_db, 'cron',
+                    day_of_week='mon-fri', minute='5', hour='0',
                     timezone='America/New_York')
 
-    apsched.add_job(update_database_europe, 'cron', day_of_week='mon-fri', minute='3-48/15', hour='8-17',
+    # Add jobs for each region so database is updated roughly in line with market hours
+    apsched.add_job(update_database_north_america, 'cron',
+                    day_of_week='mon-fri', minute='3-48/15', hour='8-17',
+                    timezone='America/New_York')
+
+    apsched.add_job(update_database_europe, 'cron',
+                    day_of_week='mon-fri', minute='3-48/15', hour='8-17',
                     timezone='UTC')
 
-    apsched.add_job(update_database_asia, 'cron', day_of_week='mon-fri', minute='3-48/15', hour='0-10',
+    apsched.add_job(update_database_asia, 'cron',
+                    day_of_week='mon-fri', minute='3-48/15', hour='0-10',
                     timezone='UTC')
 
     apsched.start()

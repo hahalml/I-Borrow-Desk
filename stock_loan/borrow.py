@@ -43,7 +43,8 @@ COUNTRY_CODE = {
     'usa': ''
 }
 
-Stock = collections.namedtuple('Stock', ['symbol', 'fee', 'available', 'datetime', 'name', 'country'])
+Stock = collections.namedtuple('Stock', ['symbol', 'fee', 'available',
+                                         'datetime', 'name', 'country'])
 
 
 def timer(f):
@@ -59,10 +60,11 @@ def timer(f):
 
 class Borrow:
     """Class for interacting with Interactive Broker's Borrow database"""
-    def __init__(self, database_name='stock_loan', file_names=('australia', 'austria', 'belgium', 'british',
-                                                               'canada', 'dutch', 'france', 'germany', 'hongkong',
-                                                               'india', 'italy', 'japan', 'mexico', 'spain', 'swedish',
-                                                               'swiss', 'usa'), create_new=False):
+    def __init__(self, database_name='stock_loan',
+                 file_names=('australia', 'austria', 'belgium', 'british', 'canada',
+                             'dutch', 'france', 'germany', 'hongkong', 'india', 'italy',
+                             'japan', 'mexico', 'spain', 'swedish', 'swiss', 'usa'),
+                 create_new=False):
         """Initialize, unless create_new is True the stocks database won't be initialized.
         However, currently the class requires the proper database to be previously created"""
 
@@ -70,8 +72,8 @@ class Borrow:
 
         self.database_name = database_name
 
-        # Check all the passed in file names against the dictionary of allowed ones, append valid ones to
-        # instance variable which will keep track
+        # Check all the passed in file names against the dictionary of allowed ones,
+        # append valid ones to instance variable which will keep track
         self.file_names = []
         for file in file_names:
             if file in COUNTRY_CODE:
@@ -106,7 +108,8 @@ class Borrow:
         to update the Borrow database"""
 
         # Get the files and filenames. Default is to just get them all (update_all)
-        write_filenames = self._download_files(files_to_download=files_to_download, update_all=update_all)
+        write_filenames = self._download_files(files_to_download=files_to_download,
+                                               update_all=update_all)
 
         for country, filename in write_filenames.items():
             # Update the borrow database
@@ -117,7 +120,8 @@ class Borrow:
         self._cusips_updated = []
 
     def _download_files(self, files_to_download, update_all):
-        """Private function to connect to ftp and download required files. Returns a list of written files"""
+        """Private function to connect to ftp and download required files.
+        Returns a list of written files"""
         connection = FTP('ftp3.interactivebrokers.com', 'shortstock')
 
         # Dictionary, keys are country names, values are the actual filenames written
@@ -141,7 +145,8 @@ class Borrow:
         return write_filenames
 
     def _connect(self):
-        """Connect to the PostgreSQL database.  Returns a database connection. Default database is 'stock_loan' """
+        """Connect to the PostgreSQL database.  Returns a database connection.
+        Default database is 'stock_loan' """
         try:
             db = psycopg2.connect(database=self.database_name, user=username, password=password)
             cursor = db.cursor()
@@ -303,7 +308,8 @@ class Borrow:
 
             if cusips:
 
-                # Build a list of symbols that were actually inserted into the watchlist (valid ones essentially)
+                # Build a list of symbols that were actually inserted
+                # into the watchlist (valid ones essentially)
                 SQL = "SELECT symbol FROM stocks WHERE cusip = ANY(%s)"
                 cursor.execute(SQL, [cusips])
                 results = cursor.fetchall()
@@ -342,7 +348,8 @@ class Borrow:
             cursor.execute(SQL, (symbols_to_remove,))
             cusips = cursor.fetchall()
 
-            # Build a list of symbols that were actually removed from the watchlist (valid ones essentially)
+            # Build a list of symbols that were actually removed
+            # from the watchlist (valid ones essentially)
             SQL = "SELECT symbol FROM stocks WHERE cusip = ANY(%s)"
             cursor.execute(SQL, [cusips])
 
@@ -461,7 +468,8 @@ class Borrow:
         data = (safe_symbol,)
 
         if real_time:
-            SQL = """SELECT fee, available, datetime FROM stocks JOIN borrow ON (stocks.cusip = borrow.cusip)
+            SQL = """SELECT fee, available, datetime
+                    FROM stocks JOIN borrow ON (stocks.cusip = borrow.cusip)
                     WHERE symbol = %s AND borrow.datetime > now() - interval '7days'
                     ORDER BY datetime DESC;"""
 
@@ -571,7 +579,8 @@ class Borrow:
     @timer
     def update_trending(self):
         """
-        Updates lists of 'trending' stocks - ie; those stocks with large changes in fees or availability from average
+        Updates lists of 'trending' stocks - ie; those stocks with
+        large changes in fees or availability from average
         """
         db, cursor = self._connect()
 
@@ -579,13 +588,16 @@ class Borrow:
         min_available = 10000
         data = (min_fee, min_available,)
 
-        SQL = """SELECT stocks.symbol FROM stocks JOIN borrow ON (stocks.cusip = borrow.cusip AND stocks.updated = borrow.datetime)
-                JOIN
+        SQL = """SELECT stocks.symbol
+                 FROM stocks JOIN borrow ON
+                 (stocks.cusip = borrow.cusip AND stocks.updated = borrow.datetime)
+                 JOIN
                     (SELECT symbol, avg(fee) as avg_fee
                     FROM stocks JOIN borrow ON
                         (stocks.cusip = borrow.cusip)
                     WHERE symbol in
-                        (SELECT symbol FROM stocks JOIN borrow ON (stocks.cusip = borrow.cusip AND stocks.updated = borrow.datetime)
+                        (SELECT symbol FROM stocks JOIN borrow ON
+                        (stocks.cusip = borrow.cusip AND stocks.updated = borrow.datetime)
                             WHERE fee > %s AND available > %s)
                     AND borrow.datetime > now() - interval '7days'
                     GROUP BY symbol) as avg_table
@@ -597,13 +609,15 @@ class Borrow:
         rows = cursor.fetchall()
         self.trending_fee = [row[0] for row in rows]
 
-        SQL = """SELECT stocks.symbol FROM stocks JOIN borrow ON (stocks.cusip = borrow.cusip AND stocks.updated = borrow.datetime)
+        SQL = """SELECT stocks.symbol FROM stocks JOIN borrow ON
+                (stocks.cusip = borrow.cusip AND stocks.updated = borrow.datetime)
                 JOIN
                     (SELECT symbol, avg(available) as avg_available
                     FROM stocks JOIN borrow ON
                         (stocks.cusip = borrow.cusip)
                     WHERE symbol in
-                        (SELECT symbol FROM stocks JOIN borrow ON (stocks.cusip = borrow.cusip AND stocks.updated = borrow.datetime)
+                        (SELECT symbol FROM stocks JOIN borrow ON
+                        (stocks.cusip = borrow.cusip AND stocks.updated = borrow.datetime)
                             WHERE fee > %s AND available > %s)
                     AND borrow.datetime > now() - interval '7days'
                     GROUP BY symbol) as avg_table

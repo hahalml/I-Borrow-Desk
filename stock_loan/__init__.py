@@ -51,8 +51,11 @@ if not app.debug:
 
     # Create the actual mail handler
     credentials = app.config['MAIL_USERNAME'], app.config['MAIL_PASSWORD']
-    mail_handler = SMTPHandler(('smtp.gmail.com', '587'), app.config['APP_ADDRESS'], [app.config['ADMIN_ADDRESS']],
-                               'stock_loan exception', credentials=credentials, secure=())
+    mail_handler = SMTPHandler(('smtp.gmail.com', '587'),
+                               app.config['APP_ADDRESS'],
+                               [app.config['ADMIN_ADDRESS']],
+                               'stock_loan exception',
+                               credentials=credentials, secure=())
 
     # Create a listener handler to deque things from the QueueHandler and send to the mail handler
     listener = QueueListener(que, mail_handler)
