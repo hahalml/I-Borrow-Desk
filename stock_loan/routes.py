@@ -126,16 +126,17 @@ def trending():
 def watch_list():
     """Watchlist handler"""
 
-    # If the user added or removed symbols from their watchlist make the changes then re-render the watchlist
+    # If the user added or removed symbols from their
+    # watchlist make the changes then re-render the watchlist
     if request.method == 'POST':
         symbols = request.form['symbols'].replace(' ', '').split(',')
         symbols_to_remove = request.form['remove-symbols'].replace(' ', '').split(',')
         if symbols != ['']:
 
-            # Insertion/deletion method returns two lists - symbols added, and symbols that failed to be added
-            # Render some user feedback with flashed messages
-            symbols_added, symbols_failed_to_be_added = stock_loan.insert_watchlist(current_user.id,
-                                                                                    symbols)
+            # Insertion/deletion method returns two lists - symbols added, and symbols
+            # that failed to be added. Render some user feedback with flashed messages
+            symbols_added, symbols_failed_to_be_added = stock_loan.\
+                insert_watchlist(current_user.id, symbols)
             if symbols_added:
                 for symbol in symbols_added:
                     flash("Added {} to your watchlist".format(symbol))
@@ -144,7 +145,8 @@ def watch_list():
                     flash("Failed to add {} to your watchlist".format(symbol))
 
         if symbols_to_remove != ['']:
-            symbols_removed = stock_loan.remove_watchlist(current_user.id, symbols_to_remove)
+            symbols_removed = stock_loan.\
+                remove_watchlist(current_user.id, symbols_to_remove)
             if symbols_removed:
                 for symbol in symbols_removed:
                     flash("Removed {} from your watchlist".format(symbol))
@@ -161,8 +163,8 @@ def watch_list():
 @app.route('/watchlist/add/<symbol>', methods=['GET'])
 @login_required
 def add_to_watchlist(symbol):
-    symbols_added, symbols_failed_to_be_added = stock_loan.insert_watchlist(current_user.id,
-                                                                            [symbol])
+    symbols_added, symbols_failed_to_be_added = stock_loan.\
+        insert_watchlist(current_user.id, [symbol])
     if symbols_added:
         for symbol_added in symbols_added:
             flash("Added {} to your watchlist".format(symbol_added))
@@ -202,7 +204,8 @@ def historical_report():
     name = ''
 
     # Get the company name and a report based on the url parameters.
-    # Check the memcache first for both. If they are not there, go to the db and update the cache
+    # Check the memcache first for both. If they are not there,
+    # go to the db and update the cache
     if symbol:
         summary = historical_report_cache(symbol=symbol, real_time=real_time)
 
