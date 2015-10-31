@@ -1,5 +1,3 @@
-from __future__ import print_function
-from __future__ import absolute_import
 import csv
 from ftplib import FTP
 from datetime import datetime
@@ -8,7 +6,7 @@ import os
 import configparser
 import time
 import collections
-
+from functools import wraps
 
 import psycopg2
 from psycopg2.extensions import AsIs
@@ -48,6 +46,7 @@ Stock = collections.namedtuple('Stock', ['symbol', 'fee', 'available',
 
 
 def timer(f):
+    @wraps(f)
     def decorated(*args, **kw):
         ts = time.time()
         result = f(*args, **kw)
@@ -491,6 +490,7 @@ class Borrow:
         else:
             return None
 
+
     @timer
     def search(self, symbol, userid=None):
         """Method to record searches of the database"""
@@ -502,6 +502,7 @@ class Borrow:
         cursor.execute(SQL, data)
         db.commit()
         db.close()
+
 
     def get_company_name(self, symbol):
         """Returns the name of a Company given a symbol. Returns None if no symbol exists"""
@@ -525,6 +526,7 @@ class Borrow:
         db.close()
         return name
 
+
     @timer
     def refresh_latest_all_symbols(self):
         """Set the instance variable list of every symbol in the latest update from IB"""
@@ -535,6 +537,7 @@ class Borrow:
 
         self.latest_symbols = [row[0] for row in cursor.fetchall()]
         db.close()
+
 
     @timer
     def refresh_all_symbols(self):

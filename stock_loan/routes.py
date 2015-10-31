@@ -1,8 +1,5 @@
 import os
 import logging
-import random
-import string
-import memcache
 from datetime import datetime
 import time
 
@@ -223,7 +220,8 @@ def historical_report():
 
         if not summary:
             flash(symbol + ' not found')
-            flash('For Canadian stocks use a .CA suffix. For other countries check the FAQ.')
+            flash('For Canadian stocks use a .CA suffix. '
+                  'For other countries check the FAQ.')
 
     return render_template(HISTORICAL_REPORT_TEMPLATE, symbol=symbol, name=name,
                            summary=summary, real_time=real_time)

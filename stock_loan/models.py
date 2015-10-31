@@ -1,6 +1,6 @@
-__author__ = 'Cameron'
-from . import db
 from werkzeug import generate_password_hash, check_password_hash
+
+from . import db
 
 
 class User(db.Model):
@@ -13,7 +13,7 @@ class User(db.Model):
     admin = db.Column(db.Boolean)
     _views = db.Column(db.Integer)
 
-    def __init__(self, username, password, email, receive_email=True, admin = False):
+    def __init__(self, username, password, email, receive_email=True, admin=False):
         self.username = username
         self.set_password(password)
         self.email = email
@@ -48,4 +48,3 @@ class User(db.Model):
 
     def increment_views(self):
         self._views += 1
-

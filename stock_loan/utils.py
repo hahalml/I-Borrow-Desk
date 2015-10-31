@@ -5,7 +5,8 @@ from flask.ext.login import current_user
 
 
 def historical_report_cache(*, symbol, real_time):
-    """Return the historical report for a given symbol and real_time flag. Takes care of memcache"""
+    """Return the historical report for a given
+    symbol and real_time flag. Takes care of memcache"""
     print('Running historical report on ' + symbol)
 
     key_summary = str(symbol + str(real_time))
