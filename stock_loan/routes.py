@@ -325,7 +325,6 @@ def change_email():
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     """Registration page handler"""
-
     form = RegistrationForm(request.form)
 
     if request.method == 'POST' and form.validate():

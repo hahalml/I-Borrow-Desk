@@ -224,6 +224,7 @@ class Borrow:
         else:
             print('FILENAME DIDNT MATCH PROPERLY')
 
+
     # SQL GENERATORS
     @staticmethod
     def _insert_stocks(row, country, suffix, updated):
@@ -236,10 +237,12 @@ class Borrow:
         # Ignore '>' symbol
         available = row[7].replace('>', '')
 
-        SQL = """INSERT INTO stocks (cusip, symbol, name, country, latest_fee, latest_available, updated)
-              VALUES (%s, %s, %s, %s, %s, %s, %s);"""
+        SQL = 'INSERT INTO stocks ' \
+              '(cusip, symbol, name, country, latest_fee, latest_available, updated) ' \
+              'VALUES (%s, %s, %s, %s, %s, %s, %s'
         data = (cusip, symbol, name, country, fee, available, updated,)
         return SQL, data
+
 
     @staticmethod
     def _update_stocks(row, updated):
@@ -249,10 +252,12 @@ class Borrow:
         # Ignore '>' symbol
         available = row[7].replace('>', '')
 
-        SQL = """UPDATE stocks SET updated = %s, latest_fee = %s, latest_available = %s WHERE cusip = %s;"""
+        SQL = 'UPDATE stocks ' \
+              'SET updated = %s, latest_fee = %s, latest_available = %s WHERE cusip = %s;'
         data = (updated, fee, available, cusip)
 
         return SQL, data
+
 
     @staticmethod
     def _insert_borrow(row, datetime):
@@ -264,11 +269,12 @@ class Borrow:
         # Ignore '>' symbol
         available = row[7].replace('>', '')
 
-        SQL = "INSERT INTO Borrow (datetime, cusip, fee, available) VALUES (%s, %s, %s, %s);"
+        SQL = "INSERT INTO Borrow (datetime, cusip, fee, available) " \
+              "VALUES (%s, %s, %s, %s);"
         data = (datetime, cusip, fee, available,)
         return SQL, data
-
     #########
+
 
     @timer
     def name_search(self, name):
@@ -276,12 +282,16 @@ class Borrow:
         name = ''.join(c for c in name if (c.isalnum() or c == ' '))
 
         db, cursor = self._connect()
-        SQL = "SELECT symbol, similarity(name, %s) AS sml FROM stocks WHERE name %% %s ORDER BY sml DESC, name limit 10;"
+        SQL = "SELECT symbol, similarity(name, %s) AS sml " \
+              "FROM stocks " \
+              "WHERE name %% %s " \
+              "ORDER BY sml DESC, name limit 10;"
         data = (name, name, )
         cursor.execute(SQL, data)
         results = cursor.fetchall()
 
         return self.summary_report([row[0] for row in results])
+
 
     @timer
     def insert_watchlist(self, userid, symbols):
@@ -312,8 +322,7 @@ class Borrow:
                 SQL = "SELECT symbol FROM stocks WHERE cusip = ANY(%s)"
                 cursor.execute(SQL, [cusips])
                 results = cursor.fetchall()
-                for row in results:
-                    symbols_inserted.append(row[0])
+                symbols_inserted = [row[0] for row in results]
 
                 # Insert the cusips and userid into the watchlist
                 for cusip in cusips:
@@ -334,11 +343,13 @@ class Borrow:
         """Takes a userid and list of symbols, removes them from the watchlist database"""
 
         # Sanitize symbols
-        safe_symbols = [symbol.upper() for symbol in symbols if Borrow._check_symbol(symbol)]
+        safe_symbols = [symbol.upper() for symbol in symbols if
+                        Borrow._check_symbol(symbol)]
 
         # Make sure symbols to be removed are on the user's wishlist
         current_watchlist = self.get_watchlist(userid)
-        symbols_to_remove = [symbol for symbol in safe_symbols if symbol in current_watchlist]
+        symbols_to_remove = [symbol for symbol in safe_symbols if
+                             symbol in current_watchlist]
 
         if symbols_to_remove:
             db, cursor = self._connect()
@@ -374,7 +385,8 @@ class Borrow:
         """Get a list of stocks that a user has on his/her watchlist"""
 
         db, cursor = self._connect()
-        SQL = "SELECT symbol FROM stocks WHERE cusip = ANY(SELECT cusip FROM watchlist WHERE userid = %s);"
+        SQL = 'SELECT symbol FROM stocks ' \
+              'WHERE cusip = ANY(SELECT cusip FROM watchlist WHERE userid = %s);'
         data = (userid,)
         cursor.execute(SQL, data)
         results = cursor.fetchall()
@@ -390,8 +402,9 @@ class Borrow:
 
         country = country.lower()
 
-        if order_by not in ['symbol', 'fee', 'available']:
-            raise ValueError('Attempted to sort by an invalid field. Only symbol, fee, available allowed')
+        if order_by not in ('symbol', 'fee', 'available'):
+            raise ValueError('Attempted to sort by an invalid field. '
+                             'Only symbol, fee, available allowed')
 
         if order_by == 'symbol':
             direction = 'ASC'
@@ -402,14 +415,15 @@ class Borrow:
         db, cursor = self._connect()
 
         # This query searches across the stocks database
-        SQL = """SELECT symbol, latest_fee, latest_available, updated, name, country
-                FROM stocks
-                WHERE latest_available > %s AND latest_available < %s
-                AND latest_fee > %s AND latest_fee < %s
-                AND country = %s
-                ORDER by %s %s
-                LIMIT 100;"""
-        data = (min_available, max_available, min_fee, max_fee, country, AsIs(order_by), AsIs(direction))
+        SQL = 'SELECT symbol, latest_fee, latest_available, updated, name, country ' \
+              'FROM stocks ' \
+              'WHERE latest_available > %s AND latest_available < %s ' \
+              'AND latest_fee > %s AND latest_fee < %s ' \
+              'AND country = %s ' \
+              'ORDER by %s %s ' \
+              'LIMIT 100;'
+        data = (min_available, max_available, min_fee, max_fee,
+                country, AsIs(order_by), AsIs(direction))
         cursor.execute(SQL, data)
         results = cursor.fetchall()
         db.close()
@@ -437,10 +451,10 @@ class Borrow:
         if safe_symbols:
             # Select the most recent row for each symbol being searched for
             db, cursor = self._connect()
-            SQL = """SELECT DISTINCT symbol, latest_fee, latest_available, updated, name, country
-                    FROM stocks
-                    WHERE symbol = ANY(%s)
-                    ORDER BY symbol;"""
+            SQL = 'SELECT DISTINCT symbol, latest_fee, latest_available, updated, name, country ' \
+                  'FROM stocks '\
+                  'WHERE symbol = ANY(%s) ' \
+                  'ORDER BY symbol;'
             data = (safe_symbols,)
             cursor.execute(SQL, data)
 
@@ -467,18 +481,18 @@ class Borrow:
         data = (safe_symbol,)
 
         if real_time:
-            SQL = """SELECT fee, available, datetime
-                    FROM stocks JOIN borrow ON (stocks.cusip = borrow.cusip)
-                    WHERE symbol = %s AND borrow.datetime > now() - interval '7days'
-                    ORDER BY datetime DESC;"""
+            SQL = 'SELECT fee, available, datetime ' \
+                  'FROM stocks JOIN borrow ON (stocks.cusip = borrow.cusip) ' \
+                  'WHERE symbol = %s AND borrow.datetime > now() - interval \'7days\' ' \
+                  'ORDER BY datetime DESC;'
 
         else:
-            SQL = """SELECT fee, available, cast(datetime as date) as date
-                    FROM stocks JOIN Borrow ON (stocks.cusip = Borrow.cusip)
-                    WHERE symbol = %s
-                    AND cast(datetime as time) between '9:30' and '9:40'
-                    ORDER BY datetime DESC
-                    LIMIT 90;"""
+            SQL = 'SELECT fee, available, cast(datetime as date) as date ' \
+                  'FROM stocks JOIN Borrow ON (stocks.cusip = Borrow.cusip) ' \
+                  'WHERE symbol = %s ' \
+                  'AND cast(datetime as time) between \'9:30\' and \'9:40\' ' \
+                  'ORDER BY datetime DESC ' \
+                  'LIMIT 90;'
 
         cursor.execute(SQL, data)
         results = [{'fee': float(row[0])/100, 'available': row[1], 'time': row[2].isoformat()} for
@@ -498,7 +512,7 @@ class Borrow:
         db, cursor = self._connect()
 
         data = (symbol, userid, datetime.now())
-        SQL = """INSERT INTO search(symbol, userid, datetime) VALUES(%s, %s, %s);"""
+        SQL = 'INSERT INTO search(symbol, userid, datetime) VALUES(%s, %s, %s);'
         cursor.execute(SQL, data)
         db.commit()
         db.close()
@@ -514,7 +528,7 @@ class Borrow:
         data = (safe_symbol,)
         db, cursor = self._connect()
 
-        SQL = """SELECT name FROM stocks WHERE symbol = %s;"""
+        SQL = 'SELECT name FROM stocks WHERE symbol = %s'
         cursor.execute(SQL, data)
 
         try:
@@ -531,8 +545,9 @@ class Borrow:
     def refresh_latest_all_symbols(self):
         """Set the instance variable list of every symbol in the latest update from IB"""
         db, cursor = self._connect()
-        SQL = """SELECT distinct symbol FROM stocks JOIN borrow ON (stocks.cusip = borrow.cusip)
-                WHERE datetime = (SELECT max(datetime) FROM borrow);"""
+        SQL = 'SELECT distinct symbol ' \
+              'FROM stocks JOIN borrow ON (stocks.cusip = borrow.cusip) ' \
+              'WHERE datetime = (SELECT max(datetime) FROM borrow);'
         cursor.execute(SQL)
 
         self.latest_symbols = [row[0] for row in cursor.fetchall()]
@@ -543,7 +558,7 @@ class Borrow:
     def refresh_all_symbols(self):
         """Set the list of all symbols in the database"""
         db, cursor = self._connect()
-        SQL = """SELECT DISTINCT symbol FROM stocks;"""
+        SQL = 'SELECT DISTINCT symbol FROM stocks;'
         cursor.execute(SQL)
 
         self.all_symbols = [row[0] for row in cursor.fetchall()]
@@ -555,9 +570,9 @@ class Borrow:
         """Remove entries _not_ bw 0925 and 0935 older than 1 week. Maintains historical record
         while getting rid of stale intraday data"""
         db, cursor = self._connect()
-        SQL = """DELETE FROM Borrow
-              WHERE cast(datetime as time) NOT BETWEEN '9:25' and '9:35'
-              AND datetime < now() - interval '7days';"""
+        SQL = 'DELETE FROM Borrow ' \
+              'WHERE cast(datetime as time) NOT BETWEEN \'9:25\' and \'9:35\' ' \
+              'AND datetime < now() - interval \'7days\';'
 
         cursor.execute(SQL)
         db.commit()
@@ -578,6 +593,7 @@ class Borrow:
         db.close()
 
         return None
+
 
     @timer
     def update_trending(self):
@@ -631,6 +647,7 @@ class Borrow:
         cursor.execute(SQL, data)
         rows = cursor.fetchall()
         self.trending_available = [row[0] for row in rows]
+
 
     @staticmethod
     def _check_symbol(text):

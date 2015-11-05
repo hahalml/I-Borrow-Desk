@@ -29,7 +29,7 @@ def send_emails(users, stockLoan):
 
     password = password.decode(encoding='UTF-8')
 
-    username = 'iborrowdesk'
+    username = 'iborrowdesk@gmail.com'
 
     # Connect to the gmail account
     server = smtplib.SMTP(host='smtp.gmail.com', port=587)
@@ -43,6 +43,7 @@ def send_emails(users, stockLoan):
         summary = stockLoan.summary_report(watchlist)
 
         if summary:
+
             try:
                 prices = get_prices(summary)
                 print(prices)
@@ -58,12 +59,13 @@ def send_emails(users, stockLoan):
             sub = 'Morning email update for ' + user.username
 
             msg = MIMEMultipart()
-            msg['From'] = 'Iborrow Desk'
+            msg['From'] = 'IborrowDesk'
             msg['To'] = user.email
             msg['Subject'] = sub
 
             msg.attach(MIMEText(html, 'html'))
             server.sendmail(username, user.email, msg.as_string())
+
         else:
             print('Empty watchlist for ', user.username)
 
@@ -72,6 +74,9 @@ def send_emails(users, stockLoan):
 
 def get_prices(summary):
     """Query Yahoo Finance and return dictionary of symbol:price pairs"""
+    #https://developer.yahoo.com/yql/console/?q=show%20tables&env=store://datatables.org/
+    # alltableswithkeys#h=select+*+from+yahoo.finance.quotes+where+symbol+in+
+    # (%22YHOO%22%2C%22AAPL%22%2C%22GOOG%22%2C%22MSFT%22)
 
     # Only bothering with US symbols here
     valid_symbols = [symbol.symbol for symbol in summary if symbol.country == 'usa']
@@ -79,16 +84,17 @@ def get_prices(summary):
     if not valid_symbols:
         raise ValueError('No valid symbols')
 
+    print(valid_symbols)
     # God damn this is ugly
     string_symbols = '%22'
     for symbol in valid_symbols[:-1]:
         string_symbols += symbol
         string_symbols += '%22%2C%22'
     string_symbols += valid_symbols[-1] + '%22'
-    url = """https://query.yahooapis.com/v1/public/yql?q=select%20symbol%2C%20LastTrade
-    PriceOnly%20from%20yahoo.finance.quotes%20where%20symbol%20in%20(""" \
-          + string_symbols + """)&format=json&env=store%3A%2F%2Fdatatables.
-          org%2Falltableswithkeys&callback="""
+    url = 'https://query.yahooapis.com/v1/public/yql?q=select%20symbol%2C%20' \
+          'LastTradePriceOnly%20from%20yahoo.finance.quotes%20where%20symbol%20in%20(' + \
+          string_symbols + \
+          ')&format=json&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys&callback='
 
     response = requests.get(url).json()
     prices = response['query']['results']['quote']
