@@ -97,7 +97,11 @@ def get_prices(summary):
           ')&format=json&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys&callback='
 
     response = requests.get(url).json()
-    prices = response['query']['results']['quote']
+    try:
+        prices = response['query']['results']['quote']
+    except TypeError:
+        print('Request to Yahoo failed on symbols: {}'.format(valid_symbols))
+        raise ValueError('Network error')
 
     results = defaultdict(Decimal)
 
