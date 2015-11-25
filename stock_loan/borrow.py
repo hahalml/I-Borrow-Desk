@@ -239,7 +239,7 @@ class Borrow:
 
         SQL = 'INSERT INTO stocks ' \
               '(cusip, symbol, name, country, latest_fee, latest_available, updated) ' \
-              'VALUES (%s, %s, %s, %s, %s, %s, %s'
+              'VALUES (%s, %s, %s, %s, %s, %s, %s);'
         data = (cusip, symbol, name, country, fee, available, updated,)
         return SQL, data
 
@@ -449,7 +449,6 @@ class Borrow:
                 safe_symbols.append(symbol.upper())
 
         if safe_symbols:
-            # Select the most recent row for each symbol being searched for
             db, cursor = self._connect()
             SQL = 'SELECT DISTINCT symbol, latest_fee, latest_available, updated, name, country ' \
                   'FROM stocks '\

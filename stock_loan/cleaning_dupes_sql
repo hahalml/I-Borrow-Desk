@@ -1,0 +1,10 @@
+
+DELETE FROM stocks WHERE cusip in(
+select cusip from
+(SELECT symbol, count(symbol)
+	FROM stocks
+	GROUP BY symbol
+	HAVING count(symbol) > 1) dups
+JOIN stocks on
+stocks.symbol = dups.symbol
+WHERE updated < now() - interval'30days');
