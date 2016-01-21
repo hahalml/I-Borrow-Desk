@@ -72,6 +72,10 @@ def load_user(userid):
     return User.query.get(int(userid))
 
 
+@app.route('/test')
+def test_page():
+    return render_template('test_home.html')
+
 @app.route('/')
 @view_logger
 def main_page():
@@ -225,6 +229,18 @@ def historical_report():
 
     return render_template(HISTORICAL_REPORT_TEMPLATE, symbol=symbol, name=name,
                            summary=summary, real_time=real_time)
+
+@app.route('/test_historical_report')
+@app.route('/test_historical_report/<symbol>', methods=['GET'])
+def test_historical_report(symbol=None):
+    """Test historical report handler"""
+    name=None
+    if symbol:
+        name = stock_loan.get_company_name(symbol)
+
+    return render_template('test_historical_report_template.html',
+                           symbol=symbol, name=name)
+
 
 
 @app.route('/name_search', methods=['GET'])

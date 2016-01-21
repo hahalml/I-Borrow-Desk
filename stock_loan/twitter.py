@@ -20,8 +20,6 @@ TICKER_MATCH = r"\$([a-zA-Z0-9\.]{1,8})"
 class BorrowStreamer(TwythonStreamer):
     """Twitter Streamer class for responding to tweets at the bot"""
     def __init__(self, *a, **kwargs):
-        # Create a Twitter Rest API instance for responding to tweets
-        #self._twitter = Twython(*a)
 
         # Create a Borrow instance
         self._stock_loan = Borrow(database_name='stock_loan', create_new=False)

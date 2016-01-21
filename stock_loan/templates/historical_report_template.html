@@ -20,26 +20,26 @@
                    href="{{ url_for('historical_report', symbol=symbol, real_time=True) }}">Real-time</a>
             {% endif %}
                 </h3>
-        <h4><a href=" {{ url_for('add_to_watchlist', symbol=symbol) }}">Add to Watchlist</a></h4>
+            <h4><a href=" {{ url_for('add_to_watchlist', symbol=symbol) }}">Add to Watchlist</a></h4>
 
 
-        <svg id="chartContainer" width="600" height="400"></svg>
+            <svg id="chartContainer" width="600" height="400"></svg>
 
-             <table class="table table-condensed table-responsive">
+            <table class="table table-condensed table-responsive">
                 <tr>
                     <th>Fee</th>
                     <th>Availability</th>
                     <th>Time (EST) </th>
                  </tr>
 
-            {% for stock in summary %}
-                <tr>
-                    <td>{{ '{:.1%}'.format(stock['fee']) }}</td>
-                    <td>{{ '{:,}'.format(stock['available']) }}</td>
-                    <td>{{stock['time']|replace('T', ' ')}}</td>
-                </tr>
-            {% endfor %}
-         </table>
+                {% for stock in summary %}
+                    <tr>
+                        <td>{{ '{:.1%}'.format(stock['fee']) }}</td>
+                        <td>{{ '{:,}'.format(stock['available']) }}</td>
+                        <td>{{stock['time']|replace('T', ' ')}}</td>
+                    </tr>
+                {% endfor %}
+            </table>
        {% endif %}
 
 	</div>
@@ -61,7 +61,6 @@
 
     d3.json($SCRIPT_ROOT + '/_json_historical_report' + "?symbol={{ symbol }}" + "&&real_time={{ real_time }}",
             function (data) {
-
                 var myChart = new dimple.chart(svg, data['data']);
                 myChart.setMargins("60px", "30px", "80px", "80px");
                 var x = myChart.addTimeAxis("x", "time", format_string, display_string);
@@ -71,15 +70,11 @@
                 var y2 = myChart.addMeasureAxis("y", "fee");
                 y2.tickFormat = ".1%";
 
-
                 var s1 = myChart.addSeries(null, dimple.plot.bar, [x, y1], stacked = false);
                 var s2 = myChart.addSeries(null, dimple.plot.line, [x, y2]);
 
                 s2.title = "Fee";
-
                 myChart.title = "{{ symbol }}";
-
-
 
                 myChart.draw();
             });
