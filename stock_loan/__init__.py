@@ -10,6 +10,8 @@ from flask.ext.sqlalchemy import SQLAlchemy
 from flask_sslify import SSLify
 from flask_admin import Admin
 from flask_limiter import Limiter
+from flask_jwt import JWT
+
 from .borrow import Borrow
 
 # Create a Flask instance
@@ -23,6 +25,10 @@ db = SQLAlchemy(app)
 
 login_manager = LoginManager()
 login_manager.init_app(app)
+
+# Set up JWT
+from .models import authenticate, identity
+jwt = JWT(app, authenticate, identity)
 
 # Rate limiter app
 limiter = Limiter(app)

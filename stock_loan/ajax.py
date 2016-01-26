@@ -1,4 +1,6 @@
 from flask import request, jsonify
+from flask_jwt import current_identity, jwt_required
+
 from . import app, login_manager, db, stock_loan, mc
 from .utils import historical_report_cache
 
@@ -33,5 +35,34 @@ def test_json_company_search(name):
     name = ''.join(c for c in name if (c.isalnum() or c == ' '))
 
     summary = stock_loan.name_search(name)
+    results = [{'symbol': row.symbol, 'name': row.name} for row in summary] \
+        if summary else []
+    print(results)
+    return jsonify(results=results)
 
-    return jsonify(results=summary)
+@app.route('/api/trending', methods=['GET'])
+def test_json_trending():
+    """Return trending stocks"""
+    trending_fee = mc.get('trending_fee')
+    if not trending_fee:
+        trending_fee = stock_loan.summary_report(stock_loan.trending_fee)
+        mc.set('trending_fee', trending_fee)
+        print('trending_fee cache miss')
+    else:
+        print('trending_fee cache hit')
+
+    trending_available = mc.get('trending_available')
+    if not trending_available:
+        trending_available = stock_loan.summary_report(stock_loan.trending_available)
+        mc.set('trending_available', trending_available)
+        print('trending_available cache miss')
+    else:
+        print('trending_available cache hit')
+    return jsonify(available=trending_available, fee=trending_fee)
+
+@app.route('/api/watchlist', methods=['GET'])
+@jwt_required()
+def test_watchlist():
+    """Watchlist endpoint"""
+    print(current_identity)
+    return jsonify(watchlist=stock_loan.get_watchlist(current_identity.id))

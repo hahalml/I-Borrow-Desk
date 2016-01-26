@@ -48,3 +48,16 @@ class User(db.Model):
 
     def increment_views(self):
         self._views += 1
+
+
+def authenticate(username, password):
+    """Authentication handler for Flask-JWT"""
+    user = User.query.filter(username == username).first()
+    if user and user.check_password(password):
+        return user
+
+
+def identity(payload):
+    """Return the userinside the payload"""
+    print(payload)
+    return User.query.get(payload['identity'])
