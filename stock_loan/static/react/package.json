@@ -1,0 +1,48 @@
+{
+  "name": "stock_loan",
+  "version": "0.1.0",
+  "description": "Stock Loan frontend",
+  "main": "main.js",
+  "scripts": {
+    "test": "test_js",
+    "lint": "eslint src/js/*.js"
+  },
+  "author": "cameron mochrie",
+  "license": "cameron mochrie",
+  "devDependencies": {
+    "axios": "^0.9.0",
+    "babel": "^6.3.26",
+    "babel-preset-es2015": "^6.3.13",
+    "babel-preset-react": "^6.3.13",
+    "babel-preset-stage-3": "^6.3.13",
+    "babelify": "^7.2.0",
+    "browserify": "^13.0.0",
+    "d3": "^3.5.13",
+    "gulp": "^3.9.0",
+    "gulp-autoprefixer": "^3.1.0",
+    "gulp-concat": "^2.6.0",
+    "gulp-cssnano": "^2.1.0",
+    "gulp-notify": "^2.2.0",
+    "gulp-rename": "^1.2.2",
+    "gulp-sass": "^2.1.1",
+    "gulp-uglify": "^1.5.1",
+    "history": "^1.17.0",
+    "react": "^0.14.6",
+    "react-d3": "^0.4.0",
+    "react-dom": "^0.14.6",
+    "react-redux": "^4.0.6",
+    "react-router": "^1.0.3",
+    "redux": "^3.0.5",
+    "redux-devtools": "^3.0.1",
+    "redux-devtools-dock-monitor": "^1.0.1",
+    "redux-devtools-log-monitor": "^1.0.2",
+    "redux-promise": "^0.5.1",
+    "redux-simple-router": "^2.0.4",
+    "vinyl-buffer": "^1.0.0",
+    "vinyl-source-stream": "^1.1.0",
+    "watchify": "^3.7.0"
+  },
+  "dependencies": {
+    "react-widgets": "^3.1.7"
+  }
+}
