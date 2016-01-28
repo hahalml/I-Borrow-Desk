@@ -71,7 +71,7 @@ class SearchBar extends Component {
 }
 
 const mapStateToProps = (state) => {
-  return { companySearch: state.companySearch }
+  return { companySearch: state.companies }
 };
 
 const mapDispatchToProps = (dispatch) => {

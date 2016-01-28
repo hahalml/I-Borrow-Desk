@@ -76,6 +76,12 @@ def load_user(userid):
 def test_page():
     return render_template('test_home.html')
 
+@app.route('/test', defaults={'path': ''})
+@app.route('/test<path:path>')
+@app.route('/test/<path:path>')
+def catch_all(path):
+    return render_template('test_home.html')
+
 @app.route('/')
 @view_logger
 def main_page():

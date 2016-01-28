@@ -40,7 +40,7 @@ function buildScript(file, watch) {
     cache: {},
     packageCache: {},
     // Turns all experimental features on
-    transform:  [babelify.configure({presets : ["react", "es2015", "stage-3"]})]
+    transform:  [babelify.configure({presets : ["react", "es2015", "stage-1"]})]
   };
 
   // watchify() if watch requested, otherwise run browserify() once

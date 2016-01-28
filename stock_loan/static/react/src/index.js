@@ -13,16 +13,17 @@ import { Router, Route, browserHistory } from 'react-router';
 
 import App from './components/app';
 import Trending from './components/trending';
-import HistoricalReport from './containers/historical-report';
+import HistoricalReport from './components/historical-report';
 
-import {companySearchReducer} from './reducers/index';
+import {StockReducer, CompanySearchReducer} from './reducers/index';
 
 
 const history = createHistory();
 const middleware = syncHistory(history);
 const reducer = combineReducers({
   routing: routeReducer,
-  companySearch: companySearchReducer
+  stock: StockReducer,
+  companies: CompanySearchReducer
  });
 
 const DevTools = createDevTools(
@@ -42,7 +43,7 @@ middleware.listenForReplays(store);
 ReactDOM.render(
   <Provider store={store}>
     <div>
-      <Router history={history}>
+      <Router history={browserHistory}>
         <Route path='/' component={App}>
           <Route path='report/:ticker' component={HistoricalReport} />
           <Route path='trending' component={Trending} />

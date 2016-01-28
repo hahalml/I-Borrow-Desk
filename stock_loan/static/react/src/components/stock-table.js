@@ -1,9 +1,9 @@
 import React from 'react';
-import { Component } from 'react';
+import { Component, PropTypes } from 'react';
 
 import Stock from './stock';
 
-export default class extends Component {
+export default class StockTable extends Component {
 
   constructor(props) {
     super(props);
@@ -33,7 +33,6 @@ export default class extends Component {
     this.setState({ sort: key });
   }
 
-
   render() {
     const stocks = this.sortStocks(this.props.stocks, this.state.sort);
 
@@ -54,3 +53,7 @@ export default class extends Component {
     );
   }
 }
+
+StockTable.propTypes = {
+  stocks: PropTypes.array
+};

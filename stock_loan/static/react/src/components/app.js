@@ -2,7 +2,7 @@
 import React from 'react';
 import { Component } from 'react';
 
-import NavBar from '../containers/nav-bar';
+import NavBar from './nav-bar';
 
 export default class App extends Component {
   render() {

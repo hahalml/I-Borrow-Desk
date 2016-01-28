@@ -7,8 +7,7 @@ const renderDate = stock => {
   if (stock.datetime) {
     return <td>{stock.datetime}</td>;
   }
-
-}
+};
 
 export default stock => {
   return (
