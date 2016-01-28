@@ -15,7 +15,7 @@ import App from './components/app';
 import Trending from './components/trending';
 import HistoricalReport from './components/historical-report';
 
-import {StockReducer, CompanySearchReducer} from './reducers/index';
+import {StockReducer, CompanySearchReducer, TrendingReducer} from './reducers/index';
 
 
 const history = createHistory();
@@ -23,7 +23,8 @@ const middleware = syncHistory(history);
 const reducer = combineReducers({
   routing: routeReducer,
   stock: StockReducer,
-  companies: CompanySearchReducer
+  companies: CompanySearchReducer,
+  trending: TrendingReducer
  });
 
 const DevTools = createDevTools(

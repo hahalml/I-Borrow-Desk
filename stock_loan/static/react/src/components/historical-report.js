@@ -14,7 +14,7 @@ class HistoricalReport extends Component {
     if (!stock.name) return <div>Loading...</div>;
     return (
       <div>
-        <h2>{stock.name}</h2>
+        <h2>{stock.name} - {stock.symbol}</h2>
         <StockChart data={stock.real_time} />
       </div>
     )

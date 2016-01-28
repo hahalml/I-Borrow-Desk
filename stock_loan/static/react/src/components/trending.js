@@ -1,34 +1,22 @@
 import React from 'react';
 import { Component } from 'react';
-import axios from 'axios';
+import { connect } from 'react-redux';
 
+import { fetchTrending }  from '../actions/index';
 import StockTable from './stock-table';
 
-export default class extends Component {
 
-  constructor(props) {
-    super(props);
-    this.state = {
-      available: [],
-      fee: []
+class Trending extends Component {
 
-    }
+
+  componentWillMount() {
+    this.props.fetchTrending();
   }
 
-  componentDidMount() {
-    axios.get('/api/trending')
-      .then(response => {
-        this.setState({
-          available: response.data.available,
-          fee: response.data.fee
-        })
-      })
-      .catch(response => console.log('error: ', response));
-  }
+  render() {
 
-  render () {
-
-    if (this.state.available.length === 0) {
+    const trending = this.props.trending;
+    if (!trending.available) {
       return <h3>Loading...</h3>
     }
 
@@ -36,14 +24,21 @@ export default class extends Component {
       <div>
         <div className="col-md-6">
           <h3> Declining Availability</h3>
-          <StockTable stocks={this.state.available} />
+          <StockTable stocks={trending.available} />
         </div>
         <div className="col-md-6">
           <h3> Increasing Fee</h3>
-          <StockTable stocks={this.state.fee} />
+          <StockTable stocks={trending.fee} />
         </div>
       </div>
     )
   }
 
 }
+
+const mapStateToProps = ({ trending }) => {
+  return { trending }
+};
+
+export default connect(mapStateToProps, { fetchTrending })(Trending);
+

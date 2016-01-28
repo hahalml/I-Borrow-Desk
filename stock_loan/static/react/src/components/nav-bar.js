@@ -4,7 +4,7 @@ import { routeActions } from 'redux-simple-router';
 import { bindActionCreators } from 'redux';
 import { Link } from 'react-router';
 
-import SearchBar from './../containers/search-bar';
+import SearchBar from './search-bar';
 
 export default class NavBar extends Component {
   constructor(props) {

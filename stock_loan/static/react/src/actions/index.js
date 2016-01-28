@@ -2,6 +2,7 @@ import axios from 'axios';
 
 export const UPDATE_COMPANY_SEARCH = 'UPDATE_COMPANY_SEARCH';
 export const FETCH_STOCK = 'FETCH_STOCK';
+export const FETCH_TRENDING = 'FETCH_TRENDING';
 
 export const searchCompany = name => {
   const url = `api/company/${name}`;
@@ -16,6 +17,14 @@ export const fetchStock = ticker => {
   const response = axios.get(`api/ticker/${ticker}`);
   return {
     type: FETCH_STOCK,
+    payload: response
+  }
+};
+
+export const fetchTrending = () => {
+  const response = axios.get('/api/trending');
+  return {
+    type: FETCH_TRENDING,
     payload: response
   }
 };

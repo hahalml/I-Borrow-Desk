@@ -1,4 +1,4 @@
-import {  FETCH_STOCK, UPDATE_COMPANY_SEARCH } from '../actions/index';
+import {  FETCH_STOCK, UPDATE_COMPANY_SEARCH, FETCH_TRENDING } from '../actions/index';
 
 export const StockReducer = (state={}, action) => {
   switch (action.type) {
@@ -15,4 +15,13 @@ export const CompanySearchReducer = (state=[], action) => {
       return state.concat(action.payload.data.results);
   }
   return state;
+};
+
+export const TrendingReducer = (state={}, action) => {
+  switch(action.type) {
+    case FETCH_TRENDING:
+      return {...action.payload.data};
+    default:
+      return state;
+  }
 };
