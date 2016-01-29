@@ -24,11 +24,11 @@ class Trending extends Component {
       <div>
         <div className="col-md-6">
           <h3> Declining Availability</h3>
-          <StockTable stocks={trending.available} />
+          <StockTable stocks={trending.available} type='available'/>
         </div>
         <div className="col-md-6">
           <h3> Increasing Fee</h3>
-          <StockTable stocks={trending.fee} />
+          <StockTable stocks={trending.fee} type='fee' />
         </div>
       </div>
     )

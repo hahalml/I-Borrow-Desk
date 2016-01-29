@@ -11,8 +11,8 @@ export default class NavBar extends Component {
     super(props);
   }
 
-
   render() {
+
     return (
       <nav className="navbar navbar-default header">
         <div className="container-fluid">
@@ -23,6 +23,24 @@ export default class NavBar extends Component {
             <Link activeClassName="active" to={'trending'}>
               Trending
             </Link>
+            {this.props.authenticated &&
+              <Link activeClassName="active" to={'watchlist'}>
+                Watchlist
+              </Link>
+            }
+
+            {!this.props.authenticated &&
+              <Link activeClassName="active" to={'login'}>
+                Login
+              </Link>
+            }
+            {this.props.authenticated &&
+              <button
+                onClick={() => this.props.onLogout()}
+                className="btn btn-danger">
+                Logout
+              </button>
+            }
           </ul>
           <SearchBar />
         </div>

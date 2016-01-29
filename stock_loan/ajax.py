@@ -65,4 +65,5 @@ def test_json_trending():
 def test_watchlist():
     """Watchlist endpoint"""
     print(current_identity)
-    return jsonify(watchlist=stock_loan.get_watchlist(current_identity.id))
+    watchlist = stock_loan.get_watchlist(current_identity.id)
+    return jsonify(watchlist=stock_loan.summary_report(watchlist))

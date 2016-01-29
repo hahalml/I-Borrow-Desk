@@ -15,7 +15,7 @@ export default class StockTable extends Component {
   renderStock(stock) {
     return (
       <Stock
-        key={stock.symbol}
+        key={stock.symbol + this.props.type}
         link={`/report/${stock.symbol}`}
         name={stock.name}
         symbol={stock.symbol}

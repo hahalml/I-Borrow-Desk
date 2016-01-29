@@ -1,14 +1,18 @@
-
 import React from 'react';
 import { Component } from 'react';
+import { connect } from 'react-redux';
 
+import { logoutAction } from '../actions/index';
 import NavBar from './nav-bar';
 
-export default class App extends Component {
+class App extends Component {
   render() {
     return (
       <div>
-        <NavBar />
+        <NavBar
+          authenticated={this.props.auth.authenticated}
+          onLogout={this.props.logoutAction}
+        />
         {this.content()}
       </div>
     );
@@ -21,3 +25,11 @@ export default class App extends Component {
     }
   }
 }
+
+const mapStateToProps = state => {
+  return {
+    auth: state.auth
+  }
+};
+
+export default connect(mapStateToProps, { logoutAction })(App);

@@ -9,9 +9,15 @@ class HistoricalReport extends Component {
     this.props.fetchStock(this.props.params.ticker);
   }
 
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.params.ticker != this.props.params.ticker) {
+      this.props.fetchStock(nextProps.params.ticker);
+    }
+  }
+
   render() {
-    const stock = this.props.stock;
-    if (!stock.name) return <div>Loading...</div>;
+    const { stock } = this.props;
+    if (!stock.real_time) return <div>Loading...</div>;
     return (
       <div>
         <h2>{stock.name} - {stock.symbol}</h2>

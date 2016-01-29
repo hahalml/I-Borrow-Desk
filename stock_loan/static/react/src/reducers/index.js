@@ -1,4 +1,8 @@
-import {  FETCH_STOCK, UPDATE_COMPANY_SEARCH, FETCH_TRENDING } from '../actions/index';
+import {  FETCH_STOCK, UPDATE_COMPANY_SEARCH, FETCH_TRENDING, FETCH_WATCHLIST }
+  from '../actions/index';
+import { LOGIN_SUCCESS, LOGIN_FAILURE, LOGOUT_ACTION }
+  from '../actions/index';
+
 
 export const StockReducer = (state={}, action) => {
   switch (action.type) {
@@ -23,5 +27,25 @@ export const TrendingReducer = (state={}, action) => {
       return {...action.payload.data};
     default:
       return state;
+  }
+};
+
+export const AuthReducer = (state={authenticated: false, token: null}, action) => {
+  switch(action.type) {
+    case LOGIN_SUCCESS:
+      return {authenticated: true, token: action.payload.data.access_token };
+    case LOGOUT_ACTION:
+      return {authenticated: false, token: null};
+    default:
+      return state
+  }
+};
+
+export const WatchlistReducer = (state=[], action) => {
+  switch(action.type) {
+    case FETCH_WATCHLIST:
+      return [...action.payload.data.watchlist];
+    default:
+      return state
   }
 };

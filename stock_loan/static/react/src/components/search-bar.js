@@ -17,7 +17,6 @@ class SearchBar extends Component {
     this.nameSearch = _.debounce(value => this.props.searchCompany(value), 300);
   }
 
-
   onInputChange(value) {
     if (typeof value === 'object') {
       this.setState({ticker: value.symbol});
@@ -62,7 +61,6 @@ class SearchBar extends Component {
             onChange={this.onInputChange}
             onSelect={this.optionClicked.bind(this)}
           />
-
           <button type="submit" className="btn btn-secondary">Submit</button>
         </div>
       </form>
