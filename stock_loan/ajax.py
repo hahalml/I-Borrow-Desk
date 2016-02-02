@@ -28,13 +28,16 @@ def test_json_historical_report(symbol):
 
     return jsonify(real_time=real_time, daily=daily, symbol=symbol, name=name)
 
-@app.route('/api/company/<name>', methods=['GET'])
-def test_json_company_search(name):
+@app.route('/api/search/<query>', methods=['GET'])
+def test_json_company_search(query):
     """Handler to return possible Company names"""
 
-    name = ''.join(c for c in name if (c.isalnum() or c == ' '))
+    #query = ''.join(c for c in query if (c.isalnum() or c == ' '))
+    if query.upper() in stock_loan.all_symbols:
+        name = stock_loan.get_company_name(query)
+        return jsonify(results=[{'symbol': query.upper(), 'name': name}])
 
-    summary = stock_loan.name_search(name)
+    summary = stock_loan.name_search(query)
     results = [{'symbol': row.symbol, 'name': row.name} for row in summary] \
         if summary else []
     print(results)

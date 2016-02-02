@@ -47,7 +47,7 @@ class SearchBar extends Component {
     return (
       <form
         onSubmit={this.onFormSubmit}
-        className="navbar-form navbar-right"
+
       >
         <div className="form-group">
           <Combobox
@@ -56,7 +56,7 @@ class SearchBar extends Component {
             valueField='symbol'
             textField='name'
             placeholder="Search a ticker"
-            className="form-control"
+
             value={this.state.ticker}
             onChange={this.onInputChange}
             onSelect={this.optionClicked.bind(this)}

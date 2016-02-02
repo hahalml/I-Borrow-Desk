@@ -20,7 +20,11 @@ class HistoricalReport extends Component {
     if (!stock.real_time) return <div>Loading...</div>;
     return (
       <div>
-        <h2>{stock.name} - {stock.symbol}</h2>
+        <h2>
+          {stock.name} - {stock.symbol}
+          <button className="btn btn-success">Real-Time</button>
+          <button className="btn btn-success">Daily</button>
+        </h2>
         <StockChart data={stock.real_time} />
       </div>
     )

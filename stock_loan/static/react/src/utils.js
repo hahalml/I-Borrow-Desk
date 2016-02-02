@@ -9,6 +9,10 @@ const utils = {
 
   toCommas: x => {
     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  },
+
+  showWarning: (field) => {
+    if (field.touched && field.invalid) return 'has-danger';
   }
 };
 

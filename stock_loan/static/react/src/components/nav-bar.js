@@ -14,38 +14,50 @@ export default class NavBar extends Component {
   render() {
 
     return (
-      <nav className="navbar navbar-default header">
-        <div className="container-fluid">
-          <Link to="/" className="navbar-brand">
-            IBorrow
-          </Link>
-          <ul className="nav navbar-nav">
-            <Link activeClassName="active" to={'trending'}>
-              Trending
+      <div>
+        <nav className="navbar navbar-default">
+          <div className="container-fluid">
+            <div className="collapse navbar-collapse">
+            <Link to="/" className="navbar-brand">
+              IBorrow
             </Link>
-            {this.props.authenticated &&
-              <Link activeClassName="active" to={'watchlist'}>
-                Watchlist
-              </Link>
-            }
-
-            {!this.props.authenticated &&
-              <Link activeClassName="active" to={'login'}>
-                Login
-              </Link>
-            }
-            {this.props.authenticated &&
-              <button
-                onClick={() => this.props.onLogout()}
-                className="btn btn-danger">
-                Logout
-              </button>
-            }
-          </ul>
-          <SearchBar />
-        </div>
-
-      </nav>
+            <ul className="nav navbar-nav">
+              <li>
+                <Link activeClassName="active" to={'trending'}>
+                  Trending
+                </Link>
+              </li>
+              {this.props.authenticated &&
+                <li>
+                  <Link activeClassName="active" to={'watchlist'}>
+                    Watchlist
+                  </Link>
+                </li>
+              }
+            </ul>
+              <ul className="nav navbar-nav navbar-right">
+              {!this.props.authenticated &&
+                <li>
+                  <Link activeClassName="active" to={'login'}>
+                    Login
+                  </Link>
+                </li>
+              }
+              {this.props.authenticated &&
+                <li>
+                  <a href="#"
+                    onClick={() => this.props.onLogout()}
+                    >
+                    Logout
+                  </a>
+                </li>
+              }
+            </ul>
+          </div>
+          </div>
+        </nav>
+        <SearchBar />
+      </div>
     )
   }
 }

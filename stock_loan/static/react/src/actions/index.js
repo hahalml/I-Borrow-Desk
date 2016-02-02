@@ -9,7 +9,7 @@ export const LOGIN_FAILURE = 'LOGIN_FAILURE';
 export const LOGOUT_ACTION = 'LOGOUT_ACTION';
 
 export const searchCompany = name => {
-  const url = `api/company/${name}`;
+  const url = `api/search/${name}`;
   const response = axios.get(url);
   return {
     type: UPDATE_COMPANY_SEARCH,
