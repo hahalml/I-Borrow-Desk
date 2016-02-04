@@ -2,8 +2,9 @@ import React from 'react';
 import { Component } from 'react';
 import { connect } from 'react-redux';
 
-import { logoutAction } from '../actions/index';
+import { logoutAction, showLoginAction } from '../actions/index';
 import NavBar from './nav-bar';
+import Login from './login';
 
 class App extends Component {
   render() {
@@ -12,16 +13,17 @@ class App extends Component {
         <NavBar
           authenticated={this.props.auth.authenticated}
           onLogout={this.props.logoutAction}
+          onClickLogin={this.props.showLoginAction}
         />
-        {this.auth_failed()}
+        {this.login()}
         {this.content()}
       </div>
     );
   }
 
-  auth_failed() {
-    if (this.props.auth.failure) {
-      return <h1>You should login!</h1>;
+  login() {
+    if (this.props.auth.showLogin) {
+      return <Login />;
     }
   }
   content() {if(this.props.children) {
@@ -38,4 +40,4 @@ const mapStateToProps = state => {
   }
 };
 
-export default connect(mapStateToProps, { logoutAction })(App);
+export default connect(mapStateToProps, { logoutAction, showLoginAction })(App);

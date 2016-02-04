@@ -59,7 +59,6 @@ ReactDOM.render(
         <Route path='/' component={App}>
           <Route path='report/:ticker' component={HistoricalReport} />
           <Route path='trending' component={Trending} />
-          <Route path='login' component={Login} />
           <Route path='watchlist' component={Watchlist} />
         </Route>
       </Router>

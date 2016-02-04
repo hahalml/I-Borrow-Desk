@@ -33,9 +33,9 @@ export default class NavBar extends Component {
               </LinkContainer>
             }
             {!this.props.authenticated &&
-              <LinkContainer to='login'>
-                <NavItem>Login</NavItem>
-              </LinkContainer>
+              <NavItem onClick={() => this.props.onClickLogin()}>
+                Login
+              </NavItem>
             }
             {this.props.authenticated &&
               <NavItem href="#" onClick={() => this.props.onLogout()}>

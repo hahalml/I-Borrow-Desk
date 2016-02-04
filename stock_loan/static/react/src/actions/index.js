@@ -12,7 +12,7 @@ export const REMOVE_WATCHLIST = 'REMOVE_WATCHLIST';
 export const LOGIN_SUCCESS = 'LOGIN_SUCCESS';
 export const LOGIN_FAILURE = 'LOGIN_FAILURE';
 export const LOGOUT_ACTION = 'LOGOUT_ACTION';
-export const AUTH_FAILURE = 'AUTH_FAILURE';
+export const SHOW_LOGIN = 'SHOW_LOGIN';
 
 import { routeActions } from 'redux-simple-router';
 
@@ -57,7 +57,7 @@ export const fetchWatchlist = () => {
       .then(response => {
         dispatch({type: FETCH_WATCHLIST, payload: response});
       }).catch(err => {
-        dispatch({type: AUTH_FAILURE, payload: err});
+        dispatch({type: SHOW_LOGIN, payload: err});
       });
   };
 };
@@ -66,7 +66,7 @@ export const addWatchlist = symbol => {
   return dispatch => {
     return makeAuthRequest().post('/api/watchlist', { symbol })
       .then(response => dispatch({type: FETCH_WATCHLIST, payload: response}))
-      .catch(err => dispatch({type: AUTH_FAILURE, payload: err}));
+      .catch(err => dispatch({type: SHOW_LOGIN, payload: err}));
   };
 };
 
@@ -74,9 +74,11 @@ export const removeWatchlist = symbol => {
   return dispatch => {
     return makeAuthRequest().delete(`/api/watchlist?symbol=${symbol}`)
       .then(response => dispatch({type: FETCH_WATCHLIST, payload: response}))
-      .catch(err => dispatch({type: AUTH_FAILURE, payload: err}));
+      .catch(err => dispatch({type: SHOW_LOGIN, payload: err}));
   };
 };
+
+export const showLoginAction = () => { return {'type': SHOW_LOGIN };};
 
 export function submitLogin (props) {
   return dispatch => {
