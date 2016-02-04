@@ -9,10 +9,7 @@ import { submitLogin, fetchWatchlist } from '../actions/index';
 class Login extends Component {
 
   onSubmit(props){
-    console.log(this.props);
-    this.props.submitLogin(props)
-      .then(() => this.props.fetchWatchlist())
-      .then(() => this.props.routeActions.push('/watchlist'));
+    this.props.submitLogin(props);
   }
 
   renderField(field, type='text') {

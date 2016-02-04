@@ -9,18 +9,35 @@ const renderDate = stock => {
   }
 };
 
-export default stock => {
+export default props => {
+
+  const buttonText = (props.buttonType === 'add') ?
+    'Add to Watchlist' : 'Remove from Watchlist';
+  const buttonClass = (props.buttonType === 'add') ?
+    'btn btn-sm btn-success' : 'btn btn-sm btn-danger';
+
   return (
-    <Link to={stock.link}>
-      <tr>
-        <td>
-            {stock.symbol}
-        </td>
-        <td>{stock.name}</td>
-        <td>{utils.toPercentageNoScale(stock.fee)}</td>
-        <td>{utils.toCommas(stock.available)}</td>
-        {renderDate(stock)}
-      </tr>
-    </Link>
+    <tr>
+      <td>
+        <Link to={props.link}>
+          {props.symbol}
+        </Link>
+      </td>
+      <td>{props.name}</td>
+      <td>{utils.toPercentageNoScale(props.fee)}</td>
+      <td>{utils.toCommas(props.available)}</td>
+      <td>
+        <button
+          onClick={() => {
+            console.log('clicked' + props.symbol);
+            props.onClick(props.symbol);
+          }}
+          className={buttonClass}
+        >
+          {buttonText}
+        </button>
+      </td>
+    </tr>
+
   )
 }

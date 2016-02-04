@@ -45,10 +45,7 @@ class SearchBar extends Component {
       return {'symbol': el.symbol, 'name': `${el.name} - ${el.symbol}`};
     });
     return (
-      <form
-        onSubmit={this.onFormSubmit}
-
-      >
+      <form onSubmit={this.onFormSubmit}>
         <div className="form-group">
           <Combobox
             data={companies}
@@ -56,12 +53,10 @@ class SearchBar extends Component {
             valueField='symbol'
             textField='name'
             placeholder="Search a ticker"
-
             value={this.state.ticker}
             onChange={this.onInputChange}
             onSelect={this.optionClicked.bind(this)}
           />
-          <button type="submit" className="btn btn-secondary">Submit</button>
         </div>
       </form>
     );

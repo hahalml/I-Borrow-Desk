@@ -6,7 +6,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
 import { createStore, compose, applyMiddleware, combineReducers } from 'redux';
-import ReduxPromise from 'redux-promise';
+import thunk from 'redux-thunk';
 import createHistory from 'history/lib/createHashHistory';
 import { syncHistory, routeReducer } from 'redux-simple-router';
 import { Router, Route, browserHistory } from 'react-router';
@@ -45,7 +45,7 @@ const DevTools = createDevTools(
 const store = createStore(
   reducer,
   compose(
-    applyMiddleware(middleware, ReduxPromise),
+    applyMiddleware(middleware, thunk),
     DevTools.instrument()
   )
 );

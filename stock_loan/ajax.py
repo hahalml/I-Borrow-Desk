@@ -63,10 +63,20 @@ def test_json_trending():
         print('trending_available cache hit')
     return jsonify(available=trending_available, fee=trending_fee)
 
-@app.route('/api/watchlist', methods=['GET'])
+@app.route('/api/watchlist', methods=['GET', 'POST', 'DELETE'])
 @jwt_required()
 def test_watchlist():
     """Watchlist endpoint"""
     print(current_identity)
+    if request.method == 'POST':
+        symbol = request.get_json()['symbol']
+        stock_loan.insert_watchlist(current_identity.id, [symbol])
+        print('post', symbol)
+    if request.method == 'DELETE':
+        symbol = request.args.get('symbol')
+        stock_loan.remove_watchlist(current_identity.id, [symbol.upper()])
+        print('delete', symbol)
+
+
     watchlist = stock_loan.get_watchlist(current_identity.id)
     return jsonify(watchlist=stock_loan.summary_report(watchlist))

@@ -13,11 +13,17 @@ class App extends Component {
           authenticated={this.props.auth.authenticated}
           onLogout={this.props.logoutAction}
         />
+        {this.auth_failed()}
         {this.content()}
       </div>
     );
   }
 
+  auth_failed() {
+    if (this.props.auth.failure) {
+      return <h1>You should login!</h1>;
+    }
+  }
   content() {if(this.props.children) {
       return this.props.children
     } else {

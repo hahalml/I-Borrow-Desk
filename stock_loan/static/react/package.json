@@ -39,6 +39,7 @@
     "redux-form": "^4.1.5",
     "redux-promise": "^0.5.1",
     "redux-simple-router": "^2.0.4",
+    "redux-thunk": "^1.0.3",
     "vinyl-buffer": "^1.0.0",
     "vinyl-source-stream": "^1.1.0",
     "watchify": "^3.7.0"

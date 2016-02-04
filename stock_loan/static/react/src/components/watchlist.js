@@ -2,6 +2,7 @@ import React from 'react';
 import { Component } from 'react';
 import { connect } from 'react-redux';
 
+import { removeWatchlist } from '../actions/index';
 import StockTable from './stock-table';
 
 class Watchlist extends Component {
@@ -11,7 +12,11 @@ class Watchlist extends Component {
     return (
       <div>
         Watchlist
-        <StockTable stocks={watchlist} />
+        <StockTable
+          stocks={watchlist}
+          action={symbol => this.props.removeWatchlist(symbol)}
+          buttonType='remove'
+        />
       </div>
     )
   }
@@ -21,4 +26,4 @@ const mapStateToProps = ({ watchlist }) => {
   return { watchlist }
 };
 
-export default connect(mapStateToProps)(Watchlist);
+export default connect(mapStateToProps, { removeWatchlist })(Watchlist);
