@@ -1,4 +1,5 @@
 import React from 'react';
+import { Button } from 'react-bootstrap';
 import { Link } from 'react-router';
 
 import utils from '../utils';
@@ -14,7 +15,7 @@ export default props => {
   const buttonText = (props.buttonType === 'add') ?
     'Add to Watchlist' : 'Remove from Watchlist';
   const buttonClass = (props.buttonType === 'add') ?
-    'btn btn-sm btn-success' : 'btn btn-sm btn-danger';
+    'success' : 'danger';
 
   return (
     <tr>
@@ -27,15 +28,16 @@ export default props => {
       <td>{utils.toPercentageNoScale(props.fee)}</td>
       <td>{utils.toCommas(props.available)}</td>
       <td>
-        <button
+        <Button
           onClick={() => {
             console.log('clicked' + props.symbol);
             props.onClick(props.symbol);
           }}
-          className={buttonClass}
+          bsSize="small"
+          bsStyle={buttonClass}
         >
           {buttonText}
-        </button>
+        </Button>
       </td>
     </tr>
 

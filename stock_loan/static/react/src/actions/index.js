@@ -1,7 +1,10 @@
 import axios from 'axios';
 
 export const UPDATE_COMPANY_SEARCH = 'UPDATE_COMPANY_SEARCH';
+export const RESET_COMPANY_SEARCH = 'RESET_COMPANY_SEARCH';
 export const FETCH_STOCK = 'FETCH_STOCK';
+export const REAL_TIME = 'REAL_TIME';
+export const DAILY = 'DAILY';
 export const FETCH_TRENDING = 'FETCH_TRENDING';
 export const FETCH_WATCHLIST = 'FETCH_WATCHLIST';
 export const ADD_WATCHLIST = 'ADD_WATCHLIST';
@@ -21,6 +24,8 @@ export const searchCompany = name => {
   };
 };
 
+export const resetCompanySearch = () => { return {'type': RESET_COMPANY_SEARCH };};
+
 export const fetchStock = ticker => {
   return dispatch => {
     return axios.get(`api/ticker/${ticker}`)
@@ -28,6 +33,9 @@ export const fetchStock = ticker => {
       .catch(err => console.log('error in fetchStock', err));
   };
 };
+
+export const viewRealTime = () => { return {'type': REAL_TIME };};
+export const viewDaily = () => { return {'type': DAILY };};
 
 export const fetchTrending = () => {
   return dispatch => {

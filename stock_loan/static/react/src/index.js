@@ -7,9 +7,9 @@ import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
 import { createStore, compose, applyMiddleware, combineReducers } from 'redux';
 import thunk from 'redux-thunk';
-import createHistory from 'history/lib/createHashHistory';
+//import createHistory from 'history/lib/createHashHistory';
 import { syncHistory, routeReducer } from 'redux-simple-router';
-import { Router, Route, browserHistory } from 'react-router';
+import { Router, Route, hashHistory } from 'react-router';
 import { reducer as formReducer } from 'redux-form';
 
 import App from './components/app';
@@ -23,8 +23,8 @@ import {StockReducer, CompanySearchReducer, TrendingReducer, WatchlistReducer,
   from './reducers/index';
 
 
-const history = createHistory();
-const middleware = syncHistory(history);
+
+const middleware = syncHistory(hashHistory);
 const reducer = combineReducers({
   routing: routeReducer,
   stock: StockReducer,
@@ -45,7 +45,7 @@ const DevTools = createDevTools(
 const store = createStore(
   reducer,
   compose(
-    applyMiddleware(middleware, thunk),
+    applyMiddleware(thunk, middleware),
     DevTools.instrument()
   )
 );
@@ -55,13 +55,13 @@ middleware.listenForReplays(store);
 ReactDOM.render(
   <Provider store={store}>
     <div>
-      <Router history={browserHistory}>
+      <Router history={hashHistory}>
         <Route path='/' component={App}>
           <Route path='report/:ticker' component={HistoricalReport} />
           <Route path='trending' component={Trending} />
           <Route path='login' component={Login} />
           <Route path='watchlist' component={Watchlist} />
-          </Route>
+        </Route>
       </Router>
       <DevTools />
     </div>

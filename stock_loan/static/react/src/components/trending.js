@@ -1,5 +1,6 @@
 import React from 'react';
 import { Component } from 'react';
+import { Grid, Row, Col } from 'react-bootstrap';
 import { connect } from 'react-redux';
 
 import { fetchTrending, addWatchlist }  from '../actions/index';
@@ -21,24 +22,26 @@ class Trending extends Component {
     }
 
     return (
-      <div>
-        <div className="col-md-6">
-          <h3> Declining Availability</h3>
-          <StockTable
-            stocks={trending.available}
-            action={symbol => this.props.addWatchlist(symbol)}
-            buttonType='add'
-            type='available'/>
-        </div>
-        <div className="col-md-6">
-          <h3> Increasing Fee</h3>
-          <StockTable
-            stocks={trending.fee}
-            action={symbol => this.props.addWatchlist(symbol)}
-            buttonType='add'
-            type='fee' />
-        </div>
-      </div>
+      <Grid>
+        <Row>
+          <Col md={6}>
+            <h3> Declining Availability</h3>
+            <StockTable
+              stocks={trending.available}
+              action={symbol => this.props.addWatchlist(symbol)}
+              buttonType='add'
+              type='available'/>
+          </Col>
+          <Col md={6}>
+            <h3> Increasing Fee</h3>
+            <StockTable
+              stocks={trending.fee}
+              action={symbol => this.props.addWatchlist(symbol)}
+              buttonType='add'
+              type='fee' />
+          </Col>
+        </Row>
+      </Grid>
     )
   }
 

@@ -1,4 +1,5 @@
 import React from 'react';
+import { Table } from 'react-bootstrap';
 import { Component, PropTypes } from 'react';
 
 import Stock from './stock';
@@ -43,7 +44,7 @@ export default class StockTable extends Component {
 
     return (
       <div>
-        <table className="table table-condensed table-responsive table-hover">
+        <Table condensed responsive hover>
           <thead>
             <tr>
               <th>Symbol</th>
@@ -55,7 +56,7 @@ export default class StockTable extends Component {
           <tbody data-link="row" className="rowlink">
           {stocks.map(stock => this.renderStock(stock))}
           </tbody>
-        </table>
+        </Table>
       </div>
     );
   }

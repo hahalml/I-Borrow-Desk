@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
+import { Button, ButtonToolbar } from 'react-bootstrap';
 import { connect } from 'react-redux';
 import StockChart from './stock-chart';
-import { fetchStock } from '../actions/index';
+import { fetchStock, addWatchlist, viewDaily, viewRealTime } from '../actions/index';
 
 class HistoricalReport extends Component {
 
@@ -18,14 +19,33 @@ class HistoricalReport extends Component {
   render() {
     const { stock } = this.props;
     if (!stock.real_time) return <div>Loading...</div>;
+    const data = (stock.active === 'real_time') ? stock.real_time : stock.daily;
     return (
       <div>
         <h2>
           {stock.name} - {stock.symbol}
-          <button className="btn btn-success">Real-Time</button>
-          <button className="btn btn-success">Daily</button>
+          <ButtonToolbar>
+            <Button
+              onClick={() => this.props.viewRealTime()}
+              bsStyle="success">
+              Real-Time
+            </Button>
+            <Button
+              onClick={() => this.props.viewDaily()}
+              bsStyle="success">
+              Daily
+            </Button>
+            <Button
+              onClick={() => this.props.addWatchlist(stock.symbol)}
+              bsStyle="success">
+              Add to Watchlist
+            </Button>
+          </ButtonToolbar>
         </h2>
-        <StockChart data={stock.real_time} />
+        <StockChart
+          data={data}
+          daily={stock.active === 'daily'}
+        />
       </div>
     )
   }
@@ -35,4 +55,6 @@ const mapStateToProps = ({ stock }) => {
   return { stock }
 };
 
-export default connect(mapStateToProps, { fetchStock })(HistoricalReport);
+export default connect(mapStateToProps,
+  { fetchStock, addWatchlist, viewRealTime, viewDaily })
+(HistoricalReport);

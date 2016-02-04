@@ -1,4 +1,5 @@
 import React, { Component, PropTypes } from 'react';
+import { Modal } from 'react-bootstrap';
 import { reduxForm } from 'redux-form';
 import { routeActions } from 'redux-simple-router';
 import { bindActionCreators } from 'redux';
@@ -28,12 +29,18 @@ class Login extends Component {
     //console.log(this.props);
     const { fields: { username, password }, handleSubmit } = this.props;
     return (
-      <form onSubmit={handleSubmit(this.onSubmit.bind(this))}>
-        <h2> Login</h2>
-        {this.renderField(username)}
-        {this.renderField(password, 'password')}
-        <button type="submit">Submit</button>
-      </form>
+      <Modal show={true}>
+        <Modal.Header closeButton>
+          <Modal.Title>Login</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <form onSubmit={handleSubmit(this.onSubmit.bind(this))}>
+            {this.renderField(username)}
+            {this.renderField(password, 'password')}
+            <button type="submit">Submit</button>
+          </form>
+        </Modal.Body>
+      </Modal>
     )
   }
 

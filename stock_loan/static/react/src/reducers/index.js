@@ -1,5 +1,6 @@
-import {  FETCH_STOCK, UPDATE_COMPANY_SEARCH, FETCH_TRENDING}
+import {  FETCH_STOCK, UPDATE_COMPANY_SEARCH, RESET_COMPANY_SEARCH, FETCH_TRENDING}
   from '../actions/index';
+import { DAILY, REAL_TIME } from '../actions/index';
 import { LOGIN_SUCCESS, LOGIN_FAILURE, LOGOUT_ACTION, AUTH_FAILURE }
   from '../actions/index';
 import { FETCH_WATCHLIST } from '../actions/index';
@@ -8,7 +9,11 @@ import { FETCH_WATCHLIST } from '../actions/index';
 export const StockReducer = (state={}, action) => {
   switch (action.type) {
     case FETCH_STOCK:
-      return {...action.payload.data};
+      return {...action.payload.data, active: 'real_time'};
+    case REAL_TIME:
+      return {...state, active: 'real_time'};
+    case DAILY:
+      return {...state, active: 'daily'};
     default:
       return state;
   }
@@ -18,6 +23,8 @@ export const CompanySearchReducer = (state=[], action) => {
   switch(action.type) {
     case UPDATE_COMPANY_SEARCH:
       return action.payload.data.results;
+    case RESET_COMPANY_SEARCH:
+      return [];
   }
   return state;
 };

@@ -5,7 +5,7 @@ import { Combobox } from 'react-widgets';
 import _ from 'lodash';
 
 import { bindActionCreators } from 'redux';
-import { searchCompany } from '../actions/index';
+import { searchCompany, resetCompanySearch } from '../actions/index';
 
 class SearchBar extends Component {
 
@@ -13,7 +13,6 @@ class SearchBar extends Component {
     super(props);
     this.state = { ticker: '' };
     this.onInputChange = this.onInputChange.bind(this);
-    this.onFormSubmit = this.onFormSubmit.bind(this);
     this.nameSearch = _.debounce(value => this.props.searchCompany(value), 300);
   }
 
@@ -26,17 +25,10 @@ class SearchBar extends Component {
     }
   }
 
-  onFormSubmit(event) {
-    event.preventDefault();
-    // navigate to new url
-    const ticker = this.state.ticker;
-    this.setState({ ticker: '' });
-    this.props.routeActions.push(`/report/${ticker}`);
-  }
-
   optionClicked(value) {
     const ticker = value.symbol;
     this.setState({ ticker: '' });
+    this.props.resetCompanySearch();
     this.props.routeActions.push(`/report/${ticker}`);
   }
 
@@ -45,20 +37,16 @@ class SearchBar extends Component {
       return {'symbol': el.symbol, 'name': `${el.name} - ${el.symbol}`};
     });
     return (
-      <form onSubmit={this.onFormSubmit}>
-        <div className="form-group">
-          <Combobox
-            data={companies}
-            suggest={true}
-            valueField='symbol'
-            textField='name'
-            placeholder="Search a ticker"
-            value={this.state.ticker}
-            onChange={this.onInputChange}
-            onSelect={this.optionClicked.bind(this)}
-          />
-        </div>
-      </form>
+      <Combobox
+        data={companies}
+        suggest={true}
+        valueField='symbol'
+        textField='name'
+        placeholder="Search a ticker"
+        value={this.state.ticker}
+        onChange={this.onInputChange}
+        onSelect={this.optionClicked.bind(this)}
+      />
     );
   }
 }
@@ -70,6 +58,7 @@ const mapStateToProps = (state) => {
 const mapDispatchToProps = (dispatch) => {
   return {
     searchCompany: bindActionCreators(searchCompany, dispatch),
+    resetCompanySearch: bindActionCreators(resetCompanySearch, dispatch),
     routeActions: bindActionCreators(routeActions, dispatch)
   }
 };

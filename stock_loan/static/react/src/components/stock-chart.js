@@ -15,15 +15,17 @@ const renderRow = (row) => {
   )
 };
 
-const parseDate = d3.time.format("%Y-%m-%dT%H:%M:%S").parse;
+const parseDateTime = d3.time.format("%Y-%m-%dT%H:%M:%S").parse;
+const parseDate = d3.time.format("%Y-%m-%d").parse;
 
-export default (data) => {
+export default ({ data, daily = false }) => {
 
+  const parser = daily ? parseDate : parseDateTime;
   const feeData = [
     {
       'name': 'Fee',
-      'values': data.data.map(row => {
-        return {x: parseDate(row.time), y: row.fee};
+      'values': data.map(row => {
+        return {x: parser(row.time), y: row.fee};
       })
     }
   ];
@@ -31,8 +33,8 @@ export default (data) => {
   const availableData = [
     {
       'name': 'Available',
-      'values': data.data.map(row => {
-        return {x: parseDate(row.time), y: row.available};
+      'values': data.map(row => {
+        return {x: parser(row.time), y: row.available};
       })
     }
   ];
