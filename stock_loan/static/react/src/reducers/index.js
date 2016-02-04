@@ -1,7 +1,7 @@
 import {  FETCH_STOCK, UPDATE_COMPANY_SEARCH, RESET_COMPANY_SEARCH, FETCH_TRENDING}
   from '../actions/index';
 import { DAILY, REAL_TIME } from '../actions/index';
-import { LOGIN_SUCCESS, LOGIN_FAILURE, LOGOUT_ACTION, SHOW_LOGIN }
+import { LOGIN_SUCCESS, LOGIN_FAILURE, LOGOUT_ACTION, SHOW_LOGIN, HIDE_LOGIN }
   from '../actions/index';
 import { FETCH_WATCHLIST } from '../actions/index';
 
@@ -38,16 +38,32 @@ export const TrendingReducer = (state={}, action) => {
   }
 };
 
-export const AuthReducer = (state={authenticated: false, token: null, showLogin: false},
-                            action) => {
+export const AuthReducer =
+  (state={ authenticated: false, token: null, showLogin: false, loginFailed: false},
+   action) => {
   switch(action.type) {
     case LOGIN_SUCCESS:
-      return {authenticated: true, token: action.payload.data.access_token, showLogin: false };
+      return {authenticated: true,
+        token: action.payload.data.access_token,
+        showLogin: false,
+        loginFailed: false};
+    case LOGIN_FAILURE:
+      return {...state,
+        authenticated: false,
+        token: null,
+        loginFailed: true};
     case LOGOUT_ACTION:
-      return {authenticated: false, token: null, showLogin: false};
+      return {authenticated: false,
+        token: null,
+        showLogin: false,
+        loginFailed: false};
     case SHOW_LOGIN:
-      console.log('in auth reducer');
-      return {authenticated: false, token: null, showLogin: true };
+      return {authenticated: false,
+        token: null,
+        showLogin: true,
+        loginFailed: false};
+    case HIDE_LOGIN:
+      return {...state, showLogin: false};
     default:
       return state
   }

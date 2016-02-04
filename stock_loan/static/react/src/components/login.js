@@ -1,11 +1,11 @@
 import React, { Component, PropTypes } from 'react';
-import { Modal } from 'react-bootstrap';
+import { Modal, ButtonInput, Input } from 'react-bootstrap';
 import { reduxForm } from 'redux-form';
 import { routeActions } from 'redux-simple-router';
 import { bindActionCreators } from 'redux';
 import utils from '../utils';
 
-import { submitLogin, fetchWatchlist } from '../actions/index';
+import { submitLogin, fetchWatchlist, hideLoginAction } from '../actions/index';
 
 class Login extends Component {
 
@@ -16,8 +16,7 @@ class Login extends Component {
   renderField(field, type='text') {
     return (
       <div className={`form-group ${utils.showWarning(field)}`}>
-        <label>{field.name}</label>
-        <input type={type} className="form-control" {...field} />
+        <Input type={type} label={field.name} {...field} />
         <div className="text-help has-warning">
           {field.touched ? field.error: ''}
         </div>
@@ -26,10 +25,9 @@ class Login extends Component {
   }
 
   render() {
-    //console.log(this.props);
     const { fields: { username, password }, handleSubmit } = this.props;
     return (
-      <Modal show={true}>
+      <Modal show={true} onHide={() => this.props.hideLogin()}>
         <Modal.Header closeButton>
           <Modal.Title>Login</Modal.Title>
         </Modal.Header>
@@ -37,8 +35,10 @@ class Login extends Component {
           <form onSubmit={handleSubmit(this.onSubmit.bind(this))}>
             {this.renderField(username)}
             {this.renderField(password, 'password')}
-            <button type="submit">Submit</button>
+            <ButtonInput type="submit" value="Submit" />
           </form>
+          {this.props.auth.loginFailed &&
+          <p style={{color: 'red'}}>Username or password is incorrect.</p>}
         </Modal.Body>
       </Modal>
     )
@@ -53,11 +53,14 @@ function validate(values) {
   return errors;
 }
 
+const mapStateToProps = ({ auth }) => { return { auth };};
+
 const mapDispatchToProps = (dispatch) => {
   return {
     submitLogin: bindActionCreators(submitLogin, dispatch),
     fetchWatchlist: bindActionCreators(fetchWatchlist, dispatch),
-    routeActions: bindActionCreators(routeActions, dispatch)
+    routeActions: bindActionCreators(routeActions, dispatch),
+    hideLogin: bindActionCreators(hideLoginAction, dispatch)
   }
 };
 
@@ -65,4 +68,4 @@ export default reduxForm({
   form: 'LoginForm',
   fields: ['username', 'password'],
   validate
-}, null, mapDispatchToProps)(Login);
+}, mapStateToProps, mapDispatchToProps)(Login);

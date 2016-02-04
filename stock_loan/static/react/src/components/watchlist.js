@@ -10,14 +10,11 @@ class Watchlist extends Component {
   render() {
     const watchlist = this.props.watchlist;
     return (
-      <div>
-        Watchlist
-        <StockTable
+      <StockTable
           stocks={watchlist}
           action={symbol => this.props.removeWatchlist(symbol)}
           buttonType='remove'
-        />
-      </div>
+      />
     )
   }
 }

@@ -13,6 +13,7 @@ export const LOGIN_SUCCESS = 'LOGIN_SUCCESS';
 export const LOGIN_FAILURE = 'LOGIN_FAILURE';
 export const LOGOUT_ACTION = 'LOGOUT_ACTION';
 export const SHOW_LOGIN = 'SHOW_LOGIN';
+export const HIDE_LOGIN = 'HIDE_LOGIN'
 
 import { routeActions } from 'redux-simple-router';
 
@@ -79,6 +80,7 @@ export const removeWatchlist = symbol => {
 };
 
 export const showLoginAction = () => { return {'type': SHOW_LOGIN };};
+export const hideLoginAction = () => { return {'type': HIDE_LOGIN };};
 
 export function submitLogin (props) {
   return dispatch => {
