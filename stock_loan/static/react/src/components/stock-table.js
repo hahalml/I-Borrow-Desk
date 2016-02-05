@@ -22,10 +22,12 @@ export default class StockTable extends Component {
         link={`/report/${stock.symbol}`}
         name={stock.name}
         symbol={stock.symbol}
-        available={stock.available}
+        available={stock.available}a
         fee={stock.fee}
+        updated={stock.datetime}
         buttonType={this.props.buttonType}
-        onClick={this.props.action}
+        handleClick={this.props.action}
+        showUpdated={this.props.showUpdated}
       />
     );
   }
@@ -51,6 +53,7 @@ export default class StockTable extends Component {
               <th>Name</th>
               <th onClick={this.setSort.bind(this, 'fee')}>Fee</th>
               <th onClick={this.setSort.bind(this, 'available')}>Availability</th>
+              {this.props.showUpdated && <th>Updated</th>}
             </tr>
           </thead>
           <tbody data-link="row" className="rowlink">

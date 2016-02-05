@@ -9,21 +9,6 @@ import { submitLogin, fetchWatchlist, hideLoginAction } from '../actions/index';
 
 class Login extends Component {
 
-  onSubmit(props){
-    this.props.submitLogin(props);
-  }
-
-  renderField(field, type='text') {
-    return (
-      <div className={`form-group ${utils.showWarning(field)}`}>
-        <Input type={type} label={field.name} {...field} />
-        <div className="text-help has-warning">
-          {field.touched ? field.error: ''}
-        </div>
-      </div>
-    )
-  }
-
   render() {
     const { fields: { username, password }, handleSubmit } = this.props;
     return (
@@ -32,18 +17,15 @@ class Login extends Component {
           <Modal.Title>Login</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <form onSubmit={handleSubmit(this.onSubmit.bind(this))}>
-            {this.renderField(username)}
-            {this.renderField(password, 'password')}
+          <form onSubmit={handleSubmit(this.props.submitLogin)}>
+            {utils.renderField(username, 'Username')}
+            {utils.renderField(password, 'Password', 'password')}
             <ButtonInput type="submit" value="Submit" />
           </form>
-          {this.props.auth.loginFailed &&
-          <p style={{color: 'red'}}>Username or password is incorrect.</p>}
         </Modal.Body>
       </Modal>
     )
   }
-
 }
 
 function validate(values) {

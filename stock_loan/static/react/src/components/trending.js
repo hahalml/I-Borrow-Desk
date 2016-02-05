@@ -6,9 +6,7 @@ import { connect } from 'react-redux';
 import { fetchTrending, addWatchlist }  from '../actions/index';
 import StockTable from './stock-table';
 
-
 class Trending extends Component {
-
 
   componentWillMount() {
     this.props.fetchTrending();
@@ -44,7 +42,6 @@ class Trending extends Component {
       </Grid>
     )
   }
-
 }
 
 const mapStateToProps = ({ trending }) => {

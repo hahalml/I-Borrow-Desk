@@ -17,9 +17,11 @@ import Trending from './components/trending';
 import HistoricalReport from './components/historical-report';
 import Watchlist from './components/watchlist';
 import Login from './components/login';
+import Register from './components/register';
+import FilterStocks from './components/filter-stocks';
 
 import {StockReducer, CompanySearchReducer, TrendingReducer, WatchlistReducer,
-  AuthReducer }
+  AuthReducer, MessageReducer, FilteredStocksReducer }
   from './reducers/index';
 
 
@@ -32,7 +34,9 @@ const reducer = combineReducers({
   trending: TrendingReducer,
   form: formReducer,
   auth: AuthReducer,
-  watchlist: WatchlistReducer
+  watchlist: WatchlistReducer,
+  message: MessageReducer,
+  filteredStocks: FilteredStocksReducer
  });
 
 const DevTools = createDevTools(
@@ -60,6 +64,8 @@ ReactDOM.render(
           <Route path='report/:ticker' component={HistoricalReport} />
           <Route path='trending' component={Trending} />
           <Route path='watchlist' component={Watchlist} />
+          <Route path='register' component={Register} />
+          <Route path='filter' component={FilterStocks} />
         </Route>
       </Router>
       <DevTools />

@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Navbar, Nav, NavItem, MenuItem } from 'react-bootstrap';
+import { Navbar, Nav, NavItem, MenuItem, Row, Col } from 'react-bootstrap';
 import { connect } from 'react-redux';
 import { routeActions } from 'redux-simple-router';
 import { bindActionCreators } from 'redux';
@@ -37,6 +37,11 @@ export default class NavBar extends Component {
                 Login
               </NavItem>
             }
+            {!this.props.authenticated &&
+              <LinkContainer to='/register'>
+                <NavItem>Register</NavItem>
+              </LinkContainer>
+            }
             {this.props.authenticated &&
               <NavItem href="#" onClick={() => this.props.onLogout()}>
                 Logout
@@ -44,7 +49,11 @@ export default class NavBar extends Component {
             }
           </Nav>
           </Navbar>
-        <SearchBar />
+        <Row>
+          <Col md={8} xs={12} mdOffset={2}>
+            <SearchBar />
+          </Col>
+        </Row>
       </div>
     )
   }

@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { store }  from '../index';
 
 export const UPDATE_COMPANY_SEARCH = 'UPDATE_COMPANY_SEARCH';
 export const RESET_COMPANY_SEARCH = 'RESET_COMPANY_SEARCH';
@@ -10,10 +11,12 @@ export const FETCH_WATCHLIST = 'FETCH_WATCHLIST';
 export const ADD_WATCHLIST = 'ADD_WATCHLIST';
 export const REMOVE_WATCHLIST = 'REMOVE_WATCHLIST';
 export const LOGIN_SUCCESS = 'LOGIN_SUCCESS';
-export const LOGIN_FAILURE = 'LOGIN_FAILURE';
 export const LOGOUT_ACTION = 'LOGOUT_ACTION';
+export const REGISTER_SUCCESS = 'REGISTER_SUCCESS';
+export const REGISTER_FAILURE = 'REGISTER_FAILURE';
 export const SHOW_LOGIN = 'SHOW_LOGIN';
-export const HIDE_LOGIN = 'HIDE_LOGIN'
+export const HIDE_LOGIN = 'HIDE_LOGIN';
+export const CLEAR_MESSAGE = 'CLEAR_MESSAGE';
 
 import { routeActions } from 'redux-simple-router';
 
@@ -46,15 +49,16 @@ export const fetchTrending = () => {
   };
 };
 
-export const makeAuthRequest = () => {
+const makeAuthRequest = state => {
+  const token = state.auth.token;
   return axios.create({
-    headers: {'Authorization': `JWT ${localStorage.getItem('token')}`}
+    headers: {'Authorization': `JWT ${token}`}
   });
 };
 
 export const fetchWatchlist = () => {
-  return dispatch => {
-    return makeAuthRequest().get('/api/watchlist')
+  return (dispatch, getState) => {
+    return makeAuthRequest(getState()).get('/api/watchlist')
       .then(response => {
         dispatch({type: FETCH_WATCHLIST, payload: response});
       }).catch(err => {
@@ -64,16 +68,19 @@ export const fetchWatchlist = () => {
 };
 
 export const addWatchlist = symbol => {
-  return dispatch => {
-    return makeAuthRequest().post('/api/watchlist', { symbol })
-      .then(response => dispatch({type: FETCH_WATCHLIST, payload: response}))
+  return (dispatch, getState) => {
+    return makeAuthRequest(getState()).post('/api/watchlist', { symbol })
+      .then(response => {
+        dispatch({type: ADD_WATCHLIST, payload: symbol });
+        dispatch({type: FETCH_WATCHLIST, payload: response });
+      })
       .catch(err => dispatch({type: SHOW_LOGIN, payload: err}));
   };
 };
 
 export const removeWatchlist = symbol => {
-  return dispatch => {
-    return makeAuthRequest().delete(`/api/watchlist?symbol=${symbol}`)
+  return (dispatch, getState) => {
+    return makeAuthRequest(getState()).delete(`/api/watchlist?symbol=${symbol}`)
       .then(response => dispatch({type: FETCH_WATCHLIST, payload: response}))
       .catch(err => dispatch({type: SHOW_LOGIN, payload: err}));
   };
@@ -82,23 +89,42 @@ export const removeWatchlist = symbol => {
 export const showLoginAction = () => { return {'type': SHOW_LOGIN };};
 export const hideLoginAction = () => { return {'type': HIDE_LOGIN };};
 
-export function submitLogin (props) {
-  return dispatch => {
-    axios.post('/api/auth', props)
+export const submitLogin = (values, dispatch) => {
+  return new Promise((resolve, reject) => {
+    axios.post('/api/auth', values)
       .then(response => {
-        localStorage.setItem('token', response.data.access_token);
+        dispatch(routeActions.push('/watchlist'));
         dispatch({type: LOGIN_SUCCESS, payload: response});
         dispatch(fetchWatchlist());
-        dispatch(routeActions.push('/watchlist'));
+        resolve();
       })
       .catch(error => {
-        console.log('error in submit login', error);
-        dispatch({type: LOGIN_FAILURE, payload: error});
+        console.log('error in submitLogin', error);
+        reject({username: 'Username or password incorrect',
+          password: 'Username or password incorrect',
+          _error: 'Login failed'});
       });
-  }
-}
+  });
+};
 
 export function logoutAction() {
   localStorage.setItem('token', null);
   return {type: LOGOUT_ACTION}
 }
+
+export const submitRegister = (values, dispatch) => {
+  return new Promise((resolve, reject) => {
+    axios.post('/api/register', values)
+      .then(response => {
+        dispatch({type: REGISTER_SUCCESS, payload: response});
+        dispatch({type: SHOW_LOGIN});
+        resolve();
+      })
+      .catch(error => {
+        console.log('error in submitRegister', error);
+        reject({...error.data.errors});
+      });
+  });
+};
+
+export const clearMessage = () => { return { 'type': CLEAR_MESSAGE };};

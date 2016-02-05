@@ -14,6 +14,7 @@ class Watchlist extends Component {
           stocks={watchlist}
           action={symbol => this.props.removeWatchlist(symbol)}
           buttonType='remove'
+          showUpdated
       />
     )
   }

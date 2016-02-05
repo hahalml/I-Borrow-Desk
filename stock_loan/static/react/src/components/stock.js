@@ -4,12 +4,6 @@ import { Link } from 'react-router';
 
 import utils from '../utils';
 
-const renderDate = stock => {
-  if (stock.datetime) {
-    return <td>{stock.datetime}</td>;
-  }
-};
-
 export default props => {
 
   const buttonText = (props.buttonType === 'add') ?
@@ -27,13 +21,11 @@ export default props => {
       <td>{props.name}</td>
       <td>{utils.toPercentageNoScale(props.fee)}</td>
       <td>{utils.toCommas(props.available)}</td>
+      {props.showUpdated && <td>{props.updated}</td>}
       <td>
         <Button
-          onClick={() => {
-            console.log('clicked' + props.symbol);
-            props.onClick(props.symbol);
-          }}
-          bsSize="small"
+          onClick={() => props.handleClick(props.symbol)}
+          bsSize="xs"
           bsStyle={buttonClass}
         >
           {buttonText}

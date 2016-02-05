@@ -1,10 +1,13 @@
+import { UPDATE_LOCATION } from 'redux-simple-router';
+
 import {  FETCH_STOCK, UPDATE_COMPANY_SEARCH, RESET_COMPANY_SEARCH, FETCH_TRENDING}
   from '../actions/index';
 import { DAILY, REAL_TIME } from '../actions/index';
-import { LOGIN_SUCCESS, LOGIN_FAILURE, LOGOUT_ACTION, SHOW_LOGIN, HIDE_LOGIN }
+import { LOGIN_SUCCESS, LOGOUT_ACTION, SHOW_LOGIN, HIDE_LOGIN }
   from '../actions/index';
-import { FETCH_WATCHLIST } from '../actions/index';
-
+import { REGISTER_SUCCESS, REGISTER_FAILURE } from '../actions/index';
+import { FETCH_WATCHLIST, ADD_WATCHLIST } from '../actions/index';
+import { CLEAR_MESSAGE } from '../actions/index';
 
 export const StockReducer = (state={}, action) => {
   switch (action.type) {
@@ -39,29 +42,21 @@ export const TrendingReducer = (state={}, action) => {
 };
 
 export const AuthReducer =
-  (state={ authenticated: false, token: null, showLogin: false, loginFailed: false},
+  (state={ authenticated: false, token: null, showLogin: false},
    action) => {
   switch(action.type) {
     case LOGIN_SUCCESS:
       return {authenticated: true,
         token: action.payload.data.access_token,
-        showLogin: false,
-        loginFailed: false};
-    case LOGIN_FAILURE:
-      return {...state,
-        authenticated: false,
-        token: null,
-        loginFailed: true};
+        showLogin: false};
     case LOGOUT_ACTION:
       return {authenticated: false,
         token: null,
-        showLogin: false,
-        loginFailed: false};
+        showLogin: false};
     case SHOW_LOGIN:
       return {authenticated: false,
         token: null,
-        showLogin: true,
-        loginFailed: false};
+        showLogin: true};
     case HIDE_LOGIN:
       return {...state, showLogin: false};
     default:
@@ -72,8 +67,30 @@ export const AuthReducer =
 export const WatchlistReducer = (state=[], action) => {
   switch(action.type) {
     case FETCH_WATCHLIST:
-      return [...action.payload.data.watchlist];
+      if (action.payload.data.watchlist) return [...action.payload.data.watchlist];
+      else return state;
     default:
       return state
   }
 };
+
+export const MessageReducer = (state={text: '', type: ''}, action) => {
+  switch(action.type) {
+    case REGISTER_SUCCESS:
+      return {text: 'Registration successful!', type: 'success'};
+    case LOGIN_SUCCESS:
+      return {text: 'Welcome!', type: 'success'};
+    case ADD_WATCHLIST:
+      console.log(action.payload);
+      return {text: `Added ${action.payload} to your watchlist`, type: 'info' };
+    case UPDATE_LOCATION:
+    case CLEAR_MESSAGE:
+      return {text: '', type: ''};
+    default:
+      return state;
+  }
+};
+
+export const FilteredStocksReducer = state => {
+  return state;
+}

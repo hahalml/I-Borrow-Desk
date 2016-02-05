@@ -1,7 +1,9 @@
 from flask import request, jsonify
 from flask_jwt import current_identity, jwt_required
+from werkzeug.exceptions import Conflict, NotAcceptable
 
 from . import app, login_manager, db, stock_loan, mc
+from .models import User
 from .utils import historical_report_cache
 
 
@@ -80,3 +82,30 @@ def test_watchlist():
 
     watchlist = stock_loan.get_watchlist(current_identity.id)
     return jsonify(watchlist=stock_loan.summary_report(watchlist))
+
+@app.route('/api/register', methods=['POST'])
+def test_register():
+    data = request.get_json()
+    errors = {}
+    if User.query.filter_by(username=data['username']).first():
+        errors['username'] = 'A User with that Username already exists'
+    if User.query.filter_by(email=data['email']).first():
+        errors['email'] = 'A User with that Email Address already exists'
+    if errors:
+        return jsonify(errors=errors), 409
+
+    if len(data['username']) < 6:
+        errors['username'] = 'Username must be at least 6 characters.'
+    if len(data['password']) < 6:
+        errors['password'] = 'Password must be at least 6 characters.'
+    if errors:
+        return jsonify(errors=errors), 406
+
+    if data['password'] != data['confirmPassword']:
+        raise ValueError
+
+    user = User(data['username'], data['password'], data['email'], True)
+    db.session.add(user)
+    db.session.commit()
+
+    return jsonify(result='{} created'.format(data['username'])), 201
