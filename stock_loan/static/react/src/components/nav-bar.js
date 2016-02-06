@@ -27,6 +27,9 @@ export default class NavBar extends Component {
             <LinkContainer to='/trending'>
               <NavItem>Trending</NavItem>
             </LinkContainer>
+            <LinkContainer to='/filter'>
+              <NavItem>Filter</NavItem>
+            </LinkContainer>
             {this.props.authenticated &&
               <LinkContainer to='watchlist'>
                 <NavItem>Watchlist</NavItem>

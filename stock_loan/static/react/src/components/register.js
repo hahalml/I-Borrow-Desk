@@ -61,6 +61,5 @@ const mapDispatchToProps = (dispatch) => {
 export default reduxForm({
   form: 'RegisterForm',
   fields: ['username', 'password', 'confirmPassword', 'email', 'receiveEmail'],
-  validate,
-  onSubmit: submitRegister
+  validate
 }, null, mapDispatchToProps)(Register);

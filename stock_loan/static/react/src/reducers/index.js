@@ -6,8 +6,9 @@ import { DAILY, REAL_TIME } from '../actions/index';
 import { LOGIN_SUCCESS, LOGOUT_ACTION, SHOW_LOGIN, HIDE_LOGIN }
   from '../actions/index';
 import { REGISTER_SUCCESS, REGISTER_FAILURE } from '../actions/index';
-import { FETCH_WATCHLIST, ADD_WATCHLIST } from '../actions/index';
+import { FETCH_WATCHLIST, ADD_WATCHLIST, REMOVE_WATCHLIST } from '../actions/index';
 import { CLEAR_MESSAGE } from '../actions/index';
+import { UPDATE_FILTER } from '../actions/index';
 
 export const StockReducer = (state={}, action) => {
   switch (action.type) {
@@ -81,8 +82,9 @@ export const MessageReducer = (state={text: '', type: ''}, action) => {
     case LOGIN_SUCCESS:
       return {text: 'Welcome!', type: 'success'};
     case ADD_WATCHLIST:
-      console.log(action.payload);
       return {text: `Added ${action.payload} to your watchlist`, type: 'info' };
+    case REMOVE_WATCHLIST:
+      return {text: `Removed ${action.payload} from your watchlist`, type: 'info' };
     case UPDATE_LOCATION:
     case CLEAR_MESSAGE:
       return {text: '', type: ''};
@@ -91,6 +93,11 @@ export const MessageReducer = (state={text: '', type: ''}, action) => {
   }
 };
 
-export const FilteredStocksReducer = state => {
-  return state;
-}
+export const FilteredStocksReducer = (state=[], action) => {
+  switch(action.type) {
+    case UPDATE_FILTER:
+      return [...action.payload.data.results];
+    default:
+      return state;
+  }
+};

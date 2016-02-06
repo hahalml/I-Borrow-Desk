@@ -7,12 +7,8 @@ import Stock from './stock';
 export default class StockTable extends Component {
 
   constructor(props) {
-    console.log(props);
     super(props);
-
-    this.state = {
-      sort: 'fee'
-    }
+    this.state = { sort: 'fee' };
   }
 
   renderStock(stock) {
@@ -33,7 +29,7 @@ export default class StockTable extends Component {
   }
 
   sortStocks(stocks, key) {
-    return stocks.sort((a, b) => b[key] - a[key])
+    return stocks.sort((a, b) => b[key] - a[key]);
   }
 
   setSort(key) {

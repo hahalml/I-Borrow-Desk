@@ -399,7 +399,7 @@ class Borrow:
     def filter_db(self, min_available=0, max_available=10000000,
                   min_fee=0, max_fee=100, country='usa', order_by='symbol'):
         """General filter_db function."""
-
+        print(min_available, max_available, min_fee, max_fee, country, order_by)
         country = country.lower()
 
         if order_by not in ('symbol', 'fee', 'available'):

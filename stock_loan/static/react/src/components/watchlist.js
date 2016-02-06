@@ -1,11 +1,16 @@
 import React from 'react';
 import { Component } from 'react';
 import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 
-import { removeWatchlist } from '../actions/index';
+import { removeWatchlist, fetchWatchlist } from '../actions/index';
 import StockTable from './stock-table';
 
 class Watchlist extends Component {
+
+  componentWillMount() {
+    this.props.fetchWatchlist();
+  }
 
   render() {
     const watchlist = this.props.watchlist;
@@ -24,4 +29,11 @@ const mapStateToProps = ({ watchlist }) => {
   return { watchlist }
 };
 
-export default connect(mapStateToProps, { removeWatchlist })(Watchlist);
+const mapDispatchToProps = dispatch => {
+  return {
+    fetchWatchlist: bindActionCreators(fetchWatchlist, dispatch),
+    removeWatchlist: bindActionCreators(removeWatchlist, dispatch)
+  };
+};
+
+export default connect(mapStateToProps,  mapDispatchToProps)(Watchlist);

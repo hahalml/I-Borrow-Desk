@@ -17,6 +17,7 @@ export const REGISTER_FAILURE = 'REGISTER_FAILURE';
 export const SHOW_LOGIN = 'SHOW_LOGIN';
 export const HIDE_LOGIN = 'HIDE_LOGIN';
 export const CLEAR_MESSAGE = 'CLEAR_MESSAGE';
+export const UPDATE_FILTER = 'UPDATE_FILTER';
 
 import { routeActions } from 'redux-simple-router';
 
@@ -81,7 +82,10 @@ export const addWatchlist = symbol => {
 export const removeWatchlist = symbol => {
   return (dispatch, getState) => {
     return makeAuthRequest(getState()).delete(`/api/watchlist?symbol=${symbol}`)
-      .then(response => dispatch({type: FETCH_WATCHLIST, payload: response}))
+      .then(response => {
+        dispatch({type: FETCH_WATCHLIST, payload: response});
+        dispatch({type: FETCH_WATCHLIST, payload: response});
+      })
       .catch(err => dispatch({type: SHOW_LOGIN, payload: err}));
   };
 };
@@ -93,7 +97,6 @@ export const submitLogin = (values, dispatch) => {
   return new Promise((resolve, reject) => {
     axios.post('/api/auth', values)
       .then(response => {
-        dispatch(routeActions.push('/watchlist'));
         dispatch({type: LOGIN_SUCCESS, payload: response});
         dispatch(fetchWatchlist());
         resolve();
@@ -128,3 +131,17 @@ export const submitRegister = (values, dispatch) => {
 };
 
 export const clearMessage = () => { return { 'type': CLEAR_MESSAGE };};
+
+export const submitFilter = (values, dispatch) => {
+  return new Promise((resolve, reject) => {
+    axios.get('/api/filter', {params: values})
+      .then(response => {
+        dispatch({type: UPDATE_FILTER, payload: response});
+        resolve();
+      })
+      .catch(error => {
+        console.log('error in submitFilter', error);
+        reject({...error.data.errors});
+      });
+  });
+};

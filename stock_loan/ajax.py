@@ -109,3 +109,12 @@ def test_register():
     db.session.commit()
 
     return jsonify(result='{} created'.format(data['username'])), 201
+
+@app.route('/api/filter', methods=['GET'])
+def test_filter():
+    try:
+        summary = stock_loan.filter_db(**dict(request.args.items()))
+    except TypeError:
+        return jsonify(error='Invalid filter'), 400
+    capped = len(summary) == 100
+    return jsonify(results=summary, capped=capped)
