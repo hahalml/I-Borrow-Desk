@@ -1,3 +1,8 @@
+if (typeof window.Promise !== 'function') {
+  require('es6-promise').polyfill();
+}
+
+
 import React, { Component } from 'react';
 import { Button, ButtonToolbar } from 'react-bootstrap';
 import { connect } from 'react-redux';
