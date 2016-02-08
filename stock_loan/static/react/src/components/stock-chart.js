@@ -1,6 +1,5 @@
 import React from 'react';
 import { LineChart, BarChart } from 'react-d3'
-import _ from 'lodash';
 import d3 from 'd3';
 
 import utils from '../utils';

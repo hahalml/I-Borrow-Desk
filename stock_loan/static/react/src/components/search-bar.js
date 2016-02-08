@@ -3,7 +3,6 @@ import { connect } from 'react-redux';
 import { routeActions } from 'redux-simple-router';
 import { Combobox } from 'react-widgets';
 import _ from 'lodash';
-
 import { bindActionCreators } from 'redux';
 import { searchCompany, resetCompanySearch } from '../actions/index';
 

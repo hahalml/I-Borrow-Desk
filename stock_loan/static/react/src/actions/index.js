@@ -111,10 +111,7 @@ export const submitLogin = (values, dispatch) => {
   });
 };
 
-export function logoutAction() {
-  localStorage.setItem('token', null);
-  return {type: LOGOUT_ACTION}
-}
+export const logoutAction = () => {return {type: LOGOUT_ACTION};};
 
 export const submitRegister = (values, dispatch) => {
   return new Promise((resolve, reject) => {
