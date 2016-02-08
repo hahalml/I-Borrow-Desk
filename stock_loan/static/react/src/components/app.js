@@ -4,8 +4,7 @@ import { Grid, Row, Col } from 'react-bootstrap';
 import { connect } from 'react-redux';
 import { Link } from 'react-router';
 
-import { logoutAction, showLoginAction, clearMessage, fetchMostExpensive,
-  addWatchlist  } from '../actions/index';
+import { logoutAction, showLoginAction, clearMessage, fetchMostExpensive } from '../actions/index';
 import NavBar from './nav-bar';
 import Login from './login';
 import MessageBox from './message-box';
@@ -54,8 +53,6 @@ class App extends Component {
           <h4>America's most expensive borrows</h4>
           <StockTable
             stocks={this.props.mostExpensive}
-            action={symbol => this.props.addWatchlist(symbol)}
-            buttonType='add'
             type='fee'
             showUpdated />
         </div>
@@ -83,5 +80,5 @@ const mapStateToProps = state => {
 };
 
 export default connect(mapStateToProps,
-  { logoutAction, showLoginAction, clearMessage, fetchMostExpensive, addWatchlist })
+  { logoutAction, showLoginAction, clearMessage, fetchMostExpensive })
 (App);

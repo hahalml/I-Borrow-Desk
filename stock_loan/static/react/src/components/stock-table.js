@@ -1,10 +1,12 @@
 import React from 'react';
 import { Table } from 'react-bootstrap';
 import { Component, PropTypes } from 'react';
+import { connect } from 'react-redux';
 
 import Stock from './stock';
+import { addWatchlist, removeWatchlist } from '../actions/index';
 
-export default class StockTable extends Component {
+class StockTable extends Component {
 
   constructor(props) {
     super(props);
@@ -12,6 +14,10 @@ export default class StockTable extends Component {
   }
 
   renderStock(stock) {
+    const contains = this.props.watchlist.some(el => stock.symbol === el.symbol);
+    const action = (contains) ? this.props.removeWatchlist : this.props.addWatchlist;
+    const buttonType = (contains) ? 'remove' : 'add';
+
     return (
       <Stock
         key={stock.symbol + this.props.type}
@@ -21,8 +27,8 @@ export default class StockTable extends Component {
         available={stock.available}a
         fee={stock.fee}
         updated={stock.datetime}
-        buttonType={this.props.buttonType}
-        handleClick={this.props.action}
+        buttonType={buttonType}
+        handleClick={action}
         showUpdated={this.props.showUpdated}
       />
     );
@@ -63,7 +69,9 @@ export default class StockTable extends Component {
 
 StockTable.propTypes = {
   stocks: PropTypes.array,
-  action: PropTypes.func,
-  buttonType: PropTypes.string,
   showUpdated: PropTypes.bool
 };
+
+const mapStateToProps = ({ watchlist }) => { return { watchlist }; };
+
+export default connect(mapStateToProps, { addWatchlist, removeWatchlist })(StockTable);
