@@ -18,6 +18,7 @@ export const SHOW_LOGIN = 'SHOW_LOGIN';
 export const HIDE_LOGIN = 'HIDE_LOGIN';
 export const CLEAR_MESSAGE = 'CLEAR_MESSAGE';
 export const UPDATE_FILTER = 'UPDATE_FILTER';
+export const UPDATE_MOST_EXPENSIVE = 'UPDATE_MOST_EXPENSIVE';
 
 import { routeActions } from 'redux-simple-router';
 
@@ -83,7 +84,7 @@ export const removeWatchlist = symbol => {
   return (dispatch, getState) => {
     return makeAuthRequest(getState()).delete(`/api/watchlist?symbol=${symbol}`)
       .then(response => {
-        dispatch({type: FETCH_WATCHLIST, payload: response});
+        dispatch({type: REMOVE_WATCHLIST, payload: symbol});
         dispatch({type: FETCH_WATCHLIST, payload: response});
       })
       .catch(err => dispatch({type: SHOW_LOGIN, payload: err}));
@@ -144,4 +145,12 @@ export const submitFilter = (values, dispatch) => {
         reject({...error.data.errors});
       });
   });
+};
+
+export const fetchMostExpensive = () => {
+  return dispatch => {
+    return axios.get('/api/filter/most_expensive')
+      .then(response => dispatch({type: UPDATE_MOST_EXPENSIVE, payload: response}))
+      .catch(err => console.log(err));
+  };
 };

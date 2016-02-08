@@ -8,7 +8,7 @@ import { LOGIN_SUCCESS, LOGOUT_ACTION, SHOW_LOGIN, HIDE_LOGIN }
 import { REGISTER_SUCCESS, REGISTER_FAILURE } from '../actions/index';
 import { FETCH_WATCHLIST, ADD_WATCHLIST, REMOVE_WATCHLIST } from '../actions/index';
 import { CLEAR_MESSAGE } from '../actions/index';
-import { UPDATE_FILTER } from '../actions/index';
+import { UPDATE_FILTER, UPDATE_MOST_EXPENSIVE } from '../actions/index';
 
 export const StockReducer = (state={}, action) => {
   switch (action.type) {
@@ -96,6 +96,15 @@ export const MessageReducer = (state={text: '', type: ''}, action) => {
 export const FilteredStocksReducer = (state=[], action) => {
   switch(action.type) {
     case UPDATE_FILTER:
+      return [...action.payload.data.results];
+    default:
+      return state;
+  }
+};
+
+export const MostExpensiveReducer = (state=[], action) => {
+  switch(action.type) {
+    case UPDATE_MOST_EXPENSIVE:
       return [...action.payload.data.results];
     default:
       return state;

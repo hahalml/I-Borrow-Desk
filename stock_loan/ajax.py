@@ -118,3 +118,16 @@ def test_filter():
         return jsonify(error='Invalid filter'), 400
     capped = len(summary) == 100
     return jsonify(results=summary, capped=capped)
+
+@app.route('/api/filter/most_expensive', methods=['GET'])
+def test_most_expensive():
+    summary = mc.get('mainpage')
+    if not summary:
+        summary = stock_loan.filter_db(min_available=10000, min_fee=20, order_by='fee')
+        summary = summary[:20]
+        mc.set('mainpage', summary)
+        print('mainpage cache miss')
+    else:
+        print('mainpage cache hit')
+
+    return jsonify(results=summary)

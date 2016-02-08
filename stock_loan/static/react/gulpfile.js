@@ -53,11 +53,11 @@ function buildScript(file, watch) {
       .pipe(source(file))
       .pipe(gulp.dest('./build/js/'))
       // If you also want to uglify it
-      .pipe(buffer())
-      .pipe(uglify())
-      .pipe(rename('index.min.js'))
-      .pipe(gulp.dest('./build/js/'))
-      //.pipe(reload({stream:true}))
+      //.pipe(buffer())
+      //.pipe(uglify())
+      //.pipe(rename('index.min.js'))
+      //.pipe(gulp.dest('./build/js/'))
+
   }
 
   // listen for an update and run rebundle
@@ -71,7 +71,7 @@ function buildScript(file, watch) {
 }
 
 gulp.task('scripts', function() {
-  return buildScript('index.js', false); // this will run once because we set watch to false
+  return buildScript('index.js', true); // this will run once because we set watch to false
 });
 
 // styles task

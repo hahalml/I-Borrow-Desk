@@ -1,7 +1,3 @@
-import { createDevTools } from 'redux-devtools';
-import LogMonitor from 'redux-devtools-log-monitor';
-import DockMonitor from 'redux-devtools-dock-monitor';
-
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
@@ -21,9 +17,8 @@ import Register from './components/register';
 import FilterStocks from './components/filter-stocks';
 
 import {StockReducer, CompanySearchReducer, TrendingReducer, WatchlistReducer,
-  AuthReducer, MessageReducer, FilteredStocksReducer }
+  AuthReducer, MessageReducer, FilteredStocksReducer, MostExpensiveReducer }
   from './reducers/index';
-
 
 
 const middleware = syncHistory(hashHistory);
@@ -36,21 +31,15 @@ const reducer = combineReducers({
   auth: AuthReducer,
   watchlist: WatchlistReducer,
   message: MessageReducer,
-  filteredStocks: FilteredStocksReducer
+  filteredStocks: FilteredStocksReducer,
+  mostExpensive: MostExpensiveReducer
  });
-
-const DevTools = createDevTools(
-  <DockMonitor toggleVisibilityKey='ctrl-h'
-               changePositionKey='ctrl-q'>
-    <LogMonitor theme='tomorrow' />
-  </DockMonitor>
-);
 
 const store = createStore(
   reducer,
   compose(
     applyMiddleware(thunk, middleware),
-    DevTools.instrument()
+    window.devToolsExtension ? window.devToolsExtension() : f => f
   )
 );
 
@@ -58,8 +47,7 @@ middleware.listenForReplays(store);
 
 ReactDOM.render(
   <Provider store={store}>
-    <div>
-      <Router history={hashHistory}>
+    <Router history={hashHistory}>
         <Route path='/' component={App}>
           <Route path='report/:ticker' component={HistoricalReport} />
           <Route path='trending' component={Trending} />
@@ -68,7 +56,5 @@ ReactDOM.render(
           <Route path='filter' component={FilterStocks} />
         </Route>
       </Router>
-      <DevTools />
-    </div>
   </Provider>
   , document.querySelector('.container'));

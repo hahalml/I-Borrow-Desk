@@ -63,5 +63,7 @@ export default class StockTable extends Component {
 
 StockTable.propTypes = {
   stocks: PropTypes.array,
-  action: PropTypes.function
+  action: PropTypes.func,
+  buttonType: PropTypes.string,
+  showUpdated: PropTypes.bool
 };
