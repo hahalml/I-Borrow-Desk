@@ -59,7 +59,7 @@ class StockTable extends Component {
             </tr>
           </thead>
           <tbody data-link="row" className="rowlink">
-          {stocks.map(stock => this.renderStock(stock))}
+            {stocks.map(stock => this.renderStock(stock))}
           </tbody>
         </Table>
       </div>

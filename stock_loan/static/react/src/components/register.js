@@ -11,7 +11,7 @@ class Register extends Component {
 
   render() {
     const {fields: {username, email, password, confirmPassword, receiveEmail},
-      resetForm, handleSubmit } = this.props;
+      resetForm, handleSubmit, error } = this.props;
     return (
       <Grid>
         <Row>
@@ -28,6 +28,7 @@ class Register extends Component {
                 defaultChecked
                 {...receiveEmail}
               />
+              {error && <div>{error}</div>}
               <ButtonInput type="submit" value="Register" />
             </form>
           </Col>
@@ -62,4 +63,4 @@ export default reduxForm({
   form: 'RegisterForm',
   fields: ['username', 'password', 'confirmPassword', 'email', 'receiveEmail'],
   validate
-}, null, mapDispatchToProps)(Register);
+}, null, { submitRegister })(Register);

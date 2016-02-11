@@ -6,8 +6,8 @@ var gulp = require('gulp');
 
 var concat = require('gulp-concat');
 var css_nano = require('gulp-cssnano');
-var rename = require('gulp-rename');
-var sass = require('gulp-sass');
+
+
 var uglify = require('gulp-uglify');
 
 var source = require('vinyl-source-stream');
@@ -22,7 +22,7 @@ var autoprefixer = require('gulp-autoprefixer');
 var buffer = require('vinyl-buffer');
 
 // default task
-gulp.task('default', ['scripts', 'styles', 'watch']);
+gulp.task('default', ['scripts', 'watch']);
 
 function handleErrors() {
   var args = Array.prototype.slice.call(arguments);
@@ -74,17 +74,7 @@ gulp.task('scripts', function() {
   return buildScript('index.js', true); // this will run once because we set watch to false
 });
 
-// styles task
-gulp.task('styles', function() {
-  return gulp.src('./src/sass/*.scss')
-    .pipe(sass())
-    .pipe(gulp.dest('./build/css/'))
-    .pipe(css_nano())
-    .pipe(rename({
-      suffix: '.min'
-    }))
-    .pipe(gulp.dest('./build/css/'));
-});
+
 
 // watch task
 gulp.task('watch', function() {

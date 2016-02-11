@@ -110,6 +110,23 @@ def test_register():
 
     return jsonify(result='{} created'.format(data['username'])), 201
 
+@app.route('/api/user/email', methods=['POST'])
+@jwt_required()
+def test_change_email():
+    """Change email endpoint"""
+    print(current_identity)
+    data = request.get_json()
+    if not current_identity.check_password(data['password']):
+        return jsonify(errors= {'password': 'Invalid password'}), 401
+    elif User.query.filter_by(email=data['email']).first():
+        return jsonify(errors={'email': 'A User with that Email Address already exists'}),\
+               409
+    current_identity.email = data['email']
+    db.session.add(current_identity)
+    db.session.commit()
+    return jsonify(result='Email successfully changed')
+
+
 @app.route('/api/filter', methods=['GET'])
 def test_filter():
     try:

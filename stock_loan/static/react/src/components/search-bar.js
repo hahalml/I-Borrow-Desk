@@ -43,7 +43,7 @@ class SearchBar extends Component {
         textField='name'
         placeholder="Search a ticker"
         value={this.state.ticker}
-        onChange={this.onInputChange}
+        onChange={this.onInputChange.bind(this)}
         onSelect={this.optionClicked.bind(this)}
       />
     );

@@ -4,8 +4,6 @@ import { store }  from '../index';
 export const UPDATE_COMPANY_SEARCH = 'UPDATE_COMPANY_SEARCH';
 export const RESET_COMPANY_SEARCH = 'RESET_COMPANY_SEARCH';
 export const FETCH_STOCK = 'FETCH_STOCK';
-export const REAL_TIME = 'REAL_TIME';
-export const DAILY = 'DAILY';
 export const FETCH_TRENDING = 'FETCH_TRENDING';
 export const FETCH_WATCHLIST = 'FETCH_WATCHLIST';
 export const ADD_WATCHLIST = 'ADD_WATCHLIST';
@@ -14,6 +12,7 @@ export const LOGIN_SUCCESS = 'LOGIN_SUCCESS';
 export const LOGOUT_ACTION = 'LOGOUT_ACTION';
 export const REGISTER_SUCCESS = 'REGISTER_SUCCESS';
 export const REGISTER_FAILURE = 'REGISTER_FAILURE';
+export const CHANGE_EMAIL_SUCCESS = 'CHANGE_EMAIL_SUCCESS';
 export const SHOW_LOGIN = 'SHOW_LOGIN';
 export const HIDE_LOGIN = 'HIDE_LOGIN';
 export const CLEAR_MESSAGE = 'CLEAR_MESSAGE';
@@ -39,9 +38,6 @@ export const fetchStock = ticker => {
       .catch(err => console.log('error in fetchStock', err));
   };
 };
-
-export const viewRealTime = () => { return {'type': REAL_TIME };};
-export const viewDaily = () => { return {'type': DAILY };};
 
 export const fetchTrending = () => {
   return dispatch => {
@@ -104,8 +100,22 @@ export const submitLogin = (values, dispatch) => {
       })
       .catch(error => {
         console.log('error in submitLogin', error);
-        reject({username: 'Username or password incorrect',
-          password: 'Username or password incorrect',
+        reject({_error : 'Incorrect username or password' });
+      });
+  });
+};
+
+export const submitNewEmail = (values, dispatch) => {
+  return new Promise((resolve, reject) => {
+
+    makeAuthRequest(store.getState()).POST(`/api/user/email`, values)
+      .then(response => {
+        dispatch({type: CHANGE_EMAIL_SUCCESS });
+        resolve();
+      })
+      .catch(error => {
+        console.log('error in changeEmail', error);
+        reject({password: 'Password incorrect',
           _error: 'Login failed'});
       });
   });
@@ -122,7 +132,6 @@ export const submitRegister = (values, dispatch) => {
         resolve();
       })
       .catch(error => {
-        console.log('error in submitRegister', error);
         reject({...error.data.errors});
       });
   });

@@ -1,9 +1,13 @@
+//if (typeof window.Promise !== 'function') {
+//  require('es6-promise').polyfill();
+//}
+
+
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
 import { createStore, compose, applyMiddleware, combineReducers } from 'redux';
 import thunk from 'redux-thunk';
-//import createHistory from 'history/lib/createHashHistory';
 import { syncHistory, routeReducer } from 'redux-simple-router';
 import { Router, Route, hashHistory } from 'react-router';
 import { reducer as formReducer } from 'redux-form';
@@ -14,6 +18,7 @@ import HistoricalReport from './components/historical-report';
 import Watchlist from './components/watchlist';
 import Login from './components/login';
 import Register from './components/register';
+import ChangeEmail from './components/change-email';
 import FilterStocks from './components/filter-stocks';
 
 import {StockReducer, CompanySearchReducer, TrendingReducer, WatchlistReducer,
@@ -47,14 +52,17 @@ middleware.listenForReplays(store);
 
 ReactDOM.render(
   <Provider store={store}>
-    <Router history={hashHistory}>
+    <div>
+      <Router history={hashHistory}>
         <Route path='/' component={App}>
           <Route path='report/:ticker' component={HistoricalReport} />
           <Route path='trending' component={Trending} />
           <Route path='watchlist' component={Watchlist} />
           <Route path='register' component={Register} />
+          <Route path='changeEmail' component={ChangeEmail} />
           <Route path='filter' component={FilterStocks} />
         </Route>
       </Router>
+    </div>
   </Provider>
   , document.querySelector('.container'));

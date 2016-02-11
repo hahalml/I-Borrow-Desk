@@ -34,7 +34,9 @@ jwt = JWT(app, authenticate, identity)
 limiter = Limiter(app)
 limiter.logger.addHandler(StreamHandler())
 
-stock_loan = Borrow(database_name='stock_loan', create_new=False)
+
+
+stock_loan = Borrow(database_name='stock_loan2', create_new=False)
 
 mc = memcache.Client(['127.0.0.1:11211'], debug=0)
 mc.flush_all()

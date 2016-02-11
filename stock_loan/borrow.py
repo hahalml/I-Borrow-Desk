@@ -483,15 +483,14 @@ class Borrow:
             SQL = 'SELECT fee, available, datetime ' \
                   'FROM stocks JOIN borrow ON (stocks.cusip = borrow.cusip) ' \
                   'WHERE symbol = %s AND borrow.datetime > now() - interval \'7days\' ' \
-                  'ORDER BY datetime DESC;'
+                  'ORDER BY datetime;'
 
         else:
             SQL = 'SELECT fee, available, cast(datetime as date) as date ' \
                   'FROM stocks JOIN Borrow ON (stocks.cusip = Borrow.cusip) ' \
                   'WHERE symbol = %s ' \
                   'AND cast(datetime as time) between \'9:30\' and \'9:40\' ' \
-                  'ORDER BY datetime DESC ' \
-                  'LIMIT 90;'
+                  'ORDER BY datetime;'
 
         cursor.execute(SQL, data)
         results = [{'fee': float(row[0])/100, 'available': row[1], 'time': row[2].isoformat()} for
