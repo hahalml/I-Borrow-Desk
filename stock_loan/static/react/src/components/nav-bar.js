@@ -11,7 +11,6 @@ export default class NavBar extends Component {
   }
 
   render() {
-
     return (
       <div>
         <Navbar>
@@ -26,6 +25,9 @@ export default class NavBar extends Component {
             </LinkContainer>
             <LinkContainer to='/filter'>
               <NavItem>Filter</NavItem>
+            </LinkContainer>
+            <LinkContainer to='/about'>
+              <NavItem>About</NavItem>
             </LinkContainer>
             {this.props.authenticated &&
               <LinkContainer to='watchlist'>
@@ -45,13 +47,13 @@ export default class NavBar extends Component {
               </NavDropdown>
             }
             {!this.props.authenticated &&
-              <LinkContainer to='/register'>
-                <NavItem>Register</NavItem>
-              </LinkContainer> &&
-              <NavItem onClick={this.props.onClickLogin}>
-                Login
-              </NavItem>
-            }
+            <LinkContainer to='/register'>
+              <NavItem>Register</NavItem>
+            </LinkContainer>}
+            {!this.props.authenticated &&
+            <NavItem onClick={this.props.onClickLogin}>
+              Login
+            </NavItem>}
           </Nav>
         </Navbar>
         <Row>

@@ -126,6 +126,14 @@ export const fetchProfile = () => {
   };
 }
 
+export const toggleMorningEmail = () => {
+  return (dispatch) => {
+    return makeAuthRequest().post('/api/user/morning')
+      .then(response => dispatch(fetchProfile()))
+      .catch(err => console.log('error in toggle morning email'));
+  }
+}
+
 export const submitNewEmail = (values, dispatch) => {
   return new Promise((resolve, reject) => {
     makeAuthRequest().post(`/api/user/email`, values)

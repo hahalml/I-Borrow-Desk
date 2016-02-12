@@ -2,7 +2,6 @@ if (typeof window.Promise !== 'function') {
  require('es6-promise').polyfill();
 }
 
-
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
@@ -20,6 +19,7 @@ import HistoricalReport from './components/historical-report';
 import Watchlist from './components/watchlist';
 import Register from './components/register';
 import FilterStocks from './components/filter-stocks';
+import About from './components/about';
 
 import {StockReducer, CompanySearchReducer, TrendingReducer, WatchlistReducer,
   AuthReducer, MessageReducer, FilteredStocksReducer, MostExpensiveReducer }
@@ -64,6 +64,7 @@ ReactDOM.render(
           <Route path='watchlist' component={Watchlist} />
           <Route path='register' component={Register} />
           <Route path='filter' component={FilterStocks} />
+          <Route path='about' component={About} />
         </Route>
       </Router>
     </div>

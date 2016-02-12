@@ -126,6 +126,17 @@ def test_change_email():
     db.session.commit()
     return jsonify(result='Email successfully changed')
 
+@app.route('/api/user/morning', methods=['POST'])
+@jwt_required()
+def test_change_morning_email():
+    """Change email endpoint"""
+    print(current_identity)
+    data = request.get_json()
+    current_identity.receive_email = not current_identity.receive_email
+    db.session.add(current_identity)
+    db.session.commit()
+    return jsonify(result='Morning email successfully changed')
+
 @app.route('/api/user/password', methods=['POST'])
 @jwt_required()
 def test_change_password():
