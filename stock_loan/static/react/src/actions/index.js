@@ -15,6 +15,7 @@ export const REGISTER_FAILURE = 'REGISTER_FAILURE';
 export const CHANGE_EMAIL_SUCCESS = 'CHANGE_EMAIL_SUCCESS';
 export const SHOW_LOGIN = 'SHOW_LOGIN';
 export const HIDE_LOGIN = 'HIDE_LOGIN';
+export const FETCH_PROFILE = 'FETCH_PROFILE';
 export const CLEAR_MESSAGE = 'CLEAR_MESSAGE';
 export const UPDATE_FILTER = 'UPDATE_FILTER';
 export const UPDATE_MOST_EXPENSIVE = 'UPDATE_MOST_EXPENSIVE';
@@ -94,7 +95,9 @@ export const submitLogin = (values, dispatch) => {
   return new Promise((resolve, reject) => {
     axios.post('/api/auth', values)
       .then(response => {
-        dispatch({type: LOGIN_SUCCESS, payload: response});
+        const { token, username } = response.data;
+        dispatch({type: LOGIN_SUCCESS, payload: token });
+        dispatch({type: FETCH_PROFILE, payload: username});
         dispatch(fetchWatchlist());
         resolve();
       })
@@ -105,6 +108,20 @@ export const submitLogin = (values, dispatch) => {
       });
   });
 };
+
+export const fetchProfile = () => {
+  return (dispatch, getState) => {
+    return makeAuthRequest().get('/api/user')
+      .then(response => {
+        console.log('in fetch profile', response);
+        const { username } = response.data;
+        dispatch({type: FETCH_PROFILE, payload: username});
+      }).catch(error => {
+        console.log('error in fetch profile');
+        dispatch({type: SHOW_LOGIN, payload: err});
+      });
+  };
+}
 
 export const submitNewEmail = (values, dispatch) => {
   return new Promise((resolve, reject) => {

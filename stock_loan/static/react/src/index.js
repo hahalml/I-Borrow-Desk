@@ -12,6 +12,8 @@ import { syncHistory, routeReducer } from 'redux-simple-router';
 import { Router, Route, hashHistory } from 'react-router';
 import { reducer as formReducer } from 'redux-form';
 
+import { fetchProfile } from './actions/index';
+
 import App from './components/app';
 import Trending from './components/trending';
 import HistoricalReport from './components/historical-report';
@@ -49,6 +51,10 @@ const store = createStore(
 );
 
 middleware.listenForReplays(store);
+
+if (store.getState().auth.authenticated) {
+  store.dispatch(fetchProfile());
+}
 
 ReactDOM.render(
   <Provider store={store}>

@@ -30,6 +30,12 @@ login_manager.init_app(app)
 from .models import authenticate, identity
 jwt = JWT(app, authenticate, identity)
 
+@jwt.auth_response_handler
+def response_handler(token, identity):
+    return jsonify({'token': token.decode('utf-8'),
+                    'username': identity.username})
+
+
 # Rate limiter app
 limiter = Limiter(app)
 limiter.logger.addHandler(StreamHandler())

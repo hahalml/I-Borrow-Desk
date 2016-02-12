@@ -4,7 +4,7 @@ import {  FETCH_STOCK, UPDATE_COMPANY_SEARCH, RESET_COMPANY_SEARCH, FETCH_TRENDI
   from '../actions/index';
 import { LOGIN_SUCCESS, LOGOUT_ACTION, SHOW_LOGIN, HIDE_LOGIN }
   from '../actions/index';
-import { REGISTER_SUCCESS, REGISTER_FAILURE } from '../actions/index';
+import { REGISTER_SUCCESS, FETCH_PROFILE } from '../actions/index';
 import { FETCH_WATCHLIST, ADD_WATCHLIST, REMOVE_WATCHLIST } from '../actions/index';
 import { CLEAR_MESSAGE } from '../actions/index';
 import { UPDATE_FILTER, UPDATE_MOST_EXPENSIVE } from '../actions/index';
@@ -39,17 +39,20 @@ export const TrendingReducer = (state={}, action) => {
 };
 
 export const AuthReducer =
-  (state={ authenticated: false, showLogin: false},
+  (state={ authenticated: false, showLogin: false, username: ''},
    action) => {
   switch(action.type) {
     case LOGIN_SUCCESS:
-      sessionStorage.token = action.payload.data.access_token;
-      return {authenticated: true, showLogin: false};
+      sessionStorage.token = action.payload;
+      return {...state, authenticated: true, showLogin: false};
     case LOGOUT_ACTION:
       sessionStorage.removeItem('token');
-      return {authenticated: false, showLogin: false};
+      return {authenticated: false, showLogin: false, username: ''};
     case SHOW_LOGIN:
-      return {authenticated: false, showLogin: true};
+      sessionStorage.removeItem('token');
+      return {authenticated: false, showLogin: true, username: ''};
+    case FETCH_PROFILE:
+      return {...state, username: action.payload};
     case HIDE_LOGIN:
       return {...state, showLogin: false};
     default:

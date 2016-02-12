@@ -126,6 +126,14 @@ def test_change_email():
     db.session.commit()
     return jsonify(result='Email successfully changed')
 
+@app.route('/api/user', methods=['GET'])
+@jwt_required()
+def test_get_username():
+    """Get username"""
+    print(current_identity, 'In get user endpoint')
+    return jsonify({'username': current_identity.username})
+
+
 
 @app.route('/api/filter', methods=['GET'])
 def test_filter():
