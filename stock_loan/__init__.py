@@ -48,7 +48,7 @@ mc = memcache.Client(['127.0.0.1:11211'], debug=0)
 mc.flush_all()
 
 from .routes import *
-from .ajax import *
+from .api import *
 
 admin.add_view(AdminView(name='Home'))
 admin.add_view(DbView(User, db.session))

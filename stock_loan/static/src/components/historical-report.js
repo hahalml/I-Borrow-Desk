@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
-import { Button, ButtonToolbar, Table, Col } from 'react-bootstrap';
+import { Button, Table, Col } from 'react-bootstrap';
 import { connect } from 'react-redux';
+
 import StockChart from './stock-chart';
 import { fetchStock, addWatchlist } from '../actions/index';
 import  utils from '../utils';

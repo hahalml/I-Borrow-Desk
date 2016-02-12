@@ -27,7 +27,7 @@ import { routeActions } from 'redux-simple-router';
 
 export const searchCompany = name => {
   return dispatch => {
-    return axios.get(`api/search/${name}`)
+    return axios.get(`/api/search/${name}`)
       .then(response => dispatch({type: UPDATE_COMPANY_SEARCH, payload: response}))
       .catch(err => console.log('error in searchCompany', err));
   };
@@ -37,7 +37,7 @@ export const resetCompanySearch = () => { return {'type': RESET_COMPANY_SEARCH }
 
 export const fetchStock = ticker => {
   return dispatch => {
-    return axios.get(`api/ticker/${ticker}`)
+    return axios.get(`/api/ticker/${ticker}`)
       .then(response => dispatch({type: FETCH_STOCK, payload: response}))
       .catch(err => console.log('error in fetchStock', err));
   };
