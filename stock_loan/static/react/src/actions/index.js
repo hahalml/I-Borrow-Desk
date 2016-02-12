@@ -47,8 +47,8 @@ export const fetchTrending = () => {
   };
 };
 
-const makeAuthRequest = state => {
-  const token = state.auth.token;
+const makeAuthRequest = () => {
+  const token = sessionStorage.token;
   return axios.create({
     headers: {'Authorization': `JWT ${token}`}
   });
@@ -56,7 +56,7 @@ const makeAuthRequest = state => {
 
 export const fetchWatchlist = () => {
   return (dispatch, getState) => {
-    return makeAuthRequest(getState()).get('/api/watchlist')
+    return makeAuthRequest().get('/api/watchlist')
       .then(response => {
         dispatch({type: FETCH_WATCHLIST, payload: response});
       }).catch(err => {
@@ -67,7 +67,7 @@ export const fetchWatchlist = () => {
 
 export const addWatchlist = symbol => {
   return (dispatch, getState) => {
-    return makeAuthRequest(getState()).post('/api/watchlist', { symbol })
+    return makeAuthRequest().post('/api/watchlist', { symbol })
       .then(response => {
         dispatch({type: ADD_WATCHLIST, payload: symbol });
         dispatch({type: FETCH_WATCHLIST, payload: response });
@@ -78,7 +78,7 @@ export const addWatchlist = symbol => {
 
 export const removeWatchlist = symbol => {
   return (dispatch, getState) => {
-    return makeAuthRequest(getState()).delete(`/api/watchlist?symbol=${symbol}`)
+    return makeAuthRequest().delete(`/api/watchlist?symbol=${symbol}`)
       .then(response => {
         dispatch({type: REMOVE_WATCHLIST, payload: symbol});
         dispatch({type: FETCH_WATCHLIST, payload: response});
@@ -100,23 +100,24 @@ export const submitLogin = (values, dispatch) => {
       })
       .catch(error => {
         console.log('error in submitLogin', error);
-        reject({_error : 'Incorrect username or password' });
+        reject({username: 'Incorrect username or password',
+          password: 'Incorrect username or password'});
       });
   });
 };
 
 export const submitNewEmail = (values, dispatch) => {
   return new Promise((resolve, reject) => {
-
-    makeAuthRequest(store.getState()).POST(`/api/user/email`, values)
+    makeAuthRequest().post(`/api/user/email`, values)
       .then(response => {
         dispatch({type: CHANGE_EMAIL_SUCCESS });
         resolve();
       })
       .catch(error => {
         console.log('error in changeEmail', error);
-        reject({password: 'Password incorrect',
-          _error: 'Login failed'});
+        if (error.status == 401) reject({password: 'Password incorrect'});
+        reject({...error.data.errors});
+
       });
   });
 };

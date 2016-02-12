@@ -49,6 +49,9 @@ class User(db.Model):
     def increment_views(self):
         self._views += 1
 
+    def __repr__(self):
+        return '{} views: {}'.format(self.username, self._views)
+
 
 def authenticate(username, password):
     """Authentication handler for Flask-JWT"""

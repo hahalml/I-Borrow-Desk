@@ -17,7 +17,8 @@ class ChangeEmail extends Component {
           <Modal.Title>Change Email</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <form onSubmit={handleSubmit(this.props.submitNewEmail)}>
+          <form onSubmit={(data) => handleSubmit(data).then(
+          () => this.props.routeActions.goBack(), err => console.log(err))}>
             {utils.renderField(password, 'Password', 'password')}
             {utils.renderField(email, 'New Email')}
             <ButtonInput type="submit" value="Submit" />
@@ -38,17 +39,16 @@ function validate({ email, password }) {
   return errors;
 }
 
-const mapStateToProps = ({ auth }) => { return { auth };};
-
 const mapDispatchToProps = (dispatch) => {
   return {
-    submitNewEmail: bindActionCreators(submitNewEmail, dispatch),
     routeActions: bindActionCreators(routeActions, dispatch)
   }
 };
 
 export default reduxForm({
   form: 'EmailForm',
-  fields: ['password', 'email', 'confirmEmail'],
-  validate
-}, mapStateToProps, mapDispatchToProps)(ChangeEmail);
+  fields: ['password', 'email'],
+  validate,
+  onSubmit: submitNewEmail,
+  returnRejectedSubmitPromise : true
+}, null, mapDispatchToProps)(ChangeEmail);

@@ -1,11 +1,9 @@
 import React, { Component, PropTypes } from 'react';
 import { Modal, ButtonInput, Input } from 'react-bootstrap';
 import { reduxForm } from 'redux-form';
-import { routeActions } from 'redux-simple-router';
-import { bindActionCreators } from 'redux';
-import utils from '../utils';
 
-import { submitLogin, fetchWatchlist, hideLoginAction } from '../actions/index';
+import utils from '../utils';
+import { submitLogin, hideLoginAction } from '../actions/index';
 
 class Login extends Component {
 
@@ -17,7 +15,7 @@ class Login extends Component {
           <Modal.Title>Login</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <form onSubmit={handleSubmit(this.props.submitLogin)}>
+          <form onSubmit={handleSubmit}>
             {utils.renderField(username, 'Username')}
             {utils.renderField(password, 'Password', 'password')}
             <ButtonInput type="submit" value="Submit" />
@@ -35,19 +33,9 @@ function validate(values) {
   return errors;
 }
 
-const mapStateToProps = ({ auth }) => { return { auth };};
-
-const mapDispatchToProps = (dispatch) => {
-  return {
-    submitLogin: bindActionCreators(submitLogin, dispatch),
-    fetchWatchlist: bindActionCreators(fetchWatchlist, dispatch),
-    routeActions: bindActionCreators(routeActions, dispatch),
-    hideLogin: bindActionCreators(hideLoginAction, dispatch)
-  }
-};
-
 export default reduxForm({
   form: 'LoginForm',
   fields: ['username', 'password'],
-  validate
-}, mapStateToProps, mapDispatchToProps)(Login);
+  validate,
+  onSubmit: submitLogin
+}, null, { hideLoginAction })(Login);

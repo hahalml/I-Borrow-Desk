@@ -39,21 +39,17 @@ export const TrendingReducer = (state={}, action) => {
 };
 
 export const AuthReducer =
-  (state={ authenticated: false, token: null, showLogin: false},
+  (state={ authenticated: false, showLogin: false},
    action) => {
   switch(action.type) {
     case LOGIN_SUCCESS:
-      return {authenticated: true,
-        token: action.payload.data.access_token,
-        showLogin: false};
+      sessionStorage.token = action.payload.data.access_token;
+      return {authenticated: true, showLogin: false};
     case LOGOUT_ACTION:
-      return {authenticated: false,
-        token: null,
-        showLogin: false};
+      sessionStorage.removeItem('token');
+      return {authenticated: false, showLogin: false};
     case SHOW_LOGIN:
-      return {authenticated: false,
-        token: null,
-        showLogin: true};
+      return {authenticated: false, showLogin: true};
     case HIDE_LOGIN:
       return {...state, showLogin: false};
     default:
@@ -83,7 +79,6 @@ export const MessageReducer = (state={text: '', type: ''}, action) => {
       return {text: `Removed ${action.payload} from your watchlist`, type: 'info' };
     case CHANGE_EMAIL_SUCCESS:
       return {text: 'Email successfully changed', type: 'success'};
-    case UPDATE_LOCATION:
     case CLEAR_MESSAGE:
       return {text: '', type: ''};
     default:

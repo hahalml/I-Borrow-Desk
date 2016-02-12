@@ -1,9 +1,7 @@
 import React, { Component, PropTypes } from 'react';
 import { Grid, Row, Col, ButtonInput, Input } from 'react-bootstrap';
 import { reduxForm } from 'redux-form';
-import { routeActions } from 'redux-simple-router';
-import { bindActionCreators } from 'redux';
-import utils from '../utils';
+
 import { submitFilter } from '../actions/index';
 
 const COUNTRIES = ['USA', 'Canada', 'Australia', 'Austria', 'Belgium', 'British', 'Dutch',
@@ -35,7 +33,7 @@ class Filter extends Component {
     return (
       <Grid>
         <Row>
-          <form onSubmit={handleSubmit(this.props.submitFilter)}>
+          <form onSubmit={handleSubmit}>
             <Col xs={6} md={4}>
               {this.renderField(min_available, 'Minimum Available')}
               {this.renderField(min_fee, 'Minimum Fee (%)')}
@@ -84,13 +82,10 @@ const validate = ({ min_available, max_available, min_fee, max_fee }) => {
   return errors;
 };
 
-const mapDispatchToProps = dispatch => {
-  return { submitFilter: bindActionCreators(submitFilter, dispatch) };
-};
-
 export default reduxForm({
   form: 'FilterForm',
   fields: ['min_available', 'max_available', 'min_fee', 'max_fee', 'country', 'order_by'],
   validate,
-  destroyOnUnmount: false
-}, state => ({ initialValues: INITIAL_VALUES}), mapDispatchToProps)(Filter);
+  destroyOnUnmount: false,
+  onSubmit: submitFilter
+}, state => ({ initialValues: INITIAL_VALUES}))(Filter);

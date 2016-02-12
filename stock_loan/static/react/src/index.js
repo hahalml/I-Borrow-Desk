@@ -25,7 +25,6 @@ import {StockReducer, CompanySearchReducer, TrendingReducer, WatchlistReducer,
   AuthReducer, MessageReducer, FilteredStocksReducer, MostExpensiveReducer }
   from './reducers/index';
 
-
 const middleware = syncHistory(hashHistory);
 const reducer = combineReducers({
   routing: routeReducer,
@@ -42,6 +41,7 @@ const reducer = combineReducers({
 
 const store = createStore(
   reducer,
+  (sessionStorage.token) ? { auth: {authenticated: true, showLogin: false }} : {},
   compose(
     applyMiddleware(thunk, middleware),
     window.devToolsExtension ? window.devToolsExtension() : f => f
