@@ -2,5 +2,5 @@
 # Created by .ignore support plugin (hsz.mobi)
 
 /stock_loan/.idea
-/stock_loan/static/react/build
-/stock_loan/static/react/node_modules
+/stock_loan/static/dist
+/stock_loan/static/node_modules

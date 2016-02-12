@@ -21,7 +21,7 @@ class Watchlist extends Component {
             type="checkbox"
             label='Receive Morning email'
             checked={this.props.auth.receiveEmail}
-            onClick={this.props.toggleMorningEmail}
+            onChange={this.props.toggleMorningEmail}
           />
         </form>
         <StockTable

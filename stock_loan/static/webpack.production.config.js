@@ -5,7 +5,7 @@ var node_modules_dir = path.resolve(__dirname, 'node_modules');
 module.exports = {
   entry: ['./src/index'],
   output: {
-    path: path.join(__dirname, 'dist'),
+    path: path.join(__dirname, 'dist', 'js'),
     filename: 'bundle.min.js'
   },
   plugins: [

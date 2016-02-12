@@ -3,7 +3,7 @@ import { Button, Table, Col } from 'react-bootstrap';
 import { connect } from 'react-redux';
 
 import StockChart from './stock-chart';
-import { fetchStock, addWatchlist } from '../actions/index';
+import { fetchStock, addWatchlist, removeWatchlist } from '../actions/index';
 import  utils from '../utils';
 
 class HistoricalReport extends Component {
@@ -48,6 +48,8 @@ class HistoricalReport extends Component {
   render() {
     const { stock } = this.props;
     if (!stock.name) return <div>Loading...</div>;
+    const contains = this.props.watchlist && this.props.watchlist.some(el => stock.symbol === el.symbol);
+    const action = contains ? this.props.removeWatchlist : this.props.addWatchlist;
     const data = stock.daily;
     return (
       <div>
@@ -55,9 +57,9 @@ class HistoricalReport extends Component {
           {stock.name} - {stock.symbol}
         </h2>
           <Button
-            onClick={() => this.props.addWatchlist(stock.symbol)}
-            bsStyle="success">
-            Add to Watchlist
+            onClick={() => action(stock.symbol)}
+            bsStyle={contains ? "danger" : "success"}>
+            {contains ? "Remove from Watchlist" : "Add to Watchlist"}
           </Button>
         <StockChart
           data={data}
@@ -69,10 +71,10 @@ class HistoricalReport extends Component {
   }
 }
 
-const mapStateToProps = ({ stock }) => {
-  return { stock }
+const mapStateToProps = ({ stock, watchlist }) => {
+  return { stock, watchlist }
 };
 
 export default connect(mapStateToProps,
-  { fetchStock, addWatchlist })
+  { fetchStock, addWatchlist, removeWatchlist })
 (HistoricalReport);
