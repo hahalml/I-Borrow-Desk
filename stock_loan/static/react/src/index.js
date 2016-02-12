@@ -20,6 +20,7 @@ import Watchlist from './components/watchlist';
 import Register from './components/register';
 import FilterStocks from './components/filter-stocks';
 import About from './components/about';
+import ChangeLog from './components/changelog';
 
 import {StockReducer, CompanySearchReducer, TrendingReducer, WatchlistReducer,
   AuthReducer, MessageReducer, FilteredStocksReducer, MostExpensiveReducer }
@@ -65,6 +66,7 @@ ReactDOM.render(
           <Route path='register' component={Register} />
           <Route path='filter' component={FilterStocks} />
           <Route path='about' component={About} />
+          <Route path='changelog' component={ChangeLog} />
         </Route>
       </Router>
     </div>

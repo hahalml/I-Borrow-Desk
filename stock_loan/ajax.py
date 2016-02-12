@@ -1,8 +1,7 @@
 from flask import request, jsonify
 from flask_jwt import current_identity, jwt_required
-from werkzeug.exceptions import Conflict, NotAcceptable
 
-from . import app, login_manager, db, stock_loan, mc
+from . import app, db, stock_loan, mc
 from .models import User
 from .utils import historical_report_cache
 
@@ -161,8 +160,6 @@ def test_get_profile():
     print(current_identity, 'In get user endpoint')
     return jsonify({'username': current_identity.username,
                     'receiveEmail': current_identity.receive_email})
-
-
 
 @app.route('/api/filter', methods=['GET'])
 def test_filter():
