@@ -13,8 +13,11 @@ export const LOGOUT_ACTION = 'LOGOUT_ACTION';
 export const REGISTER_SUCCESS = 'REGISTER_SUCCESS';
 export const REGISTER_FAILURE = 'REGISTER_FAILURE';
 export const CHANGE_EMAIL_SUCCESS = 'CHANGE_EMAIL_SUCCESS';
+export const CHANGE_PASSWORD_SUCCESS = 'CHANGE_PASSWORD_SUCCESS';
 export const SHOW_LOGIN = 'SHOW_LOGIN';
 export const HIDE_LOGIN = 'HIDE_LOGIN';
+export const SHOW_PREFERENCES = 'SHOW_PREFERENCES';
+export const HIDE_PREFERENCES = 'HIDE_PREFERENCES';
 export const FETCH_PROFILE = 'FETCH_PROFILE';
 export const CLEAR_MESSAGE = 'CLEAR_MESSAGE';
 export const UPDATE_FILTER = 'UPDATE_FILTER';
@@ -91,13 +94,15 @@ export const removeWatchlist = symbol => {
 export const showLoginAction = () => { return {'type': SHOW_LOGIN };};
 export const hideLoginAction = () => { return {'type': HIDE_LOGIN };};
 
+export const showPreferencesAction = () => { return {'type': SHOW_PREFERENCES };};
+export const hidePreferencesAction = () => { return {'type': HIDE_PREFERENCES };};
+
 export const submitLogin = (values, dispatch) => {
   return new Promise((resolve, reject) => {
     axios.post('/api/auth', values)
       .then(response => {
-        const { token, username } = response.data;
-        dispatch({type: LOGIN_SUCCESS, payload: token });
-        dispatch({type: FETCH_PROFILE, payload: username});
+        dispatch({type: LOGIN_SUCCESS, payload: response.data.token });
+        dispatch(fetchProfile());
         dispatch(fetchWatchlist());
         resolve();
       })
@@ -113,12 +118,10 @@ export const fetchProfile = () => {
   return (dispatch, getState) => {
     return makeAuthRequest().get('/api/user')
       .then(response => {
-        console.log('in fetch profile', response);
-        const { username } = response.data;
-        dispatch({type: FETCH_PROFILE, payload: username});
+        dispatch({type: FETCH_PROFILE, payload: response.data});
       }).catch(error => {
         console.log('error in fetch profile');
-        dispatch({type: SHOW_LOGIN, payload: err});
+        dispatch({type: SHOW_LOGIN, payload: error});
       });
   };
 }
@@ -134,7 +137,21 @@ export const submitNewEmail = (values, dispatch) => {
         console.log('error in changeEmail', error);
         if (error.status == 401) reject({password: 'Password incorrect'});
         reject({...error.data.errors});
+      });
+  });
+};
 
+export const submitNewPassword = (values, dispatch) => {
+  return new Promise((resolve, reject) => {
+    makeAuthRequest().post(`/api/user/password`, values)
+      .then(response => {
+        dispatch({type: CHANGE_PASSWORD_SUCCESS });
+        resolve();
+      })
+      .catch(error => {
+        console.log('error in changePassword', error);
+        if (error.status == 401) reject({password: 'Password incorrect'});
+        reject({...error.data.errors});
       });
   });
 };

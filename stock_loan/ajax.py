@@ -126,12 +126,30 @@ def test_change_email():
     db.session.commit()
     return jsonify(result='Email successfully changed')
 
+@app.route('/api/user/password', methods=['POST'])
+@jwt_required()
+def test_change_password():
+    """Change password endpoint"""
+    print(current_identity)
+    data = request.get_json()
+    if not current_identity.check_password(data['password']):
+        return jsonify(errors={'password': 'Invalid password'}), 401
+    elif data['newPassword'] != data['confirmPassword']:
+        return jsonify(errors={'confirmPassword': 'Passwords must match'}), 401
+
+    current_identity.set_password(data['newPassword'])
+    db.session.add(current_identity)
+    db.session.commit()
+    return jsonify(result='Password successfully changed')
+
+
 @app.route('/api/user', methods=['GET'])
 @jwt_required()
-def test_get_username():
+def test_get_profile():
     """Get username"""
     print(current_identity, 'In get user endpoint')
-    return jsonify({'username': current_identity.username})
+    return jsonify({'username': current_identity.username,
+                    'receiveEmail': current_identity.receive_email})
 
 
 

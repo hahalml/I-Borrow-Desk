@@ -1,5 +1,5 @@
 import React, { Component, PropTypes } from 'react';
-import { Modal, ButtonInput, Input } from 'react-bootstrap';
+import { Modal, ButtonInput } from 'react-bootstrap';
 import { reduxForm } from 'redux-form';
 
 import utils from '../utils';
@@ -10,7 +10,7 @@ class Login extends Component {
   render() {
     const { fields: { username, password }, handleSubmit } = this.props;
     return (
-      <Modal show={true} onHide={() => this.props.hideLogin()}>
+      <Modal show={this.props.show} onHide={this.props.hideLoginAction}>
         <Modal.Header closeButton>
           <Modal.Title>Login</Modal.Title>
         </Modal.Header>

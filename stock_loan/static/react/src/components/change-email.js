@@ -1,30 +1,33 @@
 import React, { Component, PropTypes } from 'react';
-import { Modal, ButtonInput, Input } from 'react-bootstrap';
+import { ButtonInput, Alert } from 'react-bootstrap';
 import { reduxForm } from 'redux-form';
-import { routeActions } from 'redux-simple-router';
-import { bindActionCreators } from 'redux';
-import utils from '../utils';
 
+import utils from '../utils';
 import { submitNewEmail } from '../actions/index';
 
 class ChangeEmail extends Component {
 
+  constructor(props) {
+    super(props);
+    this.state = {message: ''}
+  }
+
   render() {
     const { fields: { password, email }, handleSubmit } = this.props;
     return (
-      <Modal show={true} onHide={this.props.routeActions.goBack} >
-        <Modal.Header closeButton>
-          <Modal.Title>Change Email</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <form onSubmit={(data) => handleSubmit(data).then(
-          () => this.props.routeActions.goBack(), err => console.log(err))}>
-            {utils.renderField(password, 'Password', 'password')}
-            {utils.renderField(email, 'New Email')}
-            <ButtonInput type="submit" value="Submit" />
-          </form>
-        </Modal.Body>
-      </Modal>
+      <div>
+        <h4>Change Email Address</h4>
+        <form onSubmit={(data) => handleSubmit(data).then(
+        () => this.setState({message: 'Email successfully changed!'}), err => console.log(err))}>
+          {utils.renderField(password, 'Re-enter Password', 'password')}
+          {utils.renderField(email, 'New Email')}
+          <ButtonInput type="submit" value="Submit" />
+        </form>
+        {this.state.message &&
+        <Alert bsStyle="success" onDismiss={() => this.setState({message: ''})}>
+          {this.state.message}
+        </Alert>}
+      </div>
     )
   }
 }
@@ -39,11 +42,6 @@ function validate({ email, password }) {
   return errors;
 }
 
-const mapDispatchToProps = (dispatch) => {
-  return {
-    routeActions: bindActionCreators(routeActions, dispatch)
-  }
-};
 
 export default reduxForm({
   form: 'EmailForm',
@@ -51,4 +49,4 @@ export default reduxForm({
   validate,
   onSubmit: submitNewEmail,
   returnRejectedSubmitPromise : true
-}, null, mapDispatchToProps)(ChangeEmail);
+})(ChangeEmail);

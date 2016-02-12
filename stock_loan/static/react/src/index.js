@@ -1,6 +1,6 @@
-//if (typeof window.Promise !== 'function') {
-//  require('es6-promise').polyfill();
-//}
+if (typeof window.Promise !== 'function') {
+ require('es6-promise').polyfill();
+}
 
 
 import React from 'react';
@@ -18,9 +18,7 @@ import App from './components/app';
 import Trending from './components/trending';
 import HistoricalReport from './components/historical-report';
 import Watchlist from './components/watchlist';
-import Login from './components/login';
 import Register from './components/register';
-import ChangeEmail from './components/change-email';
 import FilterStocks from './components/filter-stocks';
 
 import {StockReducer, CompanySearchReducer, TrendingReducer, WatchlistReducer,
@@ -65,7 +63,6 @@ ReactDOM.render(
           <Route path='trending' component={Trending} />
           <Route path='watchlist' component={Watchlist} />
           <Route path='register' component={Register} />
-          <Route path='changeEmail' component={ChangeEmail} />
           <Route path='filter' component={FilterStocks} />
         </Route>
       </Router>

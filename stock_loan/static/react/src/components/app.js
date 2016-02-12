@@ -4,9 +4,10 @@ import { Grid, Row, Col } from 'react-bootstrap';
 import { connect } from 'react-redux';
 import { Link } from 'react-router';
 
-import { logoutAction, showLoginAction, clearMessage, fetchMostExpensive } from '../actions/index';
+import { logoutAction, showLoginAction, showPreferencesAction, clearMessage, fetchMostExpensive } from '../actions/index';
 import NavBar from './nav-bar';
 import Login from './login';
+import Preferences from './preferences';
 import MessageBox from './message-box';
 import StockTable from './stock-table';
 
@@ -21,22 +22,19 @@ class App extends Component {
         <Row>
           <NavBar
             authenticated={this.props.auth.authenticated}
+            username={this.props.auth.username}
             onLogout={this.props.logoutAction}
             onClickLogin={this.props.showLoginAction}
+            onClickPreferences={this.props.showPreferencesAction}
           />
           <hr />
-          {this.login()}
+          <Login show={this.props.auth.showLogin} />
+          <Preferences show={this.props.auth.showPreferences} />
           {this.renderMessage()}
           {this.content()}
         </Row>
       </Grid>
     );
-  }
-
-  login() {
-    if (this.props.auth.showLogin) {
-      return <Login />;
-    }
   }
 
   content() {
@@ -80,5 +78,5 @@ const mapStateToProps = state => {
 };
 
 export default connect(mapStateToProps,
-  { logoutAction, showLoginAction, clearMessage, fetchMostExpensive })
+  { logoutAction, showLoginAction, showPreferencesAction, clearMessage, fetchMostExpensive })
 (App);

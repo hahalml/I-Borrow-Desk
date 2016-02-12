@@ -2,7 +2,7 @@ import { UPDATE_LOCATION } from 'redux-simple-router';
 
 import {  FETCH_STOCK, UPDATE_COMPANY_SEARCH, RESET_COMPANY_SEARCH, FETCH_TRENDING}
   from '../actions/index';
-import { LOGIN_SUCCESS, LOGOUT_ACTION, SHOW_LOGIN, HIDE_LOGIN }
+import { LOGIN_SUCCESS, LOGOUT_ACTION, SHOW_LOGIN, HIDE_LOGIN, SHOW_PREFERENCES, HIDE_PREFERENCES }
   from '../actions/index';
 import { REGISTER_SUCCESS, FETCH_PROFILE } from '../actions/index';
 import { FETCH_WATCHLIST, ADD_WATCHLIST, REMOVE_WATCHLIST } from '../actions/index';
@@ -39,22 +39,27 @@ export const TrendingReducer = (state={}, action) => {
 };
 
 export const AuthReducer =
-  (state={ authenticated: false, showLogin: false, username: ''},
-   action) => {
+  (state={ authenticated: false, showLogin: false, username: '', receiveEmail: false,
+    showPreferences: false}, action) => {
   switch(action.type) {
     case LOGIN_SUCCESS:
       sessionStorage.token = action.payload;
       return {...state, authenticated: true, showLogin: false};
     case LOGOUT_ACTION:
       sessionStorage.removeItem('token');
-      return {authenticated: false, showLogin: false, username: ''};
+      return {...state, authenticated: false, showLogin: false, username: ''};
     case SHOW_LOGIN:
       sessionStorage.removeItem('token');
-      return {authenticated: false, showLogin: true, username: ''};
+      return {...state, authenticated: false, showLogin: true, username: ''};
     case FETCH_PROFILE:
-      return {...state, username: action.payload};
+      return {...state, username: action.payload.username,
+        receiveEmail: action.payload.receiveEmail};
     case HIDE_LOGIN:
       return {...state, showLogin: false};
+    case HIDE_PREFERENCES:
+      return {...state, showPreferences: false};
+    case SHOW_PREFERENCES:
+      return {...state, showPreferences: true};
     default:
       return state
   }

@@ -46,7 +46,7 @@ class HistoricalReport extends Component {
 
   render() {
     const { stock } = this.props;
-    if (!stock.real_time) return <div>Loading...</div>;
+    if (!stock.name) return <div>Loading...</div>;
     const data = stock.daily;
     return (
       <div>
@@ -62,7 +62,7 @@ class HistoricalReport extends Component {
           data={data}
           daily={true}
         />
-        {this.renderTable(stock.real_time)}
+        {stock.real_time && this.renderTable(stock.real_time)}
       </div>
     )
   }
