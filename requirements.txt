@@ -2,6 +2,7 @@ APScheduler==3.0.4
 blinker==1.4
 Flask==0.10.1
 Flask-Admin==1.3.0
+Flask-JWT==0.3.2
 Flask-Limiter==0.8.5
 Flask-Login==0.3.2
 Flask-Mail==0.9.1
@@ -14,10 +15,12 @@ limits==1.0.9
 MarkupSafe==0.23
 oauthlib==1.0.3
 psycopg2==2.6.1
+PyJWT==1.4.0
 python-memcached==1.57
 pytz==2015.7
 requests==2.8.1
 requests-oauthlib==0.5.0
+simplejson==3.8.1
 six==1.10.0
 SQLAlchemy==1.0.9
 twython==3.3.0

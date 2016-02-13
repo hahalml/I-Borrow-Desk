@@ -32,23 +32,24 @@ export default class NavBar extends Component {
             <LinkContainer to='/changelog'>
               <NavItem>Changes</NavItem>
             </LinkContainer>
+            <NavItem href="https://twitter.com/IBorrowDesk">
+              @IBorrowDesk
+            </NavItem>
             {this.props.authenticated &&
-              <LinkContainer to='watchlist'>
-                <NavItem>Watchlist</NavItem>
-              </LinkContainer>
-            }
+            <LinkContainer to='watchlist'>
+              <NavItem>Watchlist</NavItem>
+            </LinkContainer>}
           </Nav>
           <Nav pullRight>
             {this.props.authenticated &&
-              <NavDropdown title={this.props.username || ''} id="nav-dropdown">
-                <MenuItem href="#" onClick={() => this.props.onLogout()}>
-                 Logout
-                </MenuItem>
-                <MenuItem onClick={this.props.onClickPreferences}>
-                  Preferences
-                </MenuItem>
-              </NavDropdown>
-            }
+            <NavDropdown title={this.props.username || ''} id="nav-dropdown">
+              <MenuItem href="#" onClick={() => this.props.onLogout()}>
+               Logout
+              </MenuItem>
+              <MenuItem onClick={this.props.onClickPreferences}>
+                Preferences
+              </MenuItem>
+            </NavDropdown>}
             {!this.props.authenticated &&
             <LinkContainer to='/register'>
               <NavItem>Register</NavItem>

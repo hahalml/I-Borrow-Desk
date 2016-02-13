@@ -26,6 +26,8 @@ import {StockReducer, CompanySearchReducer, TrendingReducer, WatchlistReducer,
   AuthReducer, MessageReducer, FilteredStocksReducer, MostExpensiveReducer }
   from './reducers/index';
 
+
+
 const middleware = syncHistory(browserHistory);
 const reducer = combineReducers({
   routing: routeReducer,

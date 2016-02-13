@@ -52,8 +52,8 @@ class App extends Component {
       return (
         <div>
           <h2>Welcome to IBorrow Desk</h2>
-          <p>If you haven't already, please consider <Link to='register'>registering!</Link>
-            Registered users can maintain a watchlist, and receive (optional)
+          <p>If you haven't already, please consider <Link to='register'>registering!</Link> Registered
+            users can maintain a watchlist, and receive (optional)
             morning updates. I'll also really appreciate it!
           </p>
           <h4>America's most expensive borrows</h4>

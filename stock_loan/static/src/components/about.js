@@ -17,8 +17,8 @@ export default () => {
         building a working (maybe even useful) web app.</p>
       <p>Built in Python, I used the Flask framework and SQLAlchemy for the user database and PostgreSQL
         for the borrow database. Memcached caches historical reports for those pesky Twitter bots.</p>
-      <p> The front-end was rebuilt entirely in the beginning of 2016 using
-        <a href="https://facebook.github.io/react/">React</a> and <a href="http://redux.js.org/">Redux</a>.</p>
+      <p> The front-end was rebuilt entirely in the beginning of 2016 using <a href="https://facebook.github.io/react/">
+        React</a> and <a href="http://redux.js.org/">Redux</a>.</p>
       <p>Speaking of Twitter bots, <a href="https://twitter.com/IBorrowDesk">@IBorrowDesk </a>
          has access to this database. Tweet a ticker symbol at it and it will tweet back its fee and availability!</p>
       <p>You can reach me at <mail to="cameron.mochrie@gmail.com">cameron.mochrie@gmail.com</mail>.
@@ -43,8 +43,8 @@ export default () => {
         which includes: Australia, Austria, Belgium, UK, Canada, Netherlands, France, Germany, Hong Kong, India, Italy,
             Japan, Mexico, Spain, Sweden, Switzerland, and the USA. US tickers do not have a suffix, while all other
         countries do (in the form: <Link to='report/ABX.CA'>ABX.CA</Link>
-            - Barrick Gold) I have tried to match country codes based on
-            <a href="http://risk101.com/reference/Techdoc-Bloomberg_country_codes.pdf">Bloomberg's</a> methodology. Let me know
+            - Barrick Gold) I have tried to match country codes based on <a href="http://risk101.com/reference/Techdoc-Bloomberg_country_codes.pdf">
+            Bloomberg's</a> methodology. Let me know
         if you spot any errors.</p>
 
         <p><strong>How often is the database updated?</strong> Every 15 minutes around trading hours on weekdays (so almost

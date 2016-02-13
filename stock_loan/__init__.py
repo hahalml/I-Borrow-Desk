@@ -18,7 +18,8 @@ from .borrow import Borrow
 app = Flask(__name__, instance_relative_config=True)
 app.config.from_object('config')
 app.config.from_pyfile('config.py')
-sslify = SSLify(app, skips=['main_page', 'about', 'faq'])
+
+sslify = SSLify(app)
 admin = Admin(app)
 
 db = SQLAlchemy(app)
@@ -30,19 +31,12 @@ login_manager.init_app(app)
 from .models import authenticate, identity
 jwt = JWT(app, authenticate, identity)
 
-@jwt.auth_response_handler
-def response_handler(token, identity):
-    return jsonify({'token': token.decode('utf-8'),
-                    'username': identity.username})
-
 
 # Rate limiter app
 limiter = Limiter(app)
 limiter.logger.addHandler(StreamHandler())
 
-
-
-stock_loan = Borrow(database_name='stock_loan2', create_new=False)
+stock_loan = Borrow(database_name='stock_loan', create_new=False)
 
 mc = memcache.Client(['127.0.0.1:11211'], debug=0)
 mc.flush_all()

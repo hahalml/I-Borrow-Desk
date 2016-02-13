@@ -101,7 +101,7 @@ export const submitLogin = (values, dispatch) => {
   return new Promise((resolve, reject) => {
     axios.post('/api/auth', values)
       .then(response => {
-        dispatch({type: LOGIN_SUCCESS, payload: response.data.token });
+        dispatch({type: LOGIN_SUCCESS, payload: response.data.access_token });
         dispatch(fetchProfile());
         dispatch(fetchWatchlist());
         resolve();

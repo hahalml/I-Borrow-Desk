@@ -55,7 +55,7 @@ class User(db.Model):
 
 def authenticate(username, password):
     """Authentication handler for Flask-JWT"""
-    print(username, password)
+    print('User {} logged in'.format(username))
     user = User.query.filter_by(username=username).first()
     if user and user.check_password(password):
         return user
@@ -63,5 +63,4 @@ def authenticate(username, password):
 
 def identity(payload):
     """Return the userinside the payload"""
-    print(payload)
     return User.query.get(payload['identity'])
