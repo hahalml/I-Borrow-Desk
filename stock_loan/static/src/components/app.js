@@ -20,26 +20,30 @@ class App extends Component {
     return (
       <Grid>
         <Row>
-          <NavBar
-            authenticated={this.props.auth.authenticated}
-            username={this.props.auth.username}
-            onLogout={this.props.logoutAction}
-            onClickLogin={this.props.showLoginAction}
-            onClickPreferences={this.props.showPreferencesAction}
-          />
-          <hr />
-          <Login show={this.props.auth.showLogin} />
-          <Preferences show={this.props.auth.showPreferences} />
-          {this.renderMessage()}
-          {this.content()}
+          <Col>
+            <NavBar
+              authenticated={this.props.auth.authenticated}
+              username={this.props.auth.username}
+              onLogout={this.props.logoutAction}
+              onClickLogin={this.props.showLoginAction}
+              onClickPreferences={this.props.showPreferencesAction}
+            />
+            <hr />
+            <Login show={this.props.auth.showLogin} />
+            <Preferences show={this.props.auth.showPreferences} />
+            {this.renderMessage()}
+            {this.content()}
+          </Col>
         </Row>
         <Row className="text-center">
-          <hr />
-					<p>This toy webapp is not affiliated with Interactive Brokers in any way.</p>
-          <p>Every row of data is probably wrong as I have no idea what I am doing.
-            Please do not sue me, this was a fun project I did to practice developing web-apps.
-            Nothing on this site should be in any way construed as a recommendation to buy
-            or sell any security. Or do anything whatsoever.</p>
+          <Col>
+            <hr />
+            <p>This toy webapp is not affiliated with Interactive Brokers in any way.</p>
+            <p>Every row of data is probably wrong as I have no idea what I am doing.
+              Please do not sue me, this was a fun project I did to practice developing web-apps.
+              Nothing on this site should be in any way construed as a recommendation to buy
+              or sell any security. Or do anything whatsoever.</p>
+          </Col>
         </Row>
       </Grid>
     );

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Table } from 'react-bootstrap';
+import { Table, Glyphicon } from 'react-bootstrap';
 import { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 
@@ -10,13 +10,13 @@ class StockTable extends Component {
 
   constructor(props) {
     super(props);
-    this.state = { sort: 'fee' };
+    this.state = { sort: 'fee', asc: true };
   }
 
   renderStock(stock) {
     const contains = this.props.watchlist.some(el => stock.symbol === el.symbol);
-    const action = (contains) ? this.props.removeWatchlist : this.props.addWatchlist;
-    const buttonType = (contains) ? 'remove' : 'add';
+    const action = contains ? this.props.removeWatchlist : this.props.addWatchlist;
+    const buttonType = contains ? 'remove' : 'add';
 
     return (
       <Stock
@@ -26,7 +26,7 @@ class StockTable extends Component {
         symbol={stock.symbol}
         available={stock.available}a
         fee={stock.fee}
-        updated={stock.datetime}
+        updated={stock.datetime.replace('GMT', '')}
         buttonType={buttonType}
         handleClick={action}
         showUpdated={this.props.showUpdated}
@@ -34,42 +34,66 @@ class StockTable extends Component {
     );
   }
 
-  sortStocks(stocks, key) {
-    return stocks.sort((a, b) => b[key] - a[key]);
+  sortStocks(stocks, key, asc) {
+    return stocks.sort((a, b) => {
+      let x = a[key];
+      let y = b[key];
+      if (typeof x == "string") {
+          x = x.toLowerCase();
+          y = y.toLowerCase();
+      }
+      if (asc) {
+        return ((x < y) ? -1 : ((x > y) ? 1 : 0));
+      } else {
+        return ((x < y) ? 1 : ((x > y) ? -1 : 0));
+      }
+    });
   }
 
   setSort(key) {
-    this.setState({ sort: key });
+    if (this.state.sort === key) {
+      this.setState({ asc: !this.state.asc});
+    } else {
+      this.setState({sort: key, asc: true});
+    }
   }
 
 
   render() {
-    const stocks = this.sortStocks(this.props.stocks, this.state.sort);
+    const stocks = this.sortStocks(this.props.stocks, this.state.sort, this.state.asc);
 
     return (
-      <div>
-        <Table condensed responsive hover>
-          <thead>
-            <tr>
-              <th>Symbol</th>
-              <th>Name</th>
-              <th onClick={this.setSort.bind(this, 'fee')}>Fee</th>
-              <th onClick={this.setSort.bind(this, 'available')}>Availability</th>
-              {this.props.showUpdated && <th>Updated</th>}
-            </tr>
-          </thead>
-          <tbody data-link="row" className="rowlink">
-            {stocks.map(stock => this.renderStock(stock))}
-          </tbody>
-        </Table>
-      </div>
+      <Table condensed responsive hover>
+        <thead>
+          <tr style={{cursor: 'pointer'}}>
+            <th onClick={this.setSort.bind(this, 'symbol')}>Symbol <Glyphicon glyph="sort" /></th>
+            <th onClick={this.setSort.bind(this, 'name')}>Name<Glyphicon glyph="sort" /></th>
+            <th style={{textAlign: 'right'}}
+                onClick={this.setSort.bind(this, 'fee')}>
+              Fee<Glyphicon glyph="sort" />
+            </th>
+            <th style={{textAlign: 'right'}}
+                onClick={this.setSort.bind(this, 'available')}>
+              Availability<Glyphicon glyph="sort" />
+            </th>
+            {this.props.showUpdated && <th style={{textAlign: 'right'}}>Updated (EST)</th>}
+            <th style={{textAlign: 'center'}}>Watchlist</th>
+          </tr>
+        </thead>
+        <tbody data-link="row" className="rowlink">
+          {stocks.map(stock => this.renderStock(stock))}
+        </tbody>
+      </Table>
     );
   }
 }
 
 StockTable.propTypes = {
   stocks: PropTypes.array,
-  showUpdated: PropTypes.bool
+  watchlist: PropTypes.array,
+  showUpdated: PropTypes.bool,
+  addWatchlist: PropTypes.func,
+  removeWatchlist: PropTypes.func
 };
 
 const mapStateToProps = ({ watchlist }) => { return { watchlist }; };

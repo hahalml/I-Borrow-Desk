@@ -7,7 +7,7 @@ import utils from '../utils';
 export default props => {
 
   const buttonText = (props.buttonType === 'add') ?
-    'Add to Watchlist' : 'Remove from Watchlist';
+    'Add' : 'Remove';
   const buttonClass = (props.buttonType === 'add') ?
     'success' : 'danger';
 
@@ -19,10 +19,10 @@ export default props => {
         </Link>
       </td>
       <td>{props.name}</td>
-      <td>{utils.toPercentageNoScale(props.fee)}</td>
-      <td>{utils.toCommas(props.available)}</td>
-      {props.showUpdated && <td>{props.updated}</td>}
-      <td>
+      <td style={{textAlign: 'right'}}>{utils.toPercentageNoScale(props.fee)}</td>
+      <td style={{textAlign: 'right'}}>{utils.toCommas(props.available)}</td>
+      {props.showUpdated && <td style={{textAlign: 'right'}}>{props.updated}</td>}
+      <td style={{textAlign: 'center'}}>
         <Button
           onClick={() => props.handleClick(props.symbol)}
           bsSize="xs"

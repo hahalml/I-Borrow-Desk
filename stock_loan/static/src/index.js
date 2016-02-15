@@ -1,6 +1,7 @@
 if (typeof window.Promise !== 'function') {
  require('es6-promise').polyfill();
 }
+require("./css/style.css");
 
 import React from 'react';
 import ReactDOM from 'react-dom';
@@ -11,7 +12,7 @@ import { syncHistory, routeReducer } from 'redux-simple-router';
 import { Router, Route, browserHistory } from 'react-router';
 import { reducer as formReducer } from 'redux-form';
 
-import { fetchProfile } from './actions/index';
+import { fetchProfile, fetchWatchlist } from './actions/index';
 
 import App from './components/app';
 import Trending from './components/trending';
@@ -55,6 +56,7 @@ middleware.listenForReplays(store);
 
 if (store.getState().auth.authenticated) {
   store.dispatch(fetchProfile());
+  store.dispatch(fetchWatchlist());
 }
 
 ReactDOM.render(

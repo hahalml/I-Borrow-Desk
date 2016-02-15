@@ -32,18 +32,17 @@ class Filter extends Component {
 
     return (
       <Grid>
-        <Row>
-          <form onSubmit={handleSubmit}>
-            <Col xs={6} md={4}>
+        <form onSubmit={handleSubmit}>
+          <Row>
+            <Col xs={12} md={4}>
               {this.renderField(min_available, 'Minimum Available')}
               {this.renderField(min_fee, 'Minimum Fee (%)')}
-              <ButtonInput type="submit" value="Submit" />
             </Col>
-            <Col xs={6} md={4}>
+            <Col xs={12} md={4}>
               {this.renderField(max_available, 'Maximum Available')}
               {this.renderField(max_fee, 'Maximum Fee (%)')}
             </Col>
-            <Col xs={6} md={4}>
+            <Col xs={12} md={4}>
               <Input type="select" label="Country" {...country}>
                 {COUNTRIES.map(country => {
                   return (<option value={country} key={country}>
@@ -57,8 +56,11 @@ class Filter extends Component {
                   </option>);})}
               </Input>
             </Col>
-          </form>
-        </Row>
+          </Row>
+          <Row>
+            <ButtonInput type="submit" value="Submit" />
+          </Row>
+        </form>
       </Grid>
     )
   }
