@@ -1,0 +1,28 @@
+<html lang="en">
+<h2>Good morning {{user_name}}</h2>
+    <table cellpadding="10">
+        <tr>
+            <th>Symbol</th>
+            <th>Fee</th>
+            <th>Availability</th>
+            <th>Last Updated (EST)</th>
+            <th>Last Trade</th>
+        </tr>
+         {% for symbol in summary %}
+            <tr>
+                <td><a href="https://cameronmochrie.com/IBorrowDesk/report/{{symbol['symbol']}}">{{symbol['symbol']}}</a></td>
+                <td>{{ '{:.1%}'.format(symbol['fee']/100) }}</td>
+                <td>{{ '{:,}'.format(symbol['available']) }}</td>
+                <td>{{symbol['datetime']}}</td>
+                <td>
+                    {% if prices and prices[symbol.symbol] != 0 %}
+                        ${{ prices[symbol.symbol] }}
+                    {% else %}
+                        NA
+                    {% endif %}
+                </td>
+            </tr>
+        {% endfor %}
+    </table>
+    <a href="http://cameronmochrie.com/IBorrowDesk">I Borrow Desk</a>
+</html>
