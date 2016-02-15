@@ -4,6 +4,7 @@ import { ListGroup, ListGroupItem } from 'react-bootstrap';
 export default () => {
   return (
     <ListGroup>
+      <ListGroupItem>February 14, 2016 - New URL! www.iborrowdesk.com</ListGroupItem>
       <ListGroupItem>February, 2016 - New Features: Universal search box, better charting
         with <a href="https://rrag.github.io/react-stockcharts/">React Stockcharts</a>,
         snappier navigation and more dynamic UI in general.</ListGroupItem>

@@ -10,7 +10,7 @@
         </tr>
          {% for symbol in summary %}
             <tr>
-                <td><a href="https://cameronmochrie.com/IBorrowDesk/report/{{symbol['symbol']}}">{{symbol['symbol']}}</a></td>
+                <td><a href="https://www.iborrowdesk.com/report/{{symbol['symbol']}}">{{symbol['symbol']}}</a></td>
                 <td>{{ '{:.1%}'.format(symbol['fee']/100) }}</td>
                 <td>{{ '{:,}'.format(symbol['available']) }}</td>
                 <td>{{symbol['datetime']}}</td>

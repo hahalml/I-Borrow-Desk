@@ -13,7 +13,6 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from . import app, login_manager, db, stock_loan, mc, limiter
 from .models import User
 from .email_update import send_emails
-from .forms import RegistrationForm, ChangePasswordForm, ChangeEmailForm, FilterForm
 from .utils import historical_report_cache, view_logger
 
 dirname, filename = os.path.split(os.path.abspath(__file__))
