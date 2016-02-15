@@ -50,7 +50,7 @@ class User(db.Model):
         self._views += 1
 
     def __repr__(self):
-        return '{} views: {}'.format(self.username, self._views)
+        return '{}'.format(self.username)
 
 
 def authenticate(username, password):

@@ -21,9 +21,11 @@ def json_historical_report(symbol):
 def json_company_search(query):
     """Handler to return possible Company names"""
     if query.upper() in stock_loan.all_symbols:
+        print('Searched for {}'.format(query))
         name = stock_loan.get_company_name(query)
         return jsonify(results=[{'symbol': query.upper(), 'name': name}])
 
+    print('Searched for {}'.format(query))
     summary = stock_loan.name_search(query)
     results = [{'symbol': row.symbol, 'name': row.name} for row in summary] \
         if summary else []
@@ -49,7 +51,7 @@ def json_trending():
 @jwt_required()
 def watchlist():
     """Watchlist endpoint"""
-    print(current_identity)
+    print('rendered watchlist for {}'.format(current_identity))
     if request.method == 'POST':
         symbol = request.get_json()['symbol']
         stock_loan.insert_watchlist(current_identity.id, [symbol])
